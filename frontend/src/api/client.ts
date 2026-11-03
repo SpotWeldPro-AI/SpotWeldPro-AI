@@ -74,19 +74,23 @@ export function clearAuthStorage() {
   AUTH_KEYS.forEach((k) => localStorage.removeItem(k))
 }
 
+// F-02: known production URL — used as a safe fallback when VITE_API_URL is not set at build
+// time, so production builds never silently target localhost (which is unreachable on Render).
+export const PROD_API_URL = 'https://spotweldpro-ai-api.onrender.com/api/v1'
+
 const _apiUrl = import.meta.env.VITE_API_URL as string | undefined
-// DEMO_RENDER_02: warn loudly in production if VITE_API_URL was not set at build time.
-// All requests will target localhost:8000 (unreachable on Render) without it.
 if (import.meta.env.PROD && !_apiUrl) {
   console.error(
-    '[SpotWeldPro AI] VITE_API_URL is not configured. ' +
-    'API requests will target localhost:8000, which will fail in production. ' +
+    '[SpotWeldPro AI] VITE_API_URL is not set at build time. ' +
+    'Falling back to ' + PROD_API_URL + '. ' +
     'Set VITE_API_URL as a Render build-time environment variable.'
   )
 }
+// Dev falls back to localhost; production falls back to the known Render deployment URL.
+const _resolvedApiUrl = _apiUrl ?? (import.meta.env.PROD ? PROD_API_URL : 'http://localhost:8000/api/v1')
 
 const client = axios.create({
-  baseURL: _apiUrl ?? 'http://localhost:8000/api/v1',
+  baseURL: _resolvedApiUrl,
   timeout: 15000,
 })
 
@@ -157,7 +161,7 @@ export async function createWeldPoint(projectId: number, payload: WeldPointCreat
 // The login POST itself is never retried.
 
 const _pingClient = axios.create({
-  baseURL: _apiUrl ?? 'http://localhost:8000/api/v1',
+  baseURL: _resolvedApiUrl,
   timeout: 10_000,
 })
 

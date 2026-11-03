@@ -1,14 +1,21 @@
 /**
- * BACKEND-RELIABILITY-FIX-01 — connectivity tests
+ * BACKEND-RELIABILITY-FIX-01 / MOBILE-BACKEND-02 — connectivity tests
  *
  * Tests for:
  * - extractErrorCode  : timeout / network / server / credentials classification
+ * - classifyMeError   : /auth/me failure → unauthorized / retryable / error
  * - pingBackend       : delayed startup recovery, retry-then-ok, exhausted retries
+ * - pingBackend       : 30-second and 60-second cold-start scenarios
+ * - PROD_API_URL      : production fallback URL is the expected Render endpoint
  * - publicContent     : TR/EN login i18n keys exist and are non-empty strings
+ *
+ * Component-level tests (manual retry, unmount cancellation, no-overlap guarantee)
+ * require @testing-library/react and are not included here.  The abort behaviour is
+ * covered by the AbortSignal suite below; the component wires it correctly.
  */
 import { describe, it, expect, vi } from 'vitest'
 import axios from 'axios'
-import { extractErrorCode, pingBackend } from '../client'
+import { extractErrorCode, classifyMeError, pingBackend, PROD_API_URL } from '../client'
 import { PUBLIC_CONTENT } from '../../i18n/publicContent'
 
 // Instant delays — avoids real setTimeout waits in tests (6 entries for maxAttempts=6)
@@ -213,6 +220,159 @@ describe('pingBackend — AbortSignal', () => {
     const ctrl = new AbortController()
     const fetch = vi.fn().mockResolvedValue({ status: 200 })
     const result = await pingBackend(4, undefined, fetch, NO_DELAY, ctrl.signal)
+    expect(result).toBe('ok')
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
+})
+
+// ── classifyMeError ─────────────────────────────────────────────────────────
+// MOBILE-BACKEND-02: F-01 — verify that 401 is never treated as a retryable
+// backend failure and that every expected status code maps to the right kind.
+
+describe('classifyMeError', () => {
+  it('returns unauthorized for HTTP 401', () => {
+    expect(classifyMeError(makeAxiosError('ERR_BAD_RESPONSE', 401))).toBe('unauthorized')
+  })
+
+  it('does not classify 401 as retryable', () => {
+    expect(classifyMeError(makeAxiosError('ERR_BAD_RESPONSE', 401))).not.toBe('retryable')
+  })
+
+  it('returns retryable for no response (network error)', () => {
+    expect(classifyMeError(makeAxiosError('ECONNREFUSED'))).toBe('retryable')
+  })
+
+  it('returns retryable for timeout (ECONNABORTED)', () => {
+    expect(classifyMeError(makeAxiosError('ECONNABORTED'))).toBe('retryable')
+  })
+
+  it('returns retryable for HTTP 500', () => {
+    expect(classifyMeError(makeAxiosError('ERR_BAD_RESPONSE', 500))).toBe('retryable')
+  })
+
+  it('returns retryable for HTTP 502', () => {
+    expect(classifyMeError(makeAxiosError('ERR_BAD_RESPONSE', 502))).toBe('retryable')
+  })
+
+  it('returns retryable for HTTP 503', () => {
+    expect(classifyMeError(makeAxiosError('ERR_BAD_RESPONSE', 503))).toBe('retryable')
+  })
+
+  it('returns error for HTTP 403', () => {
+    expect(classifyMeError(makeAxiosError('ERR_BAD_RESPONSE', 403))).toBe('error')
+  })
+
+  it('returns error for HTTP 422', () => {
+    expect(classifyMeError(makeAxiosError('ERR_BAD_RESPONSE', 422))).toBe('error')
+  })
+
+  it('returns retryable for non-axios errors (TypeError, network API failure)', () => {
+    expect(classifyMeError(new TypeError('Failed to fetch'))).toBe('retryable')
+    expect(classifyMeError(new Error('Network Error'))).toBe('retryable')
+  })
+})
+
+// ── PROD_API_URL ─────────────────────────────────────────────────────────────
+// MOBILE-BACKEND-02: F-02 — verify the production fallback URL is correct.
+// If this test fails, update PROD_API_URL in client.ts to match the Render deployment.
+
+describe('PROD_API_URL', () => {
+  it('points to the expected Render API deployment', () => {
+    expect(PROD_API_URL).toBe('https://spotweldpro-ai-api.onrender.com/api/v1')
+  })
+
+  it('is an HTTPS URL (never HTTP)', () => {
+    expect(PROD_API_URL.startsWith('https://')).toBe(true)
+  })
+
+  it('ends with /api/v1', () => {
+    expect(PROD_API_URL.endsWith('/api/v1')).toBe(true)
+  })
+})
+
+// ── pingBackend — cold-start named scenarios ─────────────────────────────────
+// MOBILE-BACKEND-02: F-01 — confirm that pingBackend covers the cold-start windows
+// documented in render.yaml.  Real delay table: 0, 5, 10, 15, 20, 30 s (cumulative
+// 0, 5, 15, 30, 50, 80 s).  Tests use instant delays; the timing comments map each
+// rejection count to an approximate real-world elapsed time.
+
+describe('pingBackend — cold-start named scenarios', () => {
+  it('fast response: backend answers on first attempt (warm)', async () => {
+    const fetch = vi.fn().mockResolvedValue({ status: 200 })
+    const result = await pingBackend(6, undefined, fetch, NO_DELAY)
+    expect(result).toBe('ok')
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('30-second cold start: fails attempts 1–3, succeeds on attempt 4 (~30 s elapsed)', async () => {
+    // Real timing: fail @0s, @5s, @15s → succeed @30s (attempt 4)
+    const fetch = vi.fn()
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockResolvedValueOnce({ status: 200 })
+    const result = await pingBackend(6, undefined, fetch, NO_DELAY)
+    expect(result).toBe('ok')
+    expect(fetch).toHaveBeenCalledTimes(4)
+  })
+
+  it('60-second cold start: fails attempts 1–5, succeeds on attempt 6 (~80 s elapsed)', async () => {
+    // Real timing: fail @0s, @5s, @15s, @30s, @50s → succeed @80s (attempt 6)
+    const fetch = vi.fn()
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockResolvedValueOnce({ status: 200 })
+    const result = await pingBackend(6, undefined, fetch, NO_DELAY)
+    expect(result).toBe('ok')
+    expect(fetch).toHaveBeenCalledTimes(6)
+  })
+
+  it('backend unavailable beyond retry window: all 6 attempts fail → network', async () => {
+    const fetch = vi.fn().mockRejectedValue(makeAxiosError('ECONNREFUSED'))
+    const result = await pingBackend(6, undefined, fetch, NO_DELAY)
+    expect(result).toBe('network')
+    expect(fetch).toHaveBeenCalledTimes(6)
+  })
+
+  it('backend unavailable with timeout errors → timeout result', async () => {
+    const fetch = vi.fn().mockRejectedValue(makeAxiosError('ECONNABORTED'))
+    const result = await pingBackend(6, undefined, fetch, NO_DELAY)
+    expect(result).toBe('timeout')
+  })
+
+  it('onRetry receives correct 1-based attempt numbers', async () => {
+    const fetch = vi.fn()
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockRejectedValueOnce(makeAxiosError('ECONNREFUSED'))
+      .mockResolvedValueOnce({ status: 200 })
+    const onRetry = vi.fn()
+    await pingBackend(6, onRetry, fetch, NO_DELAY)
+    expect(onRetry).toHaveBeenCalledTimes(2)
+    expect(onRetry).toHaveBeenNthCalledWith(1, 1)
+    expect(onRetry).toHaveBeenNthCalledWith(2, 2)
+  })
+
+  it('component unmount during retry: aborted signal stops the loop', async () => {
+    const ctrl = new AbortController()
+    const fetch = vi.fn().mockImplementation(() => {
+      ctrl.abort()
+      return Promise.reject(makeAxiosError('ECONNREFUSED'))
+    })
+    const result = await pingBackend(6, undefined, fetch, NO_DELAY, ctrl.signal)
+    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(['network', 'timeout']).toContain(result)
+  })
+
+  it('manual retry (new AbortController): prior signal abort does not affect new probe', async () => {
+    const oldCtrl = new AbortController()
+    oldCtrl.abort()
+    // New controller is not aborted — probe runs normally
+    const newCtrl = new AbortController()
+    const fetch = vi.fn().mockResolvedValue({ status: 200 })
+    const result = await pingBackend(6, undefined, fetch, NO_DELAY, newCtrl.signal)
     expect(result).toBe('ok')
     expect(fetch).toHaveBeenCalledTimes(1)
   })

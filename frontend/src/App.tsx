@@ -1,23 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom'
-import { useState, useEffect, useRef } from 'react'
-import { clearAuthStorage, currentUser, classifyMeError } from './api/client'
+import { useState, useEffect, lazy, Suspense } from 'react'
+import { clearAuthStorage, currentUser, classifyMeError, pingBackend } from './api/client'
 import type { UserResponse } from './api/client'
 import { DashboardPage } from './pages/DashboardPage'
-import { EngineeringPage } from './pages/EngineeringPage'
-import { LoginPage } from './pages/LoginPage'
-import { FailureProbabilityPage } from './pages/FailureProbabilityPage'
-import { AnalysisPage } from './pages/AnalysisPage'
 import { ProjectsPage } from './pages/ProjectsPage'
-import { WeldPointWizard } from './pages/WeldPointWizard'
-import { ModelCatalogPage } from './pages/ModelCatalogPage'
-import { StatisticalAnalysisPage } from './pages/StatisticalAnalysisPage'
-import { EnergyPage } from './pages/EnergyPage'
-import { HelpCenterPage } from './pages/HelpCenterPage'
-import { FeaturesPage } from './pages/FeaturesPage'
-import { HowItWorksPage } from './pages/HowItWorksPage'
-import { PackagesPage } from './pages/PackagesPage'
-import { DemoPage } from './pages/DemoPage'
-import { LandingPage } from './pages/LandingPage'
+const EngineeringPage = lazy(() => import('./pages/EngineeringPage').then(m => ({ default: m.EngineeringPage })))
+const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })))
+const FailureProbabilityPage = lazy(() => import('./pages/FailureProbabilityPage').then(m => ({ default: m.FailureProbabilityPage })))
+const AnalysisPage = lazy(() => import('./pages/AnalysisPage').then(m => ({ default: m.AnalysisPage })))
+const WeldPointWizard = lazy(() => import('./pages/WeldPointWizard').then(m => ({ default: m.WeldPointWizard })))
+const ModelCatalogPage = lazy(() => import('./pages/ModelCatalogPage').then(m => ({ default: m.ModelCatalogPage })))
+const StatisticalAnalysisPage = lazy(() => import('./pages/StatisticalAnalysisPage').then(m => ({ default: m.StatisticalAnalysisPage })))
+const EnergyPage = lazy(() => import('./pages/EnergyPage').then(m => ({ default: m.EnergyPage })))
+const HelpCenterPage = lazy(() => import('./pages/HelpCenterPage').then(m => ({ default: m.HelpCenterPage })))
+const FeaturesPage = lazy(() => import('./pages/FeaturesPage').then(m => ({ default: m.FeaturesPage })))
+const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage').then(m => ({ default: m.HowItWorksPage })))
+const PackagesPage = lazy(() => import('./pages/PackagesPage').then(m => ({ default: m.PackagesPage })))
+const DemoPage = lazy(() => import('./pages/DemoPage').then(m => ({ default: m.DemoPage })))
+const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })))
 import { AppLanguageContext, getInitialAppLang, persistAppLang } from './i18n/AppLanguageContext'
 import { WeldAnalysisProvider } from './context/WeldAnalysisContext'
 import { useAppLanguage } from './i18n/useAppLanguage'
@@ -290,26 +290,35 @@ function AuthenticatedApp() {
   const [lang, setLang] = useState<AppLanguage>(getInitialAppLang)
   const navigate = useNavigate()
 
-  // Auto-retry once after 8 s on a retryable failure (backend waking up after Render sleep).
-  const autoRetryCount = useRef(0)
-  useEffect(() => {
-    if (authState !== 'retryable') return
-    if (autoRetryCount.current >= 1) return
-    autoRetryCount.current++
-    const t = setTimeout(() => setAuthState('checking'), 8_000)
-    return () => clearTimeout(t)
-  }, [authState])
+  const [pingAttempt, setPingAttempt] = useState(0)
 
+  // Session check with cold-start recovery: ping backend first (up to 6 attempts, ~90 s),
+  // then validate the token. AbortController cancels in-flight work on unmount or manual retry.
   useEffect(() => {
     if (authState !== 'checking') return
     let cancelled = false
-    currentUser()
-      .then((user: UserResponse) => {
+    const controller = new AbortController()
+    setPingAttempt(0)
+
+    async function run() {
+      const pingResult = await pingBackend(
+        6,
+        (attempt) => { if (!cancelled) setPingAttempt(attempt) },
+        undefined,
+        undefined,
+        controller.signal,
+      )
+      if (cancelled) return
+      if (pingResult !== 'ok') {
+        setAuthState('retryable')
+        return
+      }
+      try {
+        const user = await currentUser()
         if (cancelled) return
         setUserName(user.full_name || user.username || user.email)
         setAuthState('authenticated')
-      })
-      .catch((err: unknown) => {
+      } catch (err: unknown) {
         if (cancelled) return
         const kind = classifyMeError(err)
         if (kind === 'unauthorized') {
@@ -320,37 +329,49 @@ function AuthenticatedApp() {
         } else {
           setAuthState('error')
         }
-      })
-    return () => { cancelled = true }
+      }
+    }
+
+    run()
+    return () => { cancelled = true; controller.abort() }
+  }, [authState])
+
+  // Retry automatically when the tab becomes visible after a retryable failure.
+  useEffect(() => {
+    if (authState !== 'retryable') return
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') setAuthState('checking')
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
   }, [authState])
 
   if (authState === 'unauthenticated') return <Navigate to="/login" replace />
   if (authState === 'checking') return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-      <span>Validating session…</span>
+    <div className="auth-screen">
+      <div className="spinner" aria-hidden="true" />
+      <span>{pingAttempt === 0 ? 'Validating session…' : `Backend starting up — attempt ${pingAttempt + 1} of 6…`}</span>
     </div>
   )
   if (authState === 'retryable') return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem' }}>
-      <span>
-        {autoRetryCount.current < 1
-          ? 'Backend waking up — retrying in a moment…'
-          : 'Backend unavailable. Check connection and retry.'}
-      </span>
-      {autoRetryCount.current >= 1 && (
-        <button className="btn btn-primary" onClick={() => setAuthState('checking')}>Retry</button>
-      )}
+    <div className="auth-screen">
+      <span>Backend unavailable. Check connection and retry.</span>
+      <button className="btn btn-primary" onClick={() => setAuthState('checking')}>Retry</button>
     </div>
   )
   if (authState === 'error') return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem' }}>
+    <div className="auth-screen">
       <span>Session error. Please return to login.</span>
       <button className="btn btn-primary" onClick={() => setAuthState('checking')}>Retry</button>
-      <button className="btn" onClick={() => navigate('/login')}>Go to login</button>
+      <button className="btn btn-secondary" onClick={() => navigate('/login')}>Go to login</button>
     </div>
   )
 
-  if (project) return <WeldPointWizard project={project} onBack={() => setProject(null)} />
+  if (project) return (
+    <Suspense fallback={<div className="auth-screen"><div className="spinner" aria-hidden="true" /></div>}>
+      <WeldPointWizard project={project} onBack={() => setProject(null)} />
+    </Suspense>
+  )
 
   return (
     <AppLanguageContext.Provider value={{ lang, setLang }}>
@@ -371,15 +392,17 @@ function AuthenticatedApp() {
         />
         <main className="main">
           <WeldAnalysisProvider>
-            {page === 'dashboard' && <DashboardPage />}
-            {page === 'projects' && <ProjectsPage onOpen={setProject} />}
-            {page === 'analysis' && <AnalysisPage />}
-            {page === 'engineering' && <EngineeringPage />}
-            {page === 'failure' && <FailureProbabilityPage onNavigateToAnalysis={() => setPage('analysis')} />}
-            {page === 'models' && <ModelCatalogPage />}
-            {page === 'statistical' && <StatisticalAnalysisPage />}
-            {page === 'energy' && <EnergyPage />}
-            {page === 'help' && <HelpCenterPage />}
+            <Suspense fallback={<div className="state-msg"><div className="spinner" aria-hidden="true" /></div>}>
+              {page === 'dashboard' && <DashboardPage />}
+              {page === 'projects' && <ProjectsPage onOpen={setProject} />}
+              {page === 'analysis' && <AnalysisPage />}
+              {page === 'engineering' && <EngineeringPage />}
+              {page === 'failure' && <FailureProbabilityPage onNavigateToAnalysis={() => setPage('analysis')} />}
+              {page === 'models' && <ModelCatalogPage />}
+              {page === 'statistical' && <StatisticalAnalysisPage />}
+              {page === 'energy' && <EnergyPage />}
+              {page === 'help' && <HelpCenterPage />}
+            </Suspense>
           </WeldAnalysisProvider>
         </main>
       </div>
@@ -420,7 +443,9 @@ function PublicLangProvider() {
 
   return (
     <LangContext.Provider value={{ lang, setLang }}>
-      <Outlet />
+      <Suspense fallback={<div className="auth-screen"><div className="spinner" aria-hidden="true" /></div>}>
+        <Outlet />
+      </Suspense>
     </LangContext.Provider>
   )
 }
