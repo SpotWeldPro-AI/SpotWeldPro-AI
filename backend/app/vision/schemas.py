@@ -113,3 +113,97 @@ class StaticInspectionResult(BaseModel):
     preprocessing_notes: List[str] = Field(default_factory=list)
     review_notes: List[str] = Field(default_factory=list)
     calibration: Optional[CalibrationConfig] = None
+
+
+# ── Live monitoring types (Phase 2) ───────────────────────────────────────────
+
+class TemporalEventType(str, Enum):
+    """
+    Event types reported by deterministic frame-differencing analysis.
+
+    MOTION_DETECTED and IDLE describe pixel-level activity only.
+    They do NOT imply weld quality, weld presence, or any pass/fail judgment.
+    WELD_CYCLE_BOUNDARY is a heuristic window boundary based on motion onset/end;
+    it is not a confirmed weld event and must not be used as a quality gate.
+    """
+    MOTION_DETECTED = "MOTION_DETECTED"
+    IDLE = "IDLE"
+    WELD_CYCLE_BOUNDARY = "WELD_CYCLE_BOUNDARY"
+
+
+class TemporalEvent(BaseModel):
+    event_type: TemporalEventType
+    timestamp_ms: float = Field(description="Milliseconds since POSIX epoch")
+    frame_index: int
+    magnitude: float = Field(description="Mean absolute pixel change 0–255")
+    threshold: float = Field(description="Threshold used for MOTION/IDLE classification")
+    is_above_threshold: bool
+    source_id: str
+    note: str = Field(
+        default="MOTION_DETECTED does not imply weld presence or quality.",
+        description="Reminder that this is a pixel-level observation, not a quality judgment",
+    )
+
+
+class WeldCycleState(str, Enum):
+    IDLE = "IDLE"
+    MOTION_ONSET = "MOTION_ONSET"
+    ACTIVE_MOTION = "ACTIVE_MOTION"
+    MOTION_END = "MOTION_END"
+
+
+class WeldEventRecord(BaseModel):
+    """
+    A heuristically detected motion window that may correspond to a weld cycle.
+
+    This record is based on frame-differencing magnitude only.
+    Weld quality is NOT assessed here and must not be inferred from this record.
+    Validation against destructive testing is required before this is used
+    for any production-line quality decision.
+    """
+    record_id: str
+    source_id: str
+    start_timestamp_ms: float
+    end_timestamp_ms: float
+    duration_ms: float
+    frame_count: int
+    peak_magnitude: float
+    mean_magnitude: float
+    state: WeldCycleState
+    note: str = Field(
+        default=(
+            "Weld cycle boundary is inferred from motion magnitude only. "
+            "Weld quality is NOT assessed. Destructive test validation required."
+        )
+    )
+
+
+class WorkerState(str, Enum):
+    NOT_STARTED = "NOT_STARTED"
+    RUNNING = "RUNNING"
+    RECONNECTING = "RECONNECTING"
+    STOPPED = "STOPPED"
+    ERROR = "ERROR"
+
+
+class LiveStreamMetrics(BaseModel):
+    source_id: str
+    fps_actual: Optional[float] = None
+    fps_nominal: Optional[float] = None
+    frames_total: int = 0
+    frames_dropped: int = 0
+    last_frame_age_ms: Optional[float] = None
+    queue_depth: int = 0
+    worker_state: WorkerState = WorkerState.NOT_STARTED
+    error_message: Optional[str] = None
+
+
+class LiveStreamStatus(BaseModel):
+    state: str = Field(description="ACTIVE | IDLE | FRAMEWORK_ONLY | ERROR")
+    source_id: Optional[str] = None
+    metrics: Optional[LiveStreamMetrics] = None
+    inference_model: Optional[str] = Field(
+        default=None,
+        description="Loaded inference model identifier. None until a validated model is registered.",
+    )
+    note: str = ""

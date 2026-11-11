@@ -18,12 +18,21 @@ from app.vision.capture.base import CaptureAdapter, CaptureError, FrameBundle
 
 
 class FileVideoAdapter(CaptureAdapter):
-    """Read frames from a video file (MP4, AVI, MKV, etc.)."""
+    """
+    Read frames from a video file (MP4, AVI, MKV, etc.).
 
-    def __init__(self, file_path: str) -> None:
+    replay_fps: if set, delivery is throttled to simulate a camera at that FPS.
+    This enables deterministic replay for testing and benchmarking without
+    actual hardware. When replay_fps is None the adapter reads as fast as
+    possible (CPU-bound; use only in tests).
+    """
+
+    def __init__(self, file_path: str, replay_fps: Optional[float] = None) -> None:
         self._path = str(file_path)
+        self._replay_fps = replay_fps  # None = max speed
         self._cap = None
         self._frame_index: int = 0
+        self._last_frame_time: Optional[float] = None
 
     @property
     def source_id(self) -> str:
@@ -57,7 +66,19 @@ class FileVideoAdapter(CaptureAdapter):
     def read_frame(self) -> Optional[FrameBundle]:
         if not self.is_open():
             return None
+        import time
         import cv2
+
+        # Throttle delivery to replay_fps if configured
+        if self._replay_fps is not None and self._replay_fps > 0:
+            now = time.monotonic()
+            if self._last_frame_time is not None:
+                elapsed = now - self._last_frame_time
+                frame_period = 1.0 / self._replay_fps
+                if elapsed < frame_period:
+                    time.sleep(frame_period - elapsed)
+            self._last_frame_time = time.monotonic()
+
         ok, frame = self._cap.read()  # type: ignore[union-attr]
         if not ok or frame is None:
             return None
