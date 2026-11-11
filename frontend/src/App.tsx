@@ -13,6 +13,8 @@ const ModelCatalogPage = lazy(() => import('./pages/ModelCatalogPage').then(m =>
 const StatisticalAnalysisPage = lazy(() => import('./pages/StatisticalAnalysisPage').then(m => ({ default: m.StatisticalAnalysisPage })))
 const EnergyPage = lazy(() => import('./pages/EnergyPage').then(m => ({ default: m.EnergyPage })))
 const HelpCenterPage = lazy(() => import('./pages/HelpCenterPage').then(m => ({ default: m.HelpCenterPage })))
+const StaticInspectionPage = lazy(() => import('./pages/StaticInspectionPage').then(m => ({ default: m.StaticInspectionPage })))
+const LiveMonitoringPage = lazy(() => import('./pages/LiveMonitoringPage').then(m => ({ default: m.LiveMonitoringPage })))
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage').then(m => ({ default: m.FeaturesPage })))
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage').then(m => ({ default: m.HowItWorksPage })))
 const PackagesPage = lazy(() => import('./pages/PackagesPage').then(m => ({ default: m.PackagesPage })))
@@ -29,7 +31,7 @@ import './styles.css'
 
 /* Public pre-login design system — global stylesheet injected once at root.
    Short lines only to keep the file writer stable. */
-type Page = 'dashboard' | 'projects' | 'analysis' | 'engineering' | 'failure' | 'models' | 'statistical' | 'energy' | 'help'
+type Page = 'dashboard' | 'projects' | 'analysis' | 'engineering' | 'failure' | 'models' | 'statistical' | 'energy' | 'help' | 'inspection' | 'live'
 
 type NavItem = { id: Page; label: string; mk: string }
 type NavGroup = { id: string; label: string; accordion: boolean; items: NavItem[] }
@@ -65,6 +67,13 @@ const NAV: NavGroup[] = [
   {
     id: 'energy_group', label: 'ENERGY', accordion: false,
     items: [{ id: 'energy', label: 'Energy Intelligence', mk: 'E' }],
+  },
+  {
+    id: 'vision_group', label: 'VISION', accordion: true,
+    items: [
+      { id: 'inspection', label: 'Static Inspection', mk: 'I' },
+      { id: 'live', label: 'Live Monitoring', mk: 'V' },
+    ],
   },
   {
     id: 'help_group', label: 'HELP', accordion: false,
@@ -401,6 +410,8 @@ function AuthenticatedApp() {
               {page === 'models' && <ModelCatalogPage />}
               {page === 'statistical' && <StatisticalAnalysisPage />}
               {page === 'energy' && <EnergyPage />}
+              {page === 'inspection' && <StaticInspectionPage />}
+              {page === 'live' && <LiveMonitoringPage />}
               {page === 'help' && <HelpCenterPage />}
             </Suspense>
           </WeldAnalysisProvider>

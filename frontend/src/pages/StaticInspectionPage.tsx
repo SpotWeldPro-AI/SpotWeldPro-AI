@@ -1,0 +1,518 @@
+import { useState, useRef, useCallback } from 'react'
+import { apiClient } from '../api/client'
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+type InspectionStatus = 'OK' | 'NOK' | 'REVIEW' | 'UNKNOWN' | 'NOT_EVALUATED'
+type MeasurementSource = 'MEASURED' | 'PREDICTED' | 'NOT_AVAILABLE'
+type ImageType = 'SURFACE' | 'CROSS_SECTION' | 'UNKNOWN'
+
+interface ImageMetadata {
+  width_px: number
+  height_px: number
+  channels: number
+  format_detected: string
+  file_size_bytes: number
+}
+
+interface ElectrodeIndentation {
+  diameter_mm: number | null
+  area_mm2: number | null
+  source: MeasurementSource
+  confidence: number
+  contour_quality: string
+  notes: string[]
+}
+
+interface DefectRegion {
+  label: string
+  bbox_pixels: [number, number, number, number]
+  area_mm2: number | null
+  source: MeasurementSource
+  confidence: number
+}
+
+interface NuggetMeasurement {
+  diameter_mm: number | null
+  area_mm2: number | null
+  source: MeasurementSource
+  notes: string[]
+}
+
+interface CalibrationConfig {
+  pixels_per_mm: number
+  reference_method: string
+}
+
+interface InspectionResult {
+  inspection_id: string
+  timestamp: string
+  image_type: ImageType
+  status: InspectionStatus
+  image_metadata: ImageMetadata
+  electrode_indentation: ElectrodeIndentation | null
+  defects: DefectRegion[]
+  nugget: NuggetMeasurement | null
+  preprocessing_notes: string[]
+  review_notes: string[]
+  calibration: CalibrationConfig | null
+}
+
+// ── Status badge ─────────────────────────────────────────────────────────────
+
+const STATUS_STYLE: Record<InspectionStatus, { bg: string; label: string }> = {
+  OK:            { bg: '#16a34a', label: 'OK' },
+  NOK:           { bg: '#dc2626', label: 'NOK' },
+  REVIEW:        { bg: '#d97706', label: 'REVIEW' },
+  UNKNOWN:       { bg: '#6b7280', label: 'UNKNOWN' },
+  NOT_EVALUATED: { bg: '#374151', label: 'NOT EVALUATED' },
+}
+
+function StatusBadge({ status }: { status: InspectionStatus }) {
+  const { bg, label } = STATUS_STYLE[status] ?? STATUS_STYLE.UNKNOWN
+  return (
+    <span style={{
+      display: 'inline-block',
+      background: bg,
+      color: '#fff',
+      padding: '3px 10px',
+      borderRadius: 4,
+      fontWeight: 700,
+      fontSize: 13,
+      letterSpacing: '0.05em',
+    }}>
+      {label}
+    </span>
+  )
+}
+
+function SourceTag({ source }: { source: MeasurementSource }) {
+  const colors: Record<MeasurementSource, string> = {
+    MEASURED:      '#1d4ed8',
+    PREDICTED:     '#7c3aed',
+    NOT_AVAILABLE: '#6b7280',
+  }
+  return (
+    <span style={{
+      fontSize: 11,
+      background: colors[source],
+      color: '#fff',
+      padding: '1px 6px',
+      borderRadius: 3,
+      marginLeft: 6,
+      fontWeight: 600,
+    }}>
+      {source.replace('_', ' ')}
+    </span>
+  )
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
+
+export function StaticInspectionPage() {
+  const [file, setFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [imageType, setImageType] = useState<ImageType>('UNKNOWN')
+  const [pixelsPerMm, setPixelsPerMm] = useState('')
+  const [roiX, setRoiX] = useState('')
+  const [roiY, setRoiY] = useState('')
+  const [roiW, setRoiW] = useState('')
+  const [roiH, setRoiH] = useState('')
+  const [maxDefects, setMaxDefects] = useState('')
+  const [minNuggetDiam, setMinNuggetDiam] = useState('')
+  const [maxNuggetDiam, setMaxNuggetDiam] = useState('')
+  const [criteriaVersion, setCriteriaVersion] = useState('')
+  const [result, setResult] = useState<InspectionResult | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleFile = useCallback((f: File) => {
+    setFile(f)
+    setResult(null)
+    setError(null)
+    const reader = new FileReader()
+    reader.onload = (e) => setPreview(e.target?.result as string)
+    reader.readAsDataURL(f)
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    const f = e.dataTransfer.files[0]
+    if (f && f.type.startsWith('image/')) handleFile(f)
+  }, [handleFile])
+
+  async function submit() {
+    if (!file) return
+    setLoading(true)
+    setError(null)
+    setResult(null)
+    try {
+      const fd = new FormData()
+      fd.append('image', file)
+      fd.append('image_type', imageType)
+      if (pixelsPerMm) fd.append('pixels_per_mm', pixelsPerMm)
+      if (roiX && roiY && roiW && roiH) {
+        fd.append('roi_x', roiX)
+        fd.append('roi_y', roiY)
+        fd.append('roi_w', roiW)
+        fd.append('roi_h', roiH)
+      }
+      if (minNuggetDiam) fd.append('min_nugget_diameter_mm', minNuggetDiam)
+      if (maxNuggetDiam) fd.append('max_nugget_diameter_mm', maxNuggetDiam)
+      if (maxDefects) fd.append('max_allowed_defects', maxDefects)
+      if (criteriaVersion) fd.append('criteria_version', criteriaVersion)
+
+      const r = await apiClient.post<InspectionResult>(
+        '/api/v1/vision/static/inspect', fd,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      )
+      setResult(r.data)
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.detail?.message ||
+        err?.message ||
+        'Request failed'
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const s: React.CSSProperties = { fontFamily: 'system-ui, sans-serif', padding: '0 4px' }
+  const card: React.CSSProperties = {
+    background: 'var(--card-bg, #f9fafb)',
+    border: '1px solid var(--border, #e5e7eb)',
+    borderRadius: 8,
+    padding: '16px 20px',
+    marginBottom: 16,
+  }
+  const label: React.CSSProperties = {
+    display: 'block',
+    fontSize: 12,
+    fontWeight: 600,
+    color: 'var(--muted, #6b7280)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    marginBottom: 4,
+  }
+  const input: React.CSSProperties = {
+    width: '100%',
+    padding: '7px 10px',
+    border: '1px solid var(--border, #d1d5db)',
+    borderRadius: 6,
+    fontSize: 14,
+    boxSizing: 'border-box',
+  }
+
+  return (
+    <div style={s}>
+      <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Static Inspection</h2>
+      <p style={{ color: 'var(--muted, #6b7280)', fontSize: 14, marginBottom: 20 }}>
+        Upload a weld surface image or cross-section. All measurements show their source
+        (MEASURED / NOT AVAILABLE). Quality status requires explicit acceptance criteria.
+      </p>
+
+      {/* Upload zone */}
+      <div
+        style={{
+          ...card,
+          border: '2px dashed var(--accent, #3b82f6)',
+          textAlign: 'center',
+          cursor: 'pointer',
+          minHeight: 120,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+        }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
+        onClick={() => inputRef.current?.click()}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          hidden
+          accept="image/jpeg,image/png,image/tiff,image/bmp,image/webp"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+        />
+        {preview ? (
+          <img src={preview} alt="Preview" style={{ maxHeight: 180, maxWidth: '100%', borderRadius: 4 }} />
+        ) : (
+          <>
+            <span style={{ fontSize: 32 }}>🖼</span>
+            <span style={{ fontSize: 14, color: 'var(--muted, #6b7280)' }}>
+              Drag and drop or click to select (JPEG, PNG, TIFF, BMP, WebP · max 50 MB)
+            </span>
+          </>
+        )}
+        {file && (
+          <span style={{ fontSize: 12, color: 'var(--muted, #6b7280)' }}>
+            {file.name} · {(file.size / 1024).toFixed(0)} KB
+          </span>
+        )}
+      </div>
+
+      {/* Parameters */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <div>
+          <label style={label}>Image Type</label>
+          <select
+            style={{ ...input }}
+            value={imageType}
+            onChange={(e) => setImageType(e.target.value as ImageType)}
+          >
+            <option value="UNKNOWN">Unknown</option>
+            <option value="SURFACE">Surface (electrode view)</option>
+            <option value="CROSS_SECTION">Cross-section</option>
+          </select>
+        </div>
+        <div>
+          <label style={label}>Calibration (px/mm)</label>
+          <input
+            style={input}
+            type="number"
+            min="0.1"
+            step="0.1"
+            placeholder="e.g. 10.5"
+            value={pixelsPerMm}
+            onChange={(e) => setPixelsPerMm(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* ROI */}
+      <details style={{ marginBottom: 16 }}>
+        <summary style={{ cursor: 'pointer', fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+          ROI (optional)
+        </summary>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 8 }}>
+          {[
+            ['X', roiX, setRoiX],
+            ['Y', roiY, setRoiY],
+            ['Width', roiW, setRoiW],
+            ['Height', roiH, setRoiH],
+          ].map(([lbl, val, set]) => (
+            <div key={lbl as string}>
+              <label style={label}>{lbl as string}</label>
+              <input
+                style={input}
+                type="number"
+                min="0"
+                step="1"
+                placeholder="px"
+                value={val as string}
+                onChange={(e) => (set as (v: string) => void)(e.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+      </details>
+
+      {/* Acceptance criteria */}
+      <details style={{ marginBottom: 20 }}>
+        <summary style={{ cursor: 'pointer', fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+          Acceptance Criteria (optional — required for OK/NOK verdict)
+        </summary>
+        <p style={{ fontSize: 12, color: 'var(--muted, #6b7280)', margin: '8px 0' }}>
+          Thresholds must come from validated destructive testing or accepted standards.
+          Without criteria, status is NOT EVALUATED.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+          <div>
+            <label style={label}>Min Nugget Diameter (mm)</label>
+            <input style={input} type="number" min="0" step="0.1" value={minNuggetDiam} onChange={(e) => setMinNuggetDiam(e.target.value)} />
+          </div>
+          <div>
+            <label style={label}>Max Nugget Diameter (mm)</label>
+            <input style={input} type="number" min="0" step="0.1" value={maxNuggetDiam} onChange={(e) => setMaxNuggetDiam(e.target.value)} />
+          </div>
+          <div>
+            <label style={label}>Max Defect Regions</label>
+            <input style={input} type="number" min="0" step="1" value={maxDefects} onChange={(e) => setMaxDefects(e.target.value)} />
+          </div>
+          <div>
+            <label style={label}>Criteria Version</label>
+            <input style={input} type="text" placeholder="e.g. VW-01-v3.1" value={criteriaVersion} onChange={(e) => setCriteriaVersion(e.target.value)} />
+          </div>
+        </div>
+      </details>
+
+      <button
+        onClick={submit}
+        disabled={!file || loading}
+        style={{
+          padding: '10px 24px',
+          background: file && !loading ? 'var(--accent, #3b82f6)' : '#9ca3af',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 6,
+          fontWeight: 600,
+          fontSize: 14,
+          cursor: file && !loading ? 'pointer' : 'not-allowed',
+          marginBottom: 24,
+        }}
+      >
+        {loading ? 'Analyzing…' : 'Run Inspection'}
+      </button>
+
+      {error && (
+        <div style={{ ...card, borderColor: '#fca5a5', background: '#fef2f2', color: '#991b1b', marginBottom: 16 }}>
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+
+      {result && (
+        <div>
+          {/* Summary */}
+          <div style={{ ...card, display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'flex-start' }}>
+            <div>
+              <div style={label}>Status</div>
+              <StatusBadge status={result.status} />
+              {result.status === 'NOT_EVALUATED' && (
+                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+                  Add acceptance criteria to get OK/NOK/REVIEW verdict
+                </div>
+              )}
+            </div>
+            <div>
+              <div style={label}>Image Type</div>
+              <div style={{ fontSize: 14 }}>{result.image_type}</div>
+            </div>
+            <div>
+              <div style={label}>Dimensions</div>
+              <div style={{ fontSize: 14 }}>
+                {result.image_metadata.width_px} × {result.image_metadata.height_px} px
+              </div>
+            </div>
+            <div>
+              <div style={label}>Format</div>
+              <div style={{ fontSize: 14 }}>{result.image_metadata.format_detected}</div>
+            </div>
+            <div>
+              <div style={label}>Inspection ID</div>
+              <div style={{ fontSize: 11, fontFamily: 'monospace', maxWidth: 200, wordBreak: 'break-all' }}>
+                {result.inspection_id}
+              </div>
+            </div>
+          </div>
+
+          {/* Electrode indentation */}
+          {result.electrode_indentation && (
+            <div style={card}>
+              <div style={{ fontWeight: 700, marginBottom: 10 }}>Electrode Indentation</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
+                <div>
+                  <div style={label}>Diameter<SourceTag source={result.electrode_indentation.source} /></div>
+                  <div style={{ fontSize: 16, fontWeight: 600 }}>
+                    {result.electrode_indentation.diameter_mm != null
+                      ? `${result.electrode_indentation.diameter_mm} mm`
+                      : '—'}
+                  </div>
+                </div>
+                <div>
+                  <div style={label}>Area<SourceTag source={result.electrode_indentation.source} /></div>
+                  <div style={{ fontSize: 16, fontWeight: 600 }}>
+                    {result.electrode_indentation.area_mm2 != null
+                      ? `${result.electrode_indentation.area_mm2} mm²`
+                      : '—'}
+                  </div>
+                </div>
+                <div>
+                  <div style={label}>Confidence</div>
+                  <div style={{ fontSize: 16, fontWeight: 600 }}>
+                    {(result.electrode_indentation.confidence * 100).toFixed(0)}%
+                  </div>
+                </div>
+                <div>
+                  <div style={label}>Contour Quality</div>
+                  <div style={{ fontSize: 14 }}>{result.electrode_indentation.contour_quality}</div>
+                </div>
+              </div>
+              {result.electrode_indentation.notes.length > 0 && (
+                <ul style={{ margin: '8px 0 0', padding: '0 0 0 16px', fontSize: 12, color: '#6b7280' }}>
+                  {result.electrode_indentation.notes.map((n, i) => <li key={i}>{n}</li>)}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {/* Nugget (cross-section) */}
+          {result.nugget && (
+            <div style={card}>
+              <div style={{ fontWeight: 700, marginBottom: 10 }}>Nugget Measurement</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
+                <div>
+                  <div style={label}>Diameter<SourceTag source={result.nugget.source} /></div>
+                  <div style={{ fontSize: 16, fontWeight: 600 }}>
+                    {result.nugget.diameter_mm != null ? `${result.nugget.diameter_mm} mm` : '—'}
+                  </div>
+                </div>
+                <div>
+                  <div style={label}>Area<SourceTag source={result.nugget.source} /></div>
+                  <div style={{ fontSize: 16, fontWeight: 600 }}>
+                    {result.nugget.area_mm2 != null ? `${result.nugget.area_mm2} mm²` : '—'}
+                  </div>
+                </div>
+              </div>
+              {result.nugget.notes.length > 0 && (
+                <ul style={{ margin: '8px 0 0', padding: '0 0 0 16px', fontSize: 12, color: '#6b7280' }}>
+                  {result.nugget.notes.map((n, i) => <li key={i}>{n}</li>)}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {/* Defect regions */}
+          <div style={card}>
+            <div style={{ fontWeight: 700, marginBottom: 10 }}>
+              Defect Regions ({result.defects.length})
+            </div>
+            {result.defects.length === 0 ? (
+              <div style={{ fontSize: 14, color: '#6b7280' }}>No anomalous regions detected.</div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                    <th style={{ textAlign: 'left', padding: '4px 8px', color: '#6b7280', fontSize: 11, textTransform: 'uppercase' }}>#</th>
+                    <th style={{ textAlign: 'left', padding: '4px 8px', color: '#6b7280', fontSize: 11, textTransform: 'uppercase' }}>Label</th>
+                    <th style={{ textAlign: 'right', padding: '4px 8px', color: '#6b7280', fontSize: 11, textTransform: 'uppercase' }}>Area</th>
+                    <th style={{ textAlign: 'left', padding: '4px 8px', color: '#6b7280', fontSize: 11, textTransform: 'uppercase' }}>Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.defects.map((d, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '4px 8px' }}>{i + 1}</td>
+                      <td style={{ padding: '4px 8px' }}>{d.label}</td>
+                      <td style={{ padding: '4px 8px', textAlign: 'right' }}>
+                        {d.area_mm2 != null ? `${d.area_mm2} mm²` : `${d.bbox_pixels[2]}×${d.bbox_pixels[3]} px`}
+                      </td>
+                      <td style={{ padding: '4px 8px' }}><SourceTag source={d.source} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Notes */}
+          {(result.preprocessing_notes.length > 0 || result.review_notes.length > 0) && (
+            <div style={card}>
+              <div style={{ fontWeight: 700, marginBottom: 8 }}>Notes</div>
+              {result.preprocessing_notes.map((n, i) => (
+                <div key={i} style={{ fontSize: 13, color: '#374151', marginBottom: 4 }}>ℹ {n}</div>
+              ))}
+              {result.review_notes.map((n, i) => (
+                <div key={i} style={{ fontSize: 13, color: '#b45309', marginBottom: 4 }}>⚠ {n}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
