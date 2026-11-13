@@ -74,6 +74,12 @@ export function clearAuthStorage() {
   AUTH_KEYS.forEach((k) => localStorage.removeItem(k))
 }
 
+/** Returns Authorization header object for direct fetch() calls. */
+export function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('access_token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 // F-02: known production URL — used as a safe fallback when VITE_API_URL is not set at build
 // time, so production builds never silently target localhost (which is unreachable on Render).
 export const PROD_API_URL = 'https://spotweldpro-ai-api.onrender.com/api/v1'

@@ -15,6 +15,8 @@ const EnergyPage = lazy(() => import('./pages/EnergyPage').then(m => ({ default:
 const HelpCenterPage = lazy(() => import('./pages/HelpCenterPage').then(m => ({ default: m.HelpCenterPage })))
 const StaticInspectionPage = lazy(() => import('./pages/StaticInspectionPage').then(m => ({ default: m.StaticInspectionPage })))
 const LiveMonitoringPage = lazy(() => import('./pages/LiveMonitoringPage').then(m => ({ default: m.LiveMonitoringPage })))
+const AnnotationPage = lazy(() => import('./pages/AnnotationPage').then(m => ({ default: m.AnnotationPage })))
+const DatasetDashboardPage = lazy(() => import('./pages/DatasetDashboardPage').then(m => ({ default: m.DatasetDashboardPage })))
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage').then(m => ({ default: m.FeaturesPage })))
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage').then(m => ({ default: m.HowItWorksPage })))
 const PackagesPage = lazy(() => import('./pages/PackagesPage').then(m => ({ default: m.PackagesPage })))
@@ -31,7 +33,7 @@ import './styles.css'
 
 /* Public pre-login design system — global stylesheet injected once at root.
    Short lines only to keep the file writer stable. */
-type Page = 'dashboard' | 'projects' | 'analysis' | 'engineering' | 'failure' | 'models' | 'statistical' | 'energy' | 'help' | 'inspection' | 'live'
+type Page = 'dashboard' | 'projects' | 'analysis' | 'engineering' | 'failure' | 'models' | 'statistical' | 'energy' | 'help' | 'inspection' | 'live' | 'annotation' | 'dataset_dashboard'
 
 type NavItem = { id: Page; label: string; mk: string }
 type NavGroup = { id: string; label: string; accordion: boolean; items: NavItem[] }
@@ -73,6 +75,8 @@ const NAV: NavGroup[] = [
     items: [
       { id: 'inspection', label: 'Static Inspection', mk: 'I' },
       { id: 'live', label: 'Live Monitoring', mk: 'V' },
+      { id: 'annotation', label: 'Annotation', mk: 'A' },
+      { id: 'dataset_dashboard', label: 'Dataset Dashboard', mk: 'DD' },
     ],
   },
   {
@@ -412,6 +416,8 @@ function AuthenticatedApp() {
               {page === 'energy' && <EnergyPage />}
               {page === 'inspection' && <StaticInspectionPage />}
               {page === 'live' && <LiveMonitoringPage />}
+              {page === 'annotation' && <AnnotationPage />}
+              {page === 'dataset_dashboard' && <DatasetDashboardPage />}
               {page === 'help' && <HelpCenterPage />}
             </Suspense>
           </WeldAnalysisProvider>

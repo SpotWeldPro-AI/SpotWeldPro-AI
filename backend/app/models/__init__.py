@@ -44,3 +44,10 @@ from app.models.profile_entities import (  # noqa: F401
     ReferenceProfileRecord,
     ProfileApprovalEvent,
 )
+from app.models.annotation_entities import (  # noqa: F401
+    WeldAnnotation,
+    AnnotationFinding,
+    AnnotationReview,
+    AnnotationAuditEntry,
+    ConflictAdjudication,
+)
