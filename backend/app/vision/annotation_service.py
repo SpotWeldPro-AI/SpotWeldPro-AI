@@ -293,6 +293,11 @@ def adjudicate_conflict(
     conflict = db.get(ConflictAdjudication, conflict_id)
     if conflict is None:
         raise AnnotationServiceError(f"Conflict {conflict_id} not found.")
+    if conflict.decision != "PENDING":
+        raise AnnotationServiceError(
+            f"Conflict {conflict_id} already adjudicated as {conflict.decision!r}. "
+            "Re-adjudication is not permitted."
+        )
     conflict.decision = decision
     conflict.adjudicator_id = adjudicator_id
     conflict.adjudication_notes = notes.strip()

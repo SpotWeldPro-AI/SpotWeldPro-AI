@@ -239,6 +239,80 @@ def dashboard(
     return get_quality_metrics(db)
 
 
+# ── Conflict adjudication (must be before /{annotation_id} to avoid route clash) ─
+
+@router.get("/conflicts")
+def list_conflicts(
+    decision: str | None = Query(None, description="Filter by decision: PENDING | KEEP_A | ..."),
+    conflict_type: str | None = Query(None),
+    limit: int = Query(50, le=200),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    q = db.query(ConflictAdjudication)
+    if decision:
+        q = q.filter(ConflictAdjudication.decision == decision)
+    if conflict_type:
+        q = q.filter(ConflictAdjudication.conflict_type == conflict_type)
+    total = q.count()
+    items = q.offset(offset).limit(limit).all()
+    return {
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "items": [_ser_conflict(c) for c in items],
+    }
+
+
+@router.patch("/conflicts/{conflict_id}")
+def adjudicate(
+    conflict_id: int,
+    body: AdjudicationDecision,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    if user.role not in _ADJUDICATION_ROLES:
+        raise HTTPException(
+            status_code=403,
+            detail="Conflict adjudication requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN role.",
+        )
+    try:
+        conflict = adjudicate_conflict(db, conflict_id, user.email, body.decision, body.notes)
+        db.commit()
+    except AnnotationServiceError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return _ser_conflict(conflict)
+
+
+@router.get("/conflicts/review-summary")
+def review_summary(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    """Returns conflict adjudication counts. Available to PE/QE/SA."""
+    if user.role not in _ADJUDICATION_ROLES:
+        raise HTTPException(
+            status_code=403,
+            detail="PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN role required.",
+        )
+    return get_review_summary(db)
+
+
+@router.get("/conflicts/eligible-counts")
+def eligible_counts(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    """Recalculate training/eval eligibility from current DB decisions. PE/QE/SA."""
+    if user.role not in _ADJUDICATION_ROLES:
+        raise HTTPException(
+            status_code=403,
+            detail="PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN role required.",
+        )
+    return get_eligible_counts_post_review(db)
+
+
 @router.get("/{annotation_id}")
 def get_annotation(
     annotation_id: int,
@@ -369,52 +443,6 @@ def get_audit(
     }
 
 
-# ── Conflict adjudication ─────────────────────────────────────────────────────
-
-@router.get("/conflicts")
-def list_conflicts(
-    decision: str | None = Query(None, description="Filter by decision: PENDING | KEEP_A | ..."),
-    conflict_type: str | None = Query(None),
-    limit: int = Query(50, le=200),
-    offset: int = Query(0, ge=0),
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-) -> dict:
-    q = db.query(ConflictAdjudication)
-    if decision:
-        q = q.filter(ConflictAdjudication.decision == decision)
-    if conflict_type:
-        q = q.filter(ConflictAdjudication.conflict_type == conflict_type)
-    total = q.count()
-    items = q.offset(offset).limit(limit).all()
-    return {
-        "total": total,
-        "offset": offset,
-        "limit": limit,
-        "items": [_ser_conflict(c) for c in items],
-    }
-
-
-@router.patch("/conflicts/{conflict_id}")
-def adjudicate(
-    conflict_id: int,
-    body: AdjudicationDecision,
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-) -> dict:
-    if user.role not in _ADJUDICATION_ROLES:
-        raise HTTPException(
-            status_code=403,
-            detail="Conflict adjudication requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN role.",
-        )
-    try:
-        conflict = adjudicate_conflict(db, conflict_id, user.email, body.decision, body.notes)
-        db.commit()
-    except AnnotationServiceError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-    return _ser_conflict(conflict)
-
-
 # ── Export ─────────────────────────────────────────────────────────────────────
 
 @router.post("/export")
@@ -479,42 +507,3 @@ def load_e1_queue(
     return {"inserted": inserted}
 
 
-# ── P3I: Review summary ────────────────────────────────────────────────────────
-
-@router.get("/conflicts/review-summary")
-def review_summary(
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-) -> dict:
-    """
-    Returns conflict adjudication counts by decision value.
-    Available to PROCESS_ENGINEER, QUALITY_ENGINEER, SYSTEM_ADMIN.
-    """
-    if user.role not in _ADJUDICATION_ROLES:
-        raise HTTPException(
-            status_code=403,
-            detail="PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN role required.",
-        )
-    return get_review_summary(db)
-
-
-# ── P3I: Eligible counts post-review ──────────────────────────────────────────
-
-@router.get("/conflicts/eligible-counts")
-def eligible_counts(
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-) -> dict:
-    """
-    Recalculate training-eligible and eval-eligible sample counts using
-    decisions recorded in the conflict_adjudications table.
-
-    Does not count contaminated or unverifiable records as qualified.
-    Available to PROCESS_ENGINEER, QUALITY_ENGINEER, SYSTEM_ADMIN.
-    """
-    if user.role not in _ADJUDICATION_ROLES:
-        raise HTTPException(
-            status_code=403,
-            detail="PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN role required.",
-        )
-    return get_eligible_counts_post_review(db)
