@@ -1,0 +1,21 @@
+metric,value,notes
+snapshot_date,2026-11-14,P3I baseline
+e1_total,175,loaded from E1_CONFLICT_REVIEW_QUEUE.csv
+e1_pending,175,no decisions made yet
+e1_resolved,0,
+e1_completion_pct,0.0,
+e1_gate_clear,False,requires all 175 resolved
+by_type_LABEL_CONFLICT,122,
+by_type_BOTH,51,
+by_type_CROSS_SPLIT_LEAKAGE,2,
+total_dataset_records,927,ANNOTATION_AUDIT.csv
+total_clean_low,511,contamination CLEAN+LOW
+training_eligible_now,191,CLEAN+LOW minus leakage/conflict exclusions
+eval_eligible_now,151,
+excluded_paths_count,0,no decisions yet
+pending_conflict_paths,343,blocked until E1 resolved
+pending_leakage_paths,106,blocked until E1 resolved
+surface_classifier_go,False,
+surface_classifier_min_train,200,threshold
+surface_classifier_min_eval,40,threshold
+surface_classifier_gap_train,9,need 9 more eligible train after E1 resolution

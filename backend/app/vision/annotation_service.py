@@ -268,18 +268,34 @@ def adjudicate_conflict(
     """
     Record a human adjudication decision for a label-conflict duplicate pair.
 
-    decision: KEEP_A | KEEP_B | KEEP_BOTH | EXCLUDE_BOTH
-    Does NOT automatically modify annotations — annotator must act on the decision.
+    P3I decisions:
+      CONFIRM_LABEL        — both labels are consistent; keep whichever is more specific
+      CORRECT_LABEL        — one label is wrong; reviewer corrects it (noted in notes)
+      EXCLUDE_FROM_TRAINING — exclude both paths from training (but keep in DB)
+      INSUFFICIENT_EVIDENCE — cannot determine correct label; needs more data
+      NEEDS_PHYSICAL_TEST   — destructive test required before label can be confirmed
+
+    Legacy decisions (P3E):
+      KEEP_A | KEEP_B | KEEP_BOTH | EXCLUDE_BOTH
+
+    Notes are required for all decisions.
+    Does NOT automatically modify annotations or delete any records.
     """
-    allowed = {"KEEP_A", "KEEP_B", "KEEP_BOTH", "EXCLUDE_BOTH"}
+    allowed = {
+        "KEEP_A", "KEEP_B", "KEEP_BOTH", "EXCLUDE_BOTH",
+        "CONFIRM_LABEL", "CORRECT_LABEL", "EXCLUDE_FROM_TRAINING",
+        "INSUFFICIENT_EVIDENCE", "NEEDS_PHYSICAL_TEST",
+    }
     if decision not in allowed:
-        raise AnnotationServiceError(f"Decision must be one of {allowed}.")
+        raise AnnotationServiceError(f"Decision must be one of {sorted(allowed)}.")
+    if not notes or not notes.strip():
+        raise AnnotationServiceError("Reviewer notes are required for all adjudication decisions.")
     conflict = db.get(ConflictAdjudication, conflict_id)
     if conflict is None:
         raise AnnotationServiceError(f"Conflict {conflict_id} not found.")
     conflict.decision = decision
     conflict.adjudicator_id = adjudicator_id
-    conflict.adjudication_notes = notes
+    conflict.adjudication_notes = notes.strip()
     conflict.adjudicated_at = datetime.now(timezone.utc)
     db.flush()
     return conflict
@@ -340,6 +356,205 @@ def load_conflicts_from_manifest(db: Session, manifest_path: str | None = None) 
     db.flush()
     _log.info("Loaded %d conflict pairs from manifest.", inserted)
     return inserted
+
+
+E1_QUEUE_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "docs", "E1_CONFLICT_REVIEW_QUEUE.csv"
+)
+
+
+def load_e1_queue_from_manifest(db: Session, manifest_path: str | None = None) -> int:
+    """
+    Load ConflictAdjudication records from E1_CONFLICT_REVIEW_QUEUE.csv (P3H output).
+
+    Accepts all conflict types in the queue (LABEL_CONFLICT, BOTH, CROSS_SPLIT_LEAKAGE).
+    Already-existing rows (by sha1+path_a+path_b) are skipped.
+    Returns count of new rows inserted.
+    """
+    path = manifest_path or E1_QUEUE_PATH
+    if not os.path.exists(path):
+        _log.warning("E1_CONFLICT_REVIEW_QUEUE.csv not found at %s — skipping.", path)
+        return 0
+
+    inserted = 0
+    with open(path, newline="", encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            conflict_type = row.get("conflict_type", "")
+            if conflict_type not in ("LABEL_CONFLICT", "BOTH", "CROSS_SPLIT_LEAKAGE"):
+                continue
+            existing = (
+                db.query(ConflictAdjudication)
+                .filter_by(
+                    sha1_16=row.get("sha1_16", ""),
+                    path_a=row.get("path_a", ""),
+                    path_b=row.get("path_b", ""),
+                )
+                .first()
+            )
+            if existing:
+                continue
+            db.add(ConflictAdjudication(
+                sha1_16=row.get("sha1_16", ""),
+                path_a=row.get("path_a", ""),
+                path_b=row.get("path_b", ""),
+                label_a=row.get("label_a", ""),
+                label_b=row.get("label_b", ""),
+                split_a=row.get("split_a", ""),
+                split_b=row.get("split_b", ""),
+                conflict_type=conflict_type,
+                source_archive_a=row.get("source_archive_a", ""),
+                source_archive_b=row.get("source_archive_b", ""),
+                decision="PENDING",
+            ))
+            inserted += 1
+    db.flush()
+    _log.info("Loaded %d E1 queue pairs from manifest.", inserted)
+    return inserted
+
+
+def get_review_summary(db: Session) -> dict:
+    """
+    Return conflict adjudication counts by decision value and priority group.
+
+    Priority groups:
+      CRITICAL — BOTH (cross-split leakage + label conflict)
+      HIGH     — LABEL_CONFLICT (same split, conflicting labels)
+      MEDIUM   — CROSS_SPLIT_LEAKAGE (same label, cross-split)
+    """
+    from sqlalchemy import func
+
+    total = db.query(func.count(ConflictAdjudication.id)).scalar() or 0
+    pending = (
+        db.query(func.count(ConflictAdjudication.id))
+        .filter(ConflictAdjudication.decision == "PENDING")
+        .scalar() or 0
+    )
+
+    by_decision: dict = {}
+    for decision, count in (
+        db.query(ConflictAdjudication.decision, func.count())
+        .group_by(ConflictAdjudication.decision)
+        .all()
+    ):
+        by_decision[decision] = count
+
+    by_type: dict = {}
+    for ctype, count in (
+        db.query(ConflictAdjudication.conflict_type, func.count())
+        .group_by(ConflictAdjudication.conflict_type)
+        .all()
+    ):
+        by_type[ctype] = count
+
+    # Counts needing physical test confirmation
+    needs_physical = (
+        db.query(func.count(ConflictAdjudication.id))
+        .filter(ConflictAdjudication.decision == "NEEDS_PHYSICAL_TEST")
+        .scalar() or 0
+    )
+    insufficient = (
+        db.query(func.count(ConflictAdjudication.id))
+        .filter(ConflictAdjudication.decision == "INSUFFICIENT_EVIDENCE")
+        .scalar() or 0
+    )
+
+    resolved = total - pending
+    e1_clear = pending == 0 and total > 0
+
+    return {
+        "total": total,
+        "pending": pending,
+        "resolved": resolved,
+        "e1_gate_clear": e1_clear,
+        "by_decision": by_decision,
+        "by_conflict_type": by_type,
+        "needs_physical_test": needs_physical,
+        "insufficient_evidence": insufficient,
+        "completion_pct": round(resolved / total * 100, 1) if total > 0 else 0.0,
+    }
+
+
+def get_eligible_counts_post_review(db: Session) -> dict:
+    """
+    Recalculate training-eligible and eval-eligible sample counts using
+    E1_CONFLICT_REVIEW_QUEUE.csv and ANNOTATION_AUDIT.csv, applying only
+    decisions recorded in the conflict_adjudications table.
+
+    Rules:
+      - Training-eligible: CLEAN or LOW contamination AND not in an unresolved conflict
+        AND not in a pair decided EXCLUDE_FROM_TRAINING or EXCLUDE_BOTH
+        AND not in INSUFFICIENT_EVIDENCE or NEEDS_PHYSICAL_TEST pairs
+      - Eval-eligible: not in EXCLUDE_FROM_TRAINING/EXCLUDE_BOTH pairs
+        AND not PENDING cross-split leakage pairs
+
+    Does not count contaminated or unverifiable records as qualified.
+    Returns conservative counts only.
+    """
+    import csv as csv_mod
+
+    # Load annotation audit
+    ann_path = os.path.join(
+        os.path.dirname(__file__), "..", "..", "..", "docs", "ANNOTATION_AUDIT.csv"
+    )
+    if not os.path.exists(ann_path):
+        return {"error": "ANNOTATION_AUDIT.csv not found"}
+
+    with open(ann_path, newline="", encoding="utf-8") as fh:
+        ann_rows = list(csv_mod.DictReader(fh))
+
+    # Gather excluded and blocked paths from DB decisions
+    excluded_paths: set[str] = set()
+    pending_conflict_paths: set[str] = set()
+    pending_leakage_paths: set[str] = set()
+
+    for c in db.query(ConflictAdjudication).all():
+        if c.decision in ("EXCLUDE_FROM_TRAINING", "EXCLUDE_BOTH",
+                           "INSUFFICIENT_EVIDENCE", "NEEDS_PHYSICAL_TEST"):
+            excluded_paths.add(c.path_a)
+            excluded_paths.add(c.path_b)
+        if c.decision == "PENDING":
+            if c.conflict_type in ("LABEL_CONFLICT", "BOTH"):
+                pending_conflict_paths.add(c.path_a)
+                pending_conflict_paths.add(c.path_b)
+            if c.conflict_type in ("CROSS_SPLIT_LEAKAGE", "BOTH"):
+                pending_leakage_paths.add(c.path_a)
+                pending_leakage_paths.add(c.path_b)
+
+    training_eligible = 0
+    eval_eligible = 0
+    total_clean = 0
+    by_split: dict[str, int] = {}
+
+    for row in ann_rows:
+        path = row.get("image_path", "")
+        contam = row.get("contamination_level", "UNKNOWN")
+        split = row.get("split", "unknown")
+        contam_safe = contam in ("CLEAN", "LOW")
+
+        is_excluded = path in excluded_paths
+        is_pending_conflict = path in pending_conflict_paths
+        is_pending_leakage = path in pending_leakage_paths
+
+        if contam_safe:
+            total_clean += 1
+
+        if contam_safe and not is_excluded and not is_pending_conflict and split == "train":
+            training_eligible += 1
+
+        if not is_excluded and not is_pending_leakage and split == "test":
+            eval_eligible += 1
+
+    return {
+        "total_records": len(ann_rows),
+        "total_clean_low": total_clean,
+        "training_eligible": training_eligible,
+        "eval_eligible": eval_eligible,
+        "excluded_paths_count": len(excluded_paths),
+        "pending_conflict_paths_count": len(pending_conflict_paths),
+        "pending_leakage_paths_count": len(pending_leakage_paths),
+        "surface_classifier_go": training_eligible >= 200 and eval_eligible >= 40,
+    }
 
 
 # ── Quality metrics ────────────────────────────────────────────────────────────

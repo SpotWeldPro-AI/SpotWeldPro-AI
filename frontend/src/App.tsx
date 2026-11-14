@@ -17,6 +17,7 @@ const StaticInspectionPage = lazy(() => import('./pages/StaticInspectionPage').t
 const LiveMonitoringPage = lazy(() => import('./pages/LiveMonitoringPage').then(m => ({ default: m.LiveMonitoringPage })))
 const AnnotationPage = lazy(() => import('./pages/AnnotationPage').then(m => ({ default: m.AnnotationPage })))
 const DatasetDashboardPage = lazy(() => import('./pages/DatasetDashboardPage').then(m => ({ default: m.DatasetDashboardPage })))
+const ConflictReviewPage = lazy(() => import('./pages/ConflictReviewPage').then(m => ({ default: m.ConflictReviewPage })))
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage').then(m => ({ default: m.FeaturesPage })))
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage').then(m => ({ default: m.HowItWorksPage })))
 const PackagesPage = lazy(() => import('./pages/PackagesPage').then(m => ({ default: m.PackagesPage })))
@@ -33,7 +34,7 @@ import './styles.css'
 
 /* Public pre-login design system — global stylesheet injected once at root.
    Short lines only to keep the file writer stable. */
-type Page = 'dashboard' | 'projects' | 'analysis' | 'engineering' | 'failure' | 'models' | 'statistical' | 'energy' | 'help' | 'inspection' | 'live' | 'annotation' | 'dataset_dashboard'
+type Page = 'dashboard' | 'projects' | 'analysis' | 'engineering' | 'failure' | 'models' | 'statistical' | 'energy' | 'help' | 'inspection' | 'live' | 'annotation' | 'dataset_dashboard' | 'conflict_review'
 
 type NavItem = { id: Page; label: string; mk: string }
 type NavGroup = { id: string; label: string; accordion: boolean; items: NavItem[] }
@@ -77,6 +78,7 @@ const NAV: NavGroup[] = [
       { id: 'live', label: 'Live Monitoring', mk: 'V' },
       { id: 'annotation', label: 'Annotation', mk: 'A' },
       { id: 'dataset_dashboard', label: 'Dataset Dashboard', mk: 'DD' },
+      { id: 'conflict_review', label: 'Conflict Review', mk: 'CR' },
     ],
   },
   {
@@ -418,6 +420,7 @@ function AuthenticatedApp() {
               {page === 'live' && <LiveMonitoringPage />}
               {page === 'annotation' && <AnnotationPage />}
               {page === 'dataset_dashboard' && <DatasetDashboardPage />}
+              {page === 'conflict_review' && <ConflictReviewPage />}
               {page === 'help' && <HelpCenterPage />}
             </Suspense>
           </WeldAnalysisProvider>

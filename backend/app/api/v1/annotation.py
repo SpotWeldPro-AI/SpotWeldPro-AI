@@ -49,8 +49,11 @@ from app.vision.annotation_service import (
     adjudicate_conflict,
     build_export_dataset,
     create_annotation,
+    get_eligible_counts_post_review,
     get_quality_metrics,
+    get_review_summary,
     load_conflicts_from_manifest,
+    load_e1_queue_from_manifest,
     remove_finding,
     reopen_annotation,
     review_annotation,
@@ -454,3 +457,64 @@ def load_conflicts(
     inserted = load_conflicts_from_manifest(db, manifest_path)
     db.commit()
     return {"inserted": inserted}
+
+
+# ── P3I: E1 queue loader (loads from E1_CONFLICT_REVIEW_QUEUE.csv) ─────────────
+
+@router.post("/load-e1-queue", status_code=status.HTTP_200_OK)
+def load_e1_queue(
+    manifest_path: str | None = None,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Load ConflictAdjudication records from E1_CONFLICT_REVIEW_QUEUE.csv (P3H output).
+    Includes CROSS_SPLIT_LEAKAGE rows in addition to LABEL_CONFLICT and BOTH.
+    SYSTEM_ADMIN only.
+    """
+    if user.role != UserRole.SYSTEM_ADMIN:
+        raise HTTPException(status_code=403, detail="SYSTEM_ADMIN role required.")
+    inserted = load_e1_queue_from_manifest(db, manifest_path)
+    db.commit()
+    return {"inserted": inserted}
+
+
+# ── P3I: Review summary ────────────────────────────────────────────────────────
+
+@router.get("/conflicts/review-summary")
+def review_summary(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Returns conflict adjudication counts by decision value.
+    Available to PROCESS_ENGINEER, QUALITY_ENGINEER, SYSTEM_ADMIN.
+    """
+    if user.role not in _ADJUDICATION_ROLES:
+        raise HTTPException(
+            status_code=403,
+            detail="PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN role required.",
+        )
+    return get_review_summary(db)
+
+
+# ── P3I: Eligible counts post-review ──────────────────────────────────────────
+
+@router.get("/conflicts/eligible-counts")
+def eligible_counts(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Recalculate training-eligible and eval-eligible sample counts using
+    decisions recorded in the conflict_adjudications table.
+
+    Does not count contaminated or unverifiable records as qualified.
+    Available to PROCESS_ENGINEER, QUALITY_ENGINEER, SYSTEM_ADMIN.
+    """
+    if user.role not in _ADJUDICATION_ROLES:
+        raise HTTPException(
+            status_code=403,
+            detail="PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN role required.",
+        )
+    return get_eligible_counts_post_review(db)
