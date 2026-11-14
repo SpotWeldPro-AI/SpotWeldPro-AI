@@ -78,8 +78,16 @@ ENGINEERING_LIBRARY_CE02B2_TABLES = {
     "engineering_weld_schedule_revisions",
     "engineering_weld_pulses",
 }
+ANNOTATION_TABLES = {
+    "weld_annotations",
+    "annotation_findings",
+    "annotation_reviews",
+    "annotation_audit_entries",
+    "conflict_adjudications",
+}
 CORE_GOVERNED_TABLES = BASE_REGISTRY_TABLES | LIFECYCLE_TABLES | VERIFICATION_TABLES
 ALL_GOVERNED_TABLES = CORE_GOVERNED_TABLES | EVALUATION_TABLES | MRC_TABLES | DWP_TABLES
+HEAD_REVISION = "0020_annotation_tables"
 
 
 def _sqlite_url(database_path: Path) -> str:
@@ -275,7 +283,7 @@ def test_sqlite_registry_migration_upgrades_empty_and_downgrades_cleanly(
         assert ALL_GOVERNED_TABLES <= migrated_tables
         with migrated_engine.connect() as connection:
             assert connection.scalar(text("SELECT version_num FROM alembic_version")) == (
-                "0019_import_batches"
+                HEAD_REVISION
             )
             for table_name in ALL_GOVERNED_TABLES:
                 assert connection.scalar(text(f"SELECT COUNT(*) FROM {table_name}")) == 0
@@ -616,7 +624,7 @@ def test_rule_evaluation_persistence_migration_round_trip(
         _assert_registry_schema_matches_models(upgraded_engine, ALL_GOVERNED_TABLES)
         with upgraded_engine.connect() as connection:
             assert connection.scalar(text("SELECT version_num FROM alembic_version")) == (
-                "0019_import_batches"
+                HEAD_REVISION
             )
 
     _run_downgrade(monkeypatch, database_url, "0007_rule_lifecycle_events")
@@ -648,7 +656,7 @@ def test_machine_readiness_persistence_migration_round_trip(
         _assert_registry_schema_matches_models(upgraded_engine, ALL_GOVERNED_TABLES)
         with upgraded_engine.connect() as connection:
             assert connection.scalar(text("SELECT version_num FROM alembic_version")) == (
-                "0019_import_batches"
+                HEAD_REVISION
             )
 
     _run_downgrade(monkeypatch, database_url, "0008_rule_evaluation_persistence")
@@ -742,3 +750,152 @@ def test_electrode_weldgun_weldschedule_persistence_migration_round_trip(
         inspector = inspect(engine)
         tables = set(inspector.get_table_names())
         assert ENGINEERING_LIBRARY_CE02B2_TABLES <= tables
+
+
+def test_annotation_tables_migration_round_trip(
+    monkeypatch,
+    migration_database_dir,
+):
+    database_url = _sqlite_url(migration_database_dir / "annotation_tables_round_trip.db")
+
+    # Pre-condition: annotation tables absent at 0019
+    _run_upgrade(monkeypatch, database_url, "0019_import_batches")
+    with _sqlite_engine(database_url) as engine:
+        assert ANNOTATION_TABLES.isdisjoint(inspect(engine).get_table_names())
+
+    # Upgrade to head: annotation tables must appear
+    _run_upgrade(monkeypatch, database_url, "head")
+    with _sqlite_engine(database_url) as engine:
+        tables = set(inspect(engine).get_table_names())
+        assert ANNOTATION_TABLES <= tables
+        inspector = inspect(engine)
+        # Spot-check columns on weld_annotations
+        wa_cols = {c["name"] for c in inspector.get_columns("weld_annotations")}
+        expected_wa_cols = {
+            "id", "image_path", "roi_crop_path", "image_hash", "weld_id",
+            "source_archive", "split", "label_provenance", "contamination_level",
+            "max_markup_ratio", "is_roi_cropped", "annotation_markup_removed",
+            "image_width_px", "image_height_px", "annotator_id", "review_status",
+            "taxonomy_version", "export_eligible", "export_version",
+            "created_at", "updated_at",
+        }
+        assert expected_wa_cols <= wa_cols
+        # Spot-check indexes
+        wa_index_names = {idx["name"] for idx in inspector.get_indexes("weld_annotations")}
+        assert "ix_weld_annotations_review_status" in wa_index_names
+        assert "ix_weld_annotations_annotator_id" in wa_index_names
+        # FK: annotation_findings → weld_annotations
+        af_fks = inspector.get_foreign_keys("annotation_findings")
+        assert any(fk["referred_table"] == "weld_annotations" for fk in af_fks)
+        # Unique constraint on conflict_adjudications
+        ca_uniq = {c["name"] for c in inspector.get_unique_constraints("conflict_adjudications")}
+        assert "uq_conflict_pair" in ca_uniq
+        with engine.connect() as conn:
+            assert conn.scalar(text("SELECT version_num FROM alembic_version")) == HEAD_REVISION
+
+    # Downgrade to 0019: annotation tables must be gone
+    _run_downgrade(monkeypatch, database_url, "0019_import_batches")
+    with _sqlite_engine(database_url) as engine:
+        tables = set(inspect(engine).get_table_names())
+        assert ANNOTATION_TABLES.isdisjoint(tables)
+        assert "import_batches" in tables
+        with engine.connect() as conn:
+            assert conn.scalar(text("SELECT version_num FROM alembic_version")) == (
+                "0019_import_batches"
+            )
+
+    # Re-upgrade: tables recreated cleanly
+    _run_upgrade(monkeypatch, database_url, "head")
+    with _sqlite_engine(database_url) as engine:
+        assert ANNOTATION_TABLES <= set(inspect(engine).get_table_names())
+        with engine.connect() as conn:
+            for table in ANNOTATION_TABLES:
+                assert conn.scalar(text(f"SELECT COUNT(*) FROM {table}")) == 0
+
+
+def test_annotation_tables_reconciliation_guard(
+    monkeypatch,
+    migration_database_dir,
+):
+    """
+    When weld_annotations already exists (create_all path), upgrade() must skip DDL
+    but still stamp the alembic_version to 0020_annotation_tables.
+    """
+    database_url = _sqlite_url(
+        migration_database_dir / "annotation_reconciliation_guard.db"
+    )
+
+    # Bring chain to 0019 via Alembic
+    _run_upgrade(monkeypatch, database_url, "0019_import_batches")
+
+    # Simulate create_all having pre-created the annotation tables
+    import app.models  # noqa: F401
+    with _sqlite_engine(database_url) as engine:
+        with engine.connect() as conn:
+            assert conn.scalar(text("SELECT version_num FROM alembic_version")) == (
+                "0019_import_batches"
+            )
+        # Directly create only the annotation tables (simulating create_all)
+        from app.db.session import Base
+        from app.models.annotation_entities import (  # noqa: F401
+            WeldAnnotation, AnnotationFinding, AnnotationReview,
+            AnnotationAuditEntry, ConflictAdjudication,
+        )
+        for tname in ANNOTATION_TABLES:
+            Base.metadata.tables[tname].create(engine, checkfirst=True)
+
+        # Insert a sentinel row to prove it survives
+        with engine.begin() as conn:
+            conn.execute(text(
+                "INSERT INTO weld_annotations "
+                "(image_path, annotator_id, split, label_provenance, "
+                "contamination_level, max_markup_ratio, is_roi_cropped, "
+                "annotation_markup_removed, review_status, taxonomy_version, "
+                "export_eligible, created_at, updated_at) "
+                "VALUES ('/sentinel.png', 'guard@test.com', 'unknown', "
+                "'SURFACE_OBSERVATION', 'UNKNOWN', 0, 0, 0, "
+                "'DRAFT', 'P3D-1.0', 0, "
+                "'2026-11-14T00:00:00+00:00', '2026-11-14T00:00:00+00:00')"
+            ))
+
+    # Run upgrade: reconciliation guard should detect weld_annotations and skip DDL
+    _run_upgrade(monkeypatch, database_url, HEAD_REVISION)
+
+    with _sqlite_engine(database_url) as engine:
+        # Version stamped to 0020
+        with engine.connect() as conn:
+            assert conn.scalar(text("SELECT version_num FROM alembic_version")) == HEAD_REVISION
+        # Sentinel row preserved — no data loss
+        with engine.connect() as conn:
+            assert conn.scalar(
+                text("SELECT COUNT(*) FROM weld_annotations WHERE image_path='/sentinel.png'")
+            ) == 1
+
+
+def test_annotation_migration_down_revision_is_correct():
+    migration_path = (
+        BACKEND_ROOT / "alembic" / "versions" / "0020_annotation_tables.py"
+    )
+    source = migration_path.read_text(encoding="utf-8")
+    assert 'down_revision = "0019_import_batches"' in source
+    assert 'revision = "0020_annotation_tables"' in source
+    assert "weld_annotations" in source
+    assert "annotation_findings" in source
+    assert "annotation_reviews" in source
+    assert "annotation_audit_entries" in source
+    assert "conflict_adjudications" in source
+
+
+def test_annotation_tables_absent_in_full_head_check(
+    migration_database_dir,
+    monkeypatch,
+):
+    """Full upgrade to HEAD must include both ALL_GOVERNED_TABLES and ANNOTATION_TABLES."""
+    database_url = _sqlite_url(migration_database_dir / "full_head_with_annotations.db")
+    _run_upgrade(monkeypatch, database_url, "head")
+    with _sqlite_engine(database_url) as engine:
+        tables = set(inspect(engine).get_table_names())
+        assert ALL_GOVERNED_TABLES <= tables
+        assert ANNOTATION_TABLES <= tables
+        with engine.connect() as conn:
+            assert conn.scalar(text("SELECT version_num FROM alembic_version")) == HEAD_REVISION
