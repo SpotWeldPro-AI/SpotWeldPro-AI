@@ -20,7 +20,7 @@ def database():
   if not db.query(User).filter(User.username=='admin').first():
    db.add(User(username='admin',email='admin@spotwelding.example',full_name='System Administrator',password_hash=hash_password('ChangeMe123!'),role='SYSTEM_ADMIN',is_active=True)); db.commit()
   if not db.query(User).filter(User.username=='demo').first():
-   db.add(User(username='demo',email='demo@internal.spotwelding',full_name='Demo User',password_hash=hash_password('A1234'),role='READ_ONLY',is_active=True)); db.commit()
+   db.add(User(username='demo',email='demo@internal.spotwelding',full_name='Demo User',password_hash=hash_password('A1234'),role='DEMO_USER',is_active=True)); db.commit()
  yield
  Base.metadata.drop_all(bind=engine); engine.dispose()
  for _ in range(10):

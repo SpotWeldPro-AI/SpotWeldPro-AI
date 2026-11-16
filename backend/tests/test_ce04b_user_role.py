@@ -141,8 +141,8 @@ class TestRolePermissionsKeys:
         for key in ROLE_PERMISSIONS:
             assert isinstance(key, UserRole), f"Non-canonical key in ROLE_PERMISSIONS: {key!r}"
 
-    def test_exactly_eight_entries(self):
-        assert len(ROLE_PERMISSIONS) == 8
+    def test_exactly_nine_entries(self):
+        assert len(ROLE_PERMISSIONS) == 9
 
     def test_no_legacy_label_keys(self):
         for key in ROLE_PERMISSIONS:

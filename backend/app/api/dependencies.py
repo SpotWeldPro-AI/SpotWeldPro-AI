@@ -25,6 +25,11 @@ ROLE_PERMISSIONS = {
     UserRole.OPERATOR:               {"project:read", "weld:read", "test:read"},
     UserRole.READ_ONLY:              {"project:read", "weld:read", "approval:read", "test:read"},
     UserRole.CUSTOMER:               {"project:read", "weld:read", "approval:read", "test:read"},
+    # DEMO_USER: full engineering module access, no approval-write or admin.
+    # E1 conflict adjudication and dataset export are gated by explicit role
+    # checks in annotation.py (_ADJUDICATION_ROLES / _EXPORT_ROLES) and
+    # never granted to DEMO_USER.
+    UserRole.DEMO_USER:              {"project:read", "project:write", "weld:read", "weld:write", "test:read"},
 }
 
 

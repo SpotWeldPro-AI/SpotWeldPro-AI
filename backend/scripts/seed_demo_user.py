@@ -15,7 +15,7 @@ Environment variables:
 The script is idempotent — it skips creation silently if the canonical
 username already exists. Run it once after applying migration 0014.
 
-Role: READ_ONLY (least-privileged role for product demonstration).
+Role: DEMO_USER (full engineering module access, no approval-write, no admin, no E1 adjudication).
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ DEMO_PASSWORD = _raw_password
 del _raw_password
 DEMO_EMAIL = f"{DEMO_USERNAME}@internal.spotwelding"
 DEMO_FULL_NAME = "Demo User"
-DEMO_ROLE = UserRole.READ_ONLY
+DEMO_ROLE = UserRole.DEMO_USER
 
 
 def seed_demo_user() -> None:

@@ -12,6 +12,7 @@ class UserRole(StrEnum):
     OPERATOR               = "OPERATOR"
     READ_ONLY              = "READ_ONLY"
     CUSTOMER               = "CUSTOMER"
+    DEMO_USER              = "DEMO_USER"
 
 class RiskLevel(StrEnum):
     HIGH   = "HIGH"

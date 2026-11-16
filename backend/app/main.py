@@ -109,7 +109,9 @@ async def lifespan(_app: FastAPI):
                 db.commit()
 
         # Demo user — only provisioned when DEMO_USERNAME and DEMO_PASSWORD are
-        # explicitly set.  Read-only role; isolated to the demo database.
+        # explicitly set.  DEMO_USER role grants engineering module access with
+        # no approval-write, no admin, and no E1 adjudication.
+        # Always use an isolated demo database (DATABASE_URL env var).
         demo_username = os.getenv("DEMO_USERNAME")
         demo_password = os.getenv("DEMO_PASSWORD")
         if demo_username and demo_password:
@@ -121,7 +123,7 @@ async def lifespan(_app: FastAPI):
                     email=f"{canonical_demo}@internal.spotwelding",
                     full_name="Demo User",
                     password_hash=hash_password(demo_password),
-                    role=UserRole.READ_ONLY,
+                    role=UserRole.DEMO_USER,
                 ))
                 db.commit()
     yield

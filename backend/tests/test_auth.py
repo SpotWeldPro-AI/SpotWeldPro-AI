@@ -9,13 +9,13 @@ Covers all required scenarios from the AUTH-UX-03 task spec:
   - existing email remains persisted (not removed by migration)
   - admin user creation requires both username and email
   - demo/A1234 login succeeds
-  - demo account role is READ_ONLY (minimum-privilege)
+  - demo account role is DEMO_USER (full engineering module access)
   - email-only login rejected under final contract
   - migration backfill assertions (null / duplicate checks via unit test)
 
 The conftest database fixture creates:
   - admin  / ChangeMe123!  / SYSTEM_ADMIN
-  - demo   / A1234         / READ_ONLY
+  - demo   / A1234         / DEMO_USER
 """
 
 import pytest
@@ -114,15 +114,15 @@ def test_demo_username_normalization(client, variant):
     assert r.status_code == 200, f"demo variant {repr(variant)} should authenticate"
 
 
-def test_demo_role_is_read_only(client):
-    """Demo account must use the least-privileged role (READ_ONLY)."""
+def test_demo_role_is_demo_user(client):
+    """Demo account uses the DEMO_USER role for full engineering module access."""
     r = _login(client, "demo", "A1234")
     assert r.status_code == 200
     token = r.json()["access_token"]
 
     me = client.get("/api/v1/auth/me", headers=_bearer(token))
     assert me.status_code == 200
-    assert me.json()["role"] == "READ_ONLY"
+    assert me.json()["role"] == "DEMO_USER"
 
 
 # ──────────────────────────────────────────────────────────────────────────────

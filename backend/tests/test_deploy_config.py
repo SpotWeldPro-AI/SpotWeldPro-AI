@@ -225,20 +225,21 @@ class TestReadOnlyRoleAccess:
         r = client.get("/api/v1/projects", headers=demo_headers)
         assert r.status_code == 200
 
-    def test_read_only_cannot_create_project(self, client, demo_headers):
+    def test_demo_user_can_create_project(self, client, demo_headers):
+        """DEMO_USER has project:write — project creation is allowed."""
         r = client.post(
             "/api/v1/projects",
-            json={"name": "Demo Test Project", "description": ""},
+            json={"name": "Demo Test Project", "description": "deploy config test"},
             headers=demo_headers,
         )
-        assert r.status_code == 403
+        assert r.status_code in (201, 422)
 
-    def test_read_only_me_returns_user(self, client, demo_headers):
+    def test_demo_user_me_returns_user(self, client, demo_headers):
         r = client.get("/api/v1/auth/me", headers=demo_headers)
         assert r.status_code == 200
         data = r.json()
         assert data["username"] == "demo"
-        assert data["role"] == "READ_ONLY"
+        assert data["role"] == "DEMO_USER"
 
 
 # ── Startup script exists and is valid ────────────────────────────────────────
@@ -281,10 +282,10 @@ class TestSeedDemoUserIdempotency:
         assert "existing" in content or "already exists" in content, \
             "seed_demo_user.py must check for existing user before creating"
 
-    def test_seed_script_uses_read_only_role(self):
+    def test_seed_script_uses_demo_user_role(self):
         p = Path(__file__).parent.parent / "scripts" / "seed_demo_user.py"
         content = p.read_text()
-        assert "READ_ONLY" in content
+        assert "DEMO_USER" in content
 
     def test_seed_script_requires_demo_password_env(self):
         p = Path(__file__).parent.parent / "scripts" / "seed_demo_user.py"
@@ -336,9 +337,9 @@ class TestOneClickDemoLogin:
         assert r.status_code == 200
         assert r.json()["username"] == "demo"
 
-    def test_demo_role_is_read_only(self, client, demo_headers):
+    def test_demo_role_is_demo_user(self, client, demo_headers):
         r = client.get("/api/v1/auth/me", headers=demo_headers)
-        assert r.json()["role"] == "READ_ONLY"
+        assert r.json()["role"] == "DEMO_USER"
 
     def test_demo_is_active(self, client, demo_headers):
         r = client.get("/api/v1/auth/me", headers=demo_headers)
@@ -362,13 +363,14 @@ class TestOneClickDemoLogin:
         )
         assert r.status_code == 403
 
-    def test_demo_cannot_create_projects(self, client, demo_headers):
+    def test_demo_can_create_projects(self, client, demo_headers):
+        """DEMO_USER has project:write — project creation is allowed."""
         r = client.post(
             "/api/v1/projects",
-            json={"name": "Attack Project", "description": ""},
+            json={"name": "Demo Engineering Project", "description": "demo test"},
             headers=demo_headers,
         )
-        assert r.status_code == 403
+        assert r.status_code in (201, 422)
 
     def test_wrong_password_returns_401(self, client):
         r = client.post("/api/v1/auth/login", json={"username": "demo", "password": "wrongpass"})
