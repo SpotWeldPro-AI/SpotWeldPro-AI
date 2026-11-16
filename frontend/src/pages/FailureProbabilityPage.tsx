@@ -5,6 +5,7 @@ import { useWeldAnalysis } from '../context/WeldAnalysisContext'
 import { useAppLanguage } from '../i18n/useAppLanguage'
 import type { RecommendedRangeRow } from '../types/weld'
 import { VisualWeldInspector } from '../components/weld/VisualWeldInspector'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 type FailureMode = {
   code: string
@@ -107,6 +108,7 @@ export function FailureProbabilityPage({ onNavigateToAnalysis }: { onNavigateToA
           <p className="subtitle">{fp.subtitle}</p>
         </div>
         <div className="page-actions">
+          <ModuleReadButton moduleId="failure" />
           <button className="btn btn-primary" onClick={analyze} disabled={loading || !contextReady}>
             {loading ? fp.calculating : fp.calculateBtn}
           </button>

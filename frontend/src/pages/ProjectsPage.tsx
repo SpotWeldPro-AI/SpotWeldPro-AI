@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { createProject, listProjects } from '../api/client'
 import type { Project } from '../types/project'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 export function ProjectsPage({ onOpen }: { onOpen: (project: Project) => void }) {
   const [projects, setProjects] = useState<Project[]>([])
@@ -46,6 +47,7 @@ export function ProjectsPage({ onOpen }: { onOpen: (project: Project) => void })
           <h1>Projects &amp; Weld Points</h1>
           <p className="subtitle">Project registry and weld-point definitions</p>
         </div>
+        <div className="page-actions"><ModuleReadButton moduleId="projects" /></div>
       </header>
 
       {error && (

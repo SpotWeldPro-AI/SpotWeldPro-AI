@@ -14,6 +14,7 @@
 
 import { useState, useId, useRef } from 'react'
 import { useAppLanguage } from '../i18n/useAppLanguage'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 import {
   energyEstimate, energyWindow, energyCost, energyAggregate,
   energyImportPreview, energyImportPreviewFile, energyScenarioCompare, energyDashboard,
@@ -1216,11 +1217,14 @@ export function EnergyPage() {
     <div style={{ padding: 'var(--sp-5) var(--sp-6)', maxWidth: 1100, margin: '0 auto' }}>
       {/* Page header */}
       <div className="page-header" style={{ marginBottom: 'var(--sp-5)' }}>
-        <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--accent)', letterSpacing: '0.08em', marginBottom: 4, fontWeight: 600 }}>
-          {p.kicker}
+        <div>
+          <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--accent)', letterSpacing: '0.08em', marginBottom: 4, fontWeight: 600 }}>
+            {p.kicker}
+          </div>
+          <h1>{p.title}</h1>
+          <p className="subtitle">{p.subtitle}</p>
         </div>
-        <h1>{p.title}</h1>
-        <p className="subtitle">{p.subtitle}</p>
+        <div className="page-actions"><ModuleReadButton moduleId="energy" /></div>
       </div>
 
       {/* Tab bar */}

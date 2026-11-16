@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import apiClient from '../api/client'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -208,7 +209,10 @@ export function StaticInspectionPage() {
 
   return (
     <div style={s}>
-      <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Static Inspection</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Static Inspection</h2>
+        <ModuleReadButton moduleId="inspection" />
+      </div>
       <p style={{ color: 'var(--muted, #6b7280)', fontSize: 14, marginBottom: 20 }}>
         Upload a weld surface image or cross-section. All measurements show their source
         (MEASURED / NOT AVAILABLE). Quality status requires explicit acceptance criteria.

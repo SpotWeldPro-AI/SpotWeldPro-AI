@@ -1,5 +1,6 @@
 import { useState, useId } from 'react'
 import { useAppLanguage } from '../i18n/useAppLanguage'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 import {
   taguchiDesign, taguchiAnalyze, anovaAnalyze,
   type TaguchiDesignResponse, type TaguchiAnalyzeResponse,
@@ -823,6 +824,7 @@ export function StatisticalAnalysisPage() {
           <h1>{p.title}</h1>
           <p className="subtitle">{p.subtitle}</p>
         </div>
+        <div className="page-actions"><ModuleReadButton moduleId="statistical" /></div>
       </div>
 
       <div className="stat-tabs" role="tablist" aria-label={p.title}>

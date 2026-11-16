@@ -1,0 +1,56 @@
+[
+  {
+    "scenario_id": "PROJ-STRESS-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Project CRUD: create 'SynthProject_42_001'",
+    "module": "projects",
+    "inputs": {
+      "name": "SynthProject_42_001",
+      "description": "Synthetic test project 1"
+    },
+    "expected_oracle": {
+      "id_present": true,
+      "name": "SynthProject_42_001",
+      "owner_match": true
+    },
+    "expected_status": "pass",
+    "oracle_method": "schema+invariant"
+  },
+  {
+    "scenario_id": "PROJ-STRESS-002",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Project CRUD: create 'SynthProject_42_002'",
+    "module": "projects",
+    "inputs": {
+      "name": "SynthProject_42_002",
+      "description": "Synthetic test project 2"
+    },
+    "expected_oracle": {
+      "id_present": true,
+      "name": "SynthProject_42_002",
+      "owner_match": true
+    },
+    "expected_status": "pass",
+    "oracle_method": "schema+invariant"
+  },
+  {
+    "scenario_id": "PROJ-STRESS-003",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Project CRUD: create 'SynthProject_42_003'",
+    "module": "projects",
+    "inputs": {
+      "name": "SynthProject_42_003",
+      "description": "Synthetic test project 3"
+    },
+    "expected_oracle": {
+      "id_present": true,
+      "name": "SynthProject_42_003",
+      "owner_match": true
+    },
+    "expected_status": "pass",
+    "oracle_method": "schema+invariant"
+  }
+]

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import client from '../api/client'
 import { useAppLanguage } from '../i18n/useAppLanguage'
 import './ModelCatalogPage.css'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type ValidationEvidence = {
@@ -375,6 +376,7 @@ export function ModelCatalogPage() {
           <h1>{p.title}</h1>
           <p className="subtitle">{p.subtitle}</p>
         </div>
+        <div className="page-actions"><ModuleReadButton moduleId="models" /></div>
       </header>
 
       <div className="ws-context-bar" aria-label="Model catalog context">

@@ -1,0 +1,970 @@
+[
+  {
+    "scenario_id": "EN-EST-STRESS-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=99.5mΩ I=8.16kA t=245.1ms oracle=1623852.99J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 99.5,
+      "current_ka": 8.16,
+      "weld_time_ms": 245.1,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1623852.9907,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-002",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=119.9mΩ I=9.68kA t=154.0ms oracle=1730177.34J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 119.9,
+      "current_ka": 9.68,
+      "weld_time_ms": 154.0,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1730177.335,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-003",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=114.6mΩ I=7.28kA t=187.3ms oracle=1137588.40J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 114.6,
+      "current_ka": 7.28,
+      "weld_time_ms": 187.3,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1137588.3967,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-004",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=104.8mΩ I=6.81kA t=141.5ms oracle=687720.46J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 104.8,
+      "current_ka": 6.81,
+      "weld_time_ms": 141.5,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 687720.4621,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-005",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=121.7mΩ I=11.16kA t=202.3ms oracle=3066301.46J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 121.7,
+      "current_ka": 11.16,
+      "weld_time_ms": 202.3,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 3066301.4629,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-006",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=116.2mΩ I=6.34kA t=133.1ms oracle=621673.99J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 116.2,
+      "current_ka": 6.34,
+      "weld_time_ms": 133.1,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 621673.9926,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-007",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=108.4mΩ I=8.89kA t=132.9ms oracle=1138564.88J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 108.4,
+      "current_ka": 8.89,
+      "weld_time_ms": 132.9,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1138564.8842,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-008",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=113.3mΩ I=9.98kA t=178.6ms oracle=2015451.94J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 113.3,
+      "current_ka": 9.98,
+      "weld_time_ms": 178.6,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 2015451.9422,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-009",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=81.2mΩ I=7.06kA t=169.0ms oracle=683993.75J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 81.2,
+      "current_ka": 7.06,
+      "weld_time_ms": 169.0,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 683993.7541,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-010",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=97.0mΩ I=9.65kA t=161.2ms oracle=1456100.66J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 97.0,
+      "current_ka": 9.65,
+      "weld_time_ms": 161.2,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1456100.659,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-011",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=118.7mΩ I=7.41kA t=299.3ms oracle=1950715.13J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 118.7,
+      "current_ka": 7.41,
+      "weld_time_ms": 299.3,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1950715.127,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-012",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=118.5mΩ I=7.46kA t=179.8ms oracle=1185729.69J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 118.5,
+      "current_ka": 7.46,
+      "weld_time_ms": 179.8,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1185729.6851,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-013",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=101.5mΩ I=6.61kA t=238.7ms oracle=1058574.38J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 101.5,
+      "current_ka": 6.61,
+      "weld_time_ms": 238.7,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1058574.3834,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-014",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=102.1mΩ I=10.2kA t=289.2ms oracle=3072022.37J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 102.1,
+      "current_ka": 10.2,
+      "weld_time_ms": 289.2,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 3072022.3728,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-015",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=128.3mΩ I=6.34kA t=242.5ms oracle=1250595.65J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 128.3,
+      "current_ka": 6.34,
+      "weld_time_ms": 242.5,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1250595.6539,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-016",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=99.4mΩ I=9.13kA t=247.2ms oracle=2048219.07J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 99.4,
+      "current_ka": 9.13,
+      "weld_time_ms": 247.2,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 2048219.0726,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-017",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=121.8mΩ I=11.86kA t=263.2ms oracle=4509231.70J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 121.8,
+      "current_ka": 11.86,
+      "weld_time_ms": 263.2,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 4509231.6985,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-018",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=100.7mΩ I=7.53kA t=146.5ms oracle=836482.86J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 100.7,
+      "current_ka": 7.53,
+      "weld_time_ms": 146.5,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 836482.8623,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-019",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=129.6mΩ I=5.89kA t=90.0ms oracle=404648.65J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 129.6,
+      "current_ka": 5.89,
+      "weld_time_ms": 90.0,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 404648.6544,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-020",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=83.8mΩ I=7.04kA t=287.7ms oracle=1194893.50J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 83.8,
+      "current_ka": 7.04,
+      "weld_time_ms": 287.7,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1194893.5004,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-021",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=124.7mΩ I=10.27kA t=102.6ms oracle=1349443.49J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 124.7,
+      "current_ka": 10.27,
+      "weld_time_ms": 102.6,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1349443.4866,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-022",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=80.9mΩ I=6.99kA t=185.3ms oracle=732450.52J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 80.9,
+      "current_ka": 6.99,
+      "weld_time_ms": 185.3,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 732450.5213,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-023",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=103.8mΩ I=11.76kA t=135.5ms oracle=1945141.91J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 103.8,
+      "current_ka": 11.76,
+      "weld_time_ms": 135.5,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1945141.9142,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-024",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=140.3mΩ I=5.8kA t=94.4ms oracle=445538.92J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 140.3,
+      "current_ka": 5.8,
+      "weld_time_ms": 94.4,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 445538.9248,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-025",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=114.4mΩ I=9.04kA t=231.0ms oracle=2159607.69J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 114.4,
+      "current_ka": 9.04,
+      "weld_time_ms": 231.0,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 2159607.6902,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-026",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=90.6mΩ I=10.68kA t=288.8ms oracle=2984474.63J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 90.6,
+      "current_ka": 10.68,
+      "weld_time_ms": 288.8,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 2984474.6335,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-027",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=86.0mΩ I=6.74kA t=202.8ms oracle=792293.69J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 86.0,
+      "current_ka": 6.74,
+      "weld_time_ms": 202.8,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 792293.6861,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-028",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=109.1mΩ I=9.17kA t=216.1ms oracle=1982522.79J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 109.1,
+      "current_ka": 9.17,
+      "weld_time_ms": 216.1,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1982522.7917,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-029",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=134.3mΩ I=7.66kA t=279.9ms oracle=2205649.25J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 134.3,
+      "current_ka": 7.66,
+      "weld_time_ms": 279.9,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 2205649.2491,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-030",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=100.8mΩ I=9.12kA t=174.3ms oracle=1461327.63J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 100.8,
+      "current_ka": 9.12,
+      "weld_time_ms": 174.3,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1461327.6303,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-031",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=119.8mΩ I=5.42kA t=291.2ms oracle=1024818.04J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 119.8,
+      "current_ka": 5.42,
+      "weld_time_ms": 291.2,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1024818.0401,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-032",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=86.9mΩ I=10.34kA t=217.6ms oracle=2021714.12J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 86.9,
+      "current_ka": 10.34,
+      "weld_time_ms": 217.6,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 2021714.1233,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-033",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=98.5mΩ I=5.57kA t=132.8ms oracle=405830.51J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 98.5,
+      "current_ka": 5.57,
+      "weld_time_ms": 132.8,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 405830.5119,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-034",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=118.6mΩ I=6.1kA t=169.9ms oracle=749786.71J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 118.6,
+      "current_ka": 6.1,
+      "weld_time_ms": 169.9,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 749786.7094,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-035",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=128.3mΩ I=8.29kA t=87.2ms oracle=768868.74J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 128.3,
+      "current_ka": 8.29,
+      "weld_time_ms": 87.2,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 768868.737,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-036",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=100.2mΩ I=6.98kA t=269.1ms oracle=1313688.10J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 100.2,
+      "current_ka": 6.98,
+      "weld_time_ms": 269.1,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1313688.0959,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-037",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=85.0mΩ I=6.63kA t=138.2ms oracle=516361.70J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 85.0,
+      "current_ka": 6.63,
+      "weld_time_ms": 138.2,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 516361.7043,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-038",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=135.4mΩ I=9.13kA t=256.9ms oracle=2899508.08J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 135.4,
+      "current_ka": 9.13,
+      "weld_time_ms": 256.9,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 2899508.0824,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-039",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=93.8mΩ I=5.8kA t=129.5ms oracle=408628.44J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 93.8,
+      "current_ka": 5.8,
+      "weld_time_ms": 129.5,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 408628.444,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-040",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=90.4mΩ I=6.86kA t=111.3ms oracle=473491.11J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 90.4,
+      "current_ka": 6.86,
+      "weld_time_ms": 111.3,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 473491.1066,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-041",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=84.2mΩ I=10.55kA t=210.9ms oracle=1976485.31J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 84.2,
+      "current_ka": 10.55,
+      "weld_time_ms": 210.9,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1976485.3085,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-042",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=137.7mΩ I=11.45kA t=176.6ms oracle=3188127.00J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 137.7,
+      "current_ka": 11.45,
+      "weld_time_ms": 176.6,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 3188126.9966,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-043",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=112.8mΩ I=7.13kA t=168.6ms oracle=966820.23J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 112.8,
+      "current_ka": 7.13,
+      "weld_time_ms": 168.6,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 966820.2312,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-044",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=99.1mΩ I=8.78kA t=176.3ms oracle=1346836.88J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 99.1,
+      "current_ka": 8.78,
+      "weld_time_ms": 176.3,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1346836.8756,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-045",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=121.9mΩ I=11.23kA t=241.6ms oracle=3714156.06J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 121.9,
+      "current_ka": 11.23,
+      "weld_time_ms": 241.6,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 3714156.0624,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-046",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=122.3mΩ I=5.18kA t=130.4ms oracle=427920.97J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 122.3,
+      "current_ka": 5.18,
+      "weld_time_ms": 130.4,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 427920.9686,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-047",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=127.2mΩ I=11.02kA t=209.2ms oracle=3231558.19J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 127.2,
+      "current_ka": 11.02,
+      "weld_time_ms": 209.2,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 3231558.1897,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-048",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=81.5mΩ I=10.35kA t=260.7ms oracle=2276037.11J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 81.5,
+      "current_ka": 10.35,
+      "weld_time_ms": 260.7,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 2276037.1136,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-049",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=120.3mΩ I=10.34kA t=118.5ms oracle=1524140.68J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 120.3,
+      "current_ka": 10.34,
+      "weld_time_ms": 118.5,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1524140.6816,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-STRESS-050",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Energy estimate: R=116.3mΩ I=8.1kA t=141.2ms oracle=1077418.55J",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 116.3,
+      "current_ka": 8.1,
+      "weld_time_ms": 141.2,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "oracle_energy_j": 1077418.5516,
+      "tolerance_pct": 1.0
+    },
+    "expected_status": "pass",
+    "oracle_method": "i2rt_formula"
+  },
+  {
+    "scenario_id": "EN-EST-INV001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Invalid: resistance_mohm=0",
+    "module": "energy_estimate",
+    "inputs": {
+      "resistance_mohm": 0.0,
+      "current_ka": 8.0,
+      "weld_time_ms": 150.0,
+      "efficiency_pct": 100.0
+    },
+    "expected_oracle": {
+      "expected_http_status": 422
+    },
+    "expected_status": "fail",
+    "oracle_method": "schema_validation"
+  }
+]

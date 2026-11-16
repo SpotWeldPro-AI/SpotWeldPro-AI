@@ -16,6 +16,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { AnnotationCanvas, Region, RegionType } from '../components/annotation/AnnotationCanvas'
 import { useAppLanguage } from '../i18n/useAppLanguage'
 import { getAuthHeaders } from '../api/client'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 const API = '/api/v1/annotation'
 
@@ -276,9 +277,12 @@ export function AnnotationPage() {
       <aside style={{ width: 260, flexShrink: 0, borderRight: '1px solid #333',
                       display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ padding: '12px 12px 8px', borderBottom: '1px solid #333' }}>
-          <h2 style={{ margin: '0 0 8px', fontSize: 14, color: '#e5e7eb' }}>
-            {lang === 'tr' ? 'Annotasyonlar' : 'Annotations'} ({total})
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <h2 style={{ margin: 0, fontSize: 14, color: '#e5e7eb', flex: 1 }}>
+              {lang === 'tr' ? 'Annotasyonlar' : 'Annotations'} ({total})
+            </h2>
+            <ModuleReadButton moduleId="annotation" />
+          </div>
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
             style={{ width: '100%', marginBottom: 4, fontSize: 12, background: '#1f2937', color: '#d1d5db', border: '1px solid #374151', borderRadius: 4, padding: '3px 6px' }}>
             <option value="">— {lang === 'tr' ? 'Tüm Durumlar' : 'All Statuses'} —</option>

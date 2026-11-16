@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { RISK_LEVEL_LABELS } from '../constants/riskLevel'
 import { useWeldAnalysis } from '../context/WeldAnalysisContext'
 import { useAppLanguage } from '../i18n/useAppLanguage'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 const baseLayer: LayerInput = { material_family: 'Düşük / Orta Karbonlu Çelik', material_subtype: 'Düşük karbonlu çelik', thickness_mm: 1, coated: false }
 const base: WeldAnalysisRequest = { ...baseLayer, stack_count: '2T', layers: [{ ...baseLayer }, { ...baseLayer }], current_ka: 8, weld_cycles: 12, force_kn: 3, tip_diameter_mm: 6, squeeze_cycles: 15, hold_cycles: 15, cooling_flow_lpm: 6, cooling_temp_c: 20, dc_current: true, adhesive: false, shunt_risk: false }
 
@@ -101,7 +102,10 @@ export function AnalysisPage() {
         <h1>Weld Quality Analysis</h1>
         <p className="subtitle">Rule-governed spot weld evaluation — deterministic limits with model support</p>
       </div>
-      <div className="page-actions"><button className="btn btn-primary" onClick={run} disabled={busy}>{busy?'Analyzing…':'Run analysis'}</button></div>
+      <div className="page-actions">
+        <ModuleReadButton moduleId="analysis" onLoadExample={(_, inputs) => setP(inputs as WeldAnalysisRequest)} />
+        <button className="btn btn-primary" onClick={run} disabled={busy}>{busy?'Analyzing…':'Run analysis'}</button>
+      </div>
     </header>
     <div className="ws-context-bar" aria-label="Engineering context">
       <span className="ctx-chip accent">Authority: <strong>deterministic rules</strong></span>

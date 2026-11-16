@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { currentUser, dashboard } from '../api/client'
 import { useAppLanguage } from '../i18n/useAppLanguage'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 type DashboardData = {
   total_projects: number
@@ -41,6 +42,7 @@ export function DashboardPage() {
             <h1>{t.dashboardPage.title}</h1>
             <p className="subtitle">{t.dashboardPage.subtitle}</p>
           </div>
+          <div className="page-actions"><ModuleReadButton moduleId="dashboard" /></div>
         </header>
         <div className="alert danger" role="alert">
           <div>

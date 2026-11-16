@@ -1,0 +1,1548 @@
+[
+  {
+    "scenario_id": "EL-LOBE-STRESS-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.34mm min_nugget=6.119mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.34,
+      "force_kn": 3.8,
+      "min_nugget_mm": 6.119,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-002",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.98mm min_nugget=5.628mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.98,
+      "force_kn": 4.6,
+      "min_nugget_mm": 5.628,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-003",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.1mm min_nugget=5.797mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.1,
+      "force_kn": 3.1,
+      "min_nugget_mm": 5.797,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-004",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.81mm min_nugget=3.6mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.81,
+      "force_kn": 3.1,
+      "min_nugget_mm": 3.6,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 17
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-005",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.08mm min_nugget=5.769mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.08,
+      "force_kn": 4.6,
+      "min_nugget_mm": 5.769,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-006",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.42mm min_nugget=6.223mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.42,
+      "force_kn": 3.3,
+      "min_nugget_mm": 6.223,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-007",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.07mm min_nugget=5.755mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.07,
+      "force_kn": 3.6,
+      "min_nugget_mm": 5.755,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-008",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.83mm min_nugget=5.411mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.83,
+      "force_kn": 2.7,
+      "min_nugget_mm": 5.411,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-009",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.17mm min_nugget=4.327mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.17,
+      "force_kn": 3.3,
+      "min_nugget_mm": 4.327,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-010",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.85mm min_nugget=3.688mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.85,
+      "force_kn": 3.0,
+      "min_nugget_mm": 3.688,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 14
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-011",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.95mm min_nugget=5.586mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.95,
+      "force_kn": 3.2,
+      "min_nugget_mm": 5.586,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-012",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.08mm min_nugget=4.157mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.08,
+      "force_kn": 3.4,
+      "min_nugget_mm": 4.157,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 2
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-013",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.02mm min_nugget=4.04mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.02,
+      "force_kn": 3.9,
+      "min_nugget_mm": 4.04,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 4
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-014",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.85mm min_nugget=3.688mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.85,
+      "force_kn": 3.2,
+      "min_nugget_mm": 3.688,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 14
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-015",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.76mm min_nugget=5.307mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.76,
+      "force_kn": 2.1,
+      "min_nugget_mm": 5.307,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-016",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.89mm min_nugget=5.499mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.89,
+      "force_kn": 2.4,
+      "min_nugget_mm": 5.499,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-017",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.58mm min_nugget=5.028mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.58,
+      "force_kn": 2.2,
+      "min_nugget_mm": 5.028,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-018",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.44mm min_nugget=4.8mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.44,
+      "force_kn": 2.6,
+      "min_nugget_mm": 4.8,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-019",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.36mm min_nugget=4.665mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.36,
+      "force_kn": 4.3,
+      "min_nugget_mm": 4.665,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-020",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.44mm min_nugget=4.8mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.44,
+      "force_kn": 4.3,
+      "min_nugget_mm": 4.8,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-021",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.21mm min_nugget=5.946mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.21,
+      "force_kn": 2.8,
+      "min_nugget_mm": 5.946,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-022",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.94mm min_nugget=3.878mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.94,
+      "force_kn": 2.1,
+      "min_nugget_mm": 3.878,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 8
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-023",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.72mm min_nugget=5.246mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.72,
+      "force_kn": 5.0,
+      "min_nugget_mm": 5.246,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-024",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.39mm min_nugget=4.716mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.39,
+      "force_kn": 4.0,
+      "min_nugget_mm": 4.716,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-025",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.13mm min_nugget=5.838mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.13,
+      "force_kn": 4.0,
+      "min_nugget_mm": 5.838,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-026",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.08mm min_nugget=5.769mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.08,
+      "force_kn": 4.8,
+      "min_nugget_mm": 5.769,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-027",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.14mm min_nugget=4.271mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.14,
+      "force_kn": 2.1,
+      "min_nugget_mm": 4.271,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-028",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.06mm min_nugget=4.118mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.06,
+      "force_kn": 2.4,
+      "min_nugget_mm": 4.118,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 2
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-029",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.94mm min_nugget=5.571mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.94,
+      "force_kn": 3.7,
+      "min_nugget_mm": 5.571,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-030",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.17mm min_nugget=4.327mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.17,
+      "force_kn": 4.1,
+      "min_nugget_mm": 4.327,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-031",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.1mm min_nugget=5.797mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.1,
+      "force_kn": 2.5,
+      "min_nugget_mm": 5.797,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-032",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.83mm min_nugget=5.411mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.83,
+      "force_kn": 4.2,
+      "min_nugget_mm": 5.411,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-033",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.99mm min_nugget=3.98mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.99,
+      "force_kn": 4.5,
+      "min_nugget_mm": 3.98,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 5
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-034",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.44mm min_nugget=6.248mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.44,
+      "force_kn": 2.3,
+      "min_nugget_mm": 6.248,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-035",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.84mm min_nugget=3.666mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.84,
+      "force_kn": 2.9,
+      "min_nugget_mm": 3.666,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 15
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-036",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.95mm min_nugget=5.586mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.95,
+      "force_kn": 4.9,
+      "min_nugget_mm": 5.586,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-037",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.47mm min_nugget=4.85mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.47,
+      "force_kn": 4.1,
+      "min_nugget_mm": 4.85,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-038",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.93mm min_nugget=3.857mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.93,
+      "force_kn": 4.1,
+      "min_nugget_mm": 3.857,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 8
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-039",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.87mm min_nugget=5.47mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.87,
+      "force_kn": 2.3,
+      "min_nugget_mm": 5.47,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-040",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.11mm min_nugget=5.81mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.11,
+      "force_kn": 4.6,
+      "min_nugget_mm": 5.81,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-041",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.82mm min_nugget=5.396mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.82,
+      "force_kn": 2.4,
+      "min_nugget_mm": 5.396,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-042",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.47mm min_nugget=6.286mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.47,
+      "force_kn": 4.3,
+      "min_nugget_mm": 6.286,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-043",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.39mm min_nugget=4.716mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.39,
+      "force_kn": 3.3,
+      "min_nugget_mm": 4.716,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-044",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.43mm min_nugget=4.783mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.43,
+      "force_kn": 3.5,
+      "min_nugget_mm": 4.783,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-045",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.38mm min_nugget=4.699mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.38,
+      "force_kn": 4.5,
+      "min_nugget_mm": 4.699,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-046",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.2mm min_nugget=5.933mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.2,
+      "force_kn": 2.3,
+      "min_nugget_mm": 5.933,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-047",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.43mm min_nugget=6.235mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.43,
+      "force_kn": 3.9,
+      "min_nugget_mm": 6.235,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-048",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.21mm min_nugget=5.946mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.21,
+      "force_kn": 4.1,
+      "min_nugget_mm": 5.946,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-049",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.54mm min_nugget=4.964mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.54,
+      "force_kn": 4.2,
+      "min_nugget_mm": 4.964,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-STRESS-050",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.44mm min_nugget=6.248mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.44,
+      "force_kn": 2.8,
+      "min_nugget_mm": 6.248,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LIFE-STRESS-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 9.2kA 80539 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 9.2,
+      "annual_spot_count": 80539
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-LIFE-STRESS-002",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 9.1kA 70931 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 9.1,
+      "annual_spot_count": 70931
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-LIFE-STRESS-003",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 7.7kA 87656 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 7.7,
+      "annual_spot_count": 87656
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-LIFE-STRESS-004",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 7.1kA 42177 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 7.1,
+      "annual_spot_count": 42177
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-LIFE-STRESS-005",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 9.3kA 21359 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 9.3,
+      "annual_spot_count": 21359
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-DR-NORMAL-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Dynamic resistance: Normal quality pattern",
+    "module": "engineering_dynamic_resistance",
+    "inputs": {
+      "samples_micro_ohm": [
+        80.0,
+        100.0,
+        120.0,
+        115.0,
+        105.0,
+        95.0,
+        90.0
+      ]
+    },
+    "expected_oracle": {
+      "peak_range": [
+        80.0,
+        132.0
+      ],
+      "quality_possible_values": [
+        "Normal",
+        "High",
+        "Low",
+        "Fault",
+        "Unknown"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "range_check"
+  },
+  {
+    "scenario_id": "EL-DR-HIGH-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Dynamic resistance: High quality pattern",
+    "module": "engineering_dynamic_resistance",
+    "inputs": {
+      "samples_micro_ohm": [
+        50.0,
+        80.0,
+        180.0,
+        170.0,
+        160.0,
+        150.0,
+        140.0
+      ]
+    },
+    "expected_oracle": {
+      "peak_range": [
+        50.0,
+        198.00000000000003
+      ],
+      "quality_possible_values": [
+        "Normal",
+        "High",
+        "Low",
+        "Fault",
+        "Unknown"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "range_check"
+  },
+  {
+    "scenario_id": "EL-DR-FAULT-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Dynamic resistance: Fault quality pattern",
+    "module": "engineering_dynamic_resistance",
+    "inputs": {
+      "samples_micro_ohm": [
+        200.0,
+        210.0,
+        220.0,
+        230.0,
+        240.0,
+        250.0,
+        260.0
+      ]
+    },
+    "expected_oracle": {
+      "peak_range": [
+        200.0,
+        286.0
+      ],
+      "quality_possible_values": [
+        "Normal",
+        "High",
+        "Low",
+        "Fault",
+        "Unknown"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "range_check"
+  },
+  {
+    "scenario_id": "EL-PS-MILD_-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Pulse strategy: mild_steel coated=False",
+    "module": "engineering_pulse_strategy",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "thickness_ratio": 1.0,
+      "stack_count": "2T",
+      "adhesive": false,
+      "current_ka": 8.0,
+      "weld_cycles": 12.0
+    },
+    "expected_oracle": {
+      "pulse_count_range": [
+        1,
+        4
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-PS-GALVA-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Pulse strategy: galvanized_steel coated=True",
+    "module": "engineering_pulse_strategy",
+    "inputs": {
+      "material_family": "galvanized_steel",
+      "coated": true,
+      "thickness_ratio": 1.0,
+      "stack_count": "2T",
+      "adhesive": false,
+      "current_ka": 8.0,
+      "weld_cycles": 12.0
+    },
+    "expected_oracle": {
+      "pulse_count_range": [
+        1,
+        4
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-PS-STAIN-001",
+    "profile": "stress",
+    "seed": 42,
+    "description": "Pulse strategy: stainless_steel coated=False",
+    "module": "engineering_pulse_strategy",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "coated": false,
+      "thickness_ratio": 1.0,
+      "stack_count": "2T",
+      "adhesive": false,
+      "current_ka": 8.0,
+      "weld_cycles": 12.0
+    },
+    "expected_oracle": {
+      "pulse_count_range": [
+        1,
+        4
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  }
+]

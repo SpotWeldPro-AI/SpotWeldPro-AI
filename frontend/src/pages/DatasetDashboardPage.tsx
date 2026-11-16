@@ -14,6 +14,7 @@
 import { useState, useEffect } from 'react'
 import { useAppLanguage } from '../i18n/useAppLanguage'
 import { getAuthHeaders } from '../api/client'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 const API = '/api/v1/annotation'
 
@@ -167,9 +168,12 @@ export function DatasetDashboardPage() {
 
   return (
     <div style={{ padding: '20px 24px', overflowY: 'auto', height: '100%', boxSizing: 'border-box' }}>
-      <h1 style={{ margin: '0 0 4px', fontSize: 20, color: '#f9fafb' }}>
-        {lang === 'tr' ? 'Veri Seti Kalite Panosu' : 'Dataset Quality Dashboard'}
-      </h1>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 4 }}>
+        <h1 style={{ margin: 0, fontSize: 20, color: '#f9fafb', flex: 1 }}>
+          {lang === 'tr' ? 'Veri Seti Kalite Panosu' : 'Dataset Quality Dashboard'}
+        </h1>
+        <ModuleReadButton moduleId="dataset_dashboard" />
+      </div>
       <p style={{ margin: '0 0 20px', fontSize: 13, color: '#9ca3af' }}>
         VISION-P3E · {lang === 'tr' ? 'V5 Veri Seti Remediasyon Durumu' : 'V5 Dataset Remediation Status'}
       </p>

@@ -17,6 +17,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAppLanguage } from '../i18n/useAppLanguage'
 import { getAuthHeaders } from '../api/client'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 const API = '/api/v1/annotation'
 
@@ -278,9 +279,12 @@ export function ConflictReviewPage() {
 
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>
-          {lang === 'tr' ? 'Çakışma İnceleme Kuyruğu' : 'Conflict Review Queue'}
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, flex: 1 }}>
+            {lang === 'tr' ? 'Çakışma İnceleme Kuyruğu' : 'Conflict Review Queue'}
+          </h1>
+          <ModuleReadButton moduleId="conflict_review" />
+        </div>
         <p style={{ margin: '4px 0 0', color: '#9ca3af', fontSize: 13 }}>
           {lang === 'tr'
             ? 'P3I — Etiket çakışmaları insan incelemesiyle çözülür. Otomatik karar verilmez.'

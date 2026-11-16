@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import client from '../api/client'
 import { useAppLanguage } from '../i18n/useAppLanguage'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 // ── Shared types ──────────────────────────────────────────────────────────────
 
@@ -256,6 +257,7 @@ export function EngineeringPage() {
             <p className="subtitle">{ep.subtitle}</p>
           </div>
           <div className="page-actions">
+            <ModuleReadButton moduleId="engineering" />
             <button className="btn btn-primary" onClick={calculateLobe} disabled={lobeBusy}>
               {lobeBusy ? ep.calculating : ep.calculateBtn}
             </button>

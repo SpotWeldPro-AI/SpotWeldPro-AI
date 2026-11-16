@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error'
 type SourceType = 'webcam' | 'rtsp' | 'file'
@@ -205,7 +206,10 @@ export function LiveMonitoringPage() {
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif', padding: '0 4px' }}>
-      <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Live Monitoring</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Live Monitoring</h2>
+        <ModuleReadButton moduleId="live" />
+      </div>
 
       {/* Framework disclaimer */}
       <div style={{ ...card, background: '#fffbeb', border: '1px solid #fcd34d', marginBottom: 20 }}>

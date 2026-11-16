@@ -1,0 +1,673 @@
+[
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.08mm min_nugget=4.157mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.08,
+      "force_kn": 3.6,
+      "min_nugget_mm": 4.157,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 2
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-002",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.83mm min_nugget=5.411mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.83,
+      "force_kn": 4.9,
+      "min_nugget_mm": 5.411,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-003",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.38mm min_nugget=6.171mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.38,
+      "force_kn": 4.3,
+      "min_nugget_mm": 6.171,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-004",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.97mm min_nugget=5.614mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.97,
+      "force_kn": 4.1,
+      "min_nugget_mm": 5.614,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-005",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.48mm min_nugget=4.866mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.48,
+      "force_kn": 4.0,
+      "min_nugget_mm": 4.866,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-006",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.43mm min_nugget=4.783mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.43,
+      "force_kn": 4.7,
+      "min_nugget_mm": 4.783,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-007",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.57mm min_nugget=5.012mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.57,
+      "force_kn": 2.7,
+      "min_nugget_mm": 5.012,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-008",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.91mm min_nugget=3.816mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.91,
+      "force_kn": 2.1,
+      "min_nugget_mm": 3.816,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 10
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-009",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.74mm min_nugget=5.276mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.74,
+      "force_kn": 3.8,
+      "min_nugget_mm": 5.276,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-010",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.81mm min_nugget=3.6mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.81,
+      "force_kn": 4.1,
+      "min_nugget_mm": 3.6,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 17
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-011",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.9mm min_nugget=3.795mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.9,
+      "force_kn": 2.2,
+      "min_nugget_mm": 3.795,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 10
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-012",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 0.85mm min_nugget=3.688mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 0.85,
+      "force_kn": 3.0,
+      "min_nugget_mm": 3.688,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 14
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-013",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.67mm min_nugget=5.169mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.67,
+      "force_kn": 2.8,
+      "min_nugget_mm": 5.169,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-014",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 1.63mm min_nugget=5.107mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 1.63,
+      "force_kn": 3.6,
+      "min_nugget_mm": 5.107,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LOBE-MEDIUM-015",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld lobe: mild_steel 2.03mm min_nugget=5.699mm",
+    "module": "engineering_weld_lobe",
+    "inputs": {
+      "material_family": "mild_steel",
+      "thickness_mm": 2.03,
+      "force_kn": 4.6,
+      "min_nugget_mm": 5.699,
+      "current_min_ka": 5.0,
+      "current_max_ka": 12.0,
+      "current_step_ka": 0.5,
+      "time_min_cycles": 5.0,
+      "time_max_cycles": 20.0,
+      "time_step_cycles": 1.0
+    },
+    "expected_oracle": {
+      "total_points": 240,
+      "oracle_safe_count": 0
+    },
+    "expected_status": "pass",
+    "oracle_method": "grid_enumeration"
+  },
+  {
+    "scenario_id": "EL-LIFE-MEDIUM-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 8.3kA 41850 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 8.3,
+      "annual_spot_count": 41850
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-LIFE-MEDIUM-002",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 9.1kA 63354 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 9.1,
+      "annual_spot_count": 63354
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-LIFE-MEDIUM-003",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 6.8kA 22704 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 6.8,
+      "annual_spot_count": 22704
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-LIFE-MEDIUM-004",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 8.6kA 56438 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 8.6,
+      "annual_spot_count": 56438
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-LIFE-MEDIUM-005",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Electrode life: mild_steel coated=False 7.7kA 71213 spots/yr",
+    "module": "engineering_electrode_life",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "tip_diameter_mm": 6.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "current_ka": 7.7,
+      "annual_spot_count": 71213
+    },
+    "expected_oracle": {
+      "life_spots_range": [
+        500,
+        50000
+      ],
+      "caps_per_year_min": 1
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-DR-NORMAL-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Dynamic resistance: Normal quality pattern",
+    "module": "engineering_dynamic_resistance",
+    "inputs": {
+      "samples_micro_ohm": [
+        80.0,
+        100.0,
+        120.0,
+        115.0,
+        105.0,
+        95.0,
+        90.0
+      ]
+    },
+    "expected_oracle": {
+      "peak_range": [
+        80.0,
+        132.0
+      ],
+      "quality_possible_values": [
+        "Normal",
+        "High",
+        "Low",
+        "Fault",
+        "Unknown"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "range_check"
+  },
+  {
+    "scenario_id": "EL-DR-HIGH-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Dynamic resistance: High quality pattern",
+    "module": "engineering_dynamic_resistance",
+    "inputs": {
+      "samples_micro_ohm": [
+        50.0,
+        80.0,
+        180.0,
+        170.0,
+        160.0,
+        150.0,
+        140.0
+      ]
+    },
+    "expected_oracle": {
+      "peak_range": [
+        50.0,
+        198.00000000000003
+      ],
+      "quality_possible_values": [
+        "Normal",
+        "High",
+        "Low",
+        "Fault",
+        "Unknown"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "range_check"
+  },
+  {
+    "scenario_id": "EL-DR-FAULT-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Dynamic resistance: Fault quality pattern",
+    "module": "engineering_dynamic_resistance",
+    "inputs": {
+      "samples_micro_ohm": [
+        200.0,
+        210.0,
+        220.0,
+        230.0,
+        240.0,
+        250.0,
+        260.0
+      ]
+    },
+    "expected_oracle": {
+      "peak_range": [
+        200.0,
+        286.0
+      ],
+      "quality_possible_values": [
+        "Normal",
+        "High",
+        "Low",
+        "Fault",
+        "Unknown"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "range_check"
+  },
+  {
+    "scenario_id": "EL-PS-MILD_-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Pulse strategy: mild_steel coated=False",
+    "module": "engineering_pulse_strategy",
+    "inputs": {
+      "material_family": "mild_steel",
+      "coated": false,
+      "thickness_ratio": 1.0,
+      "stack_count": "2T",
+      "adhesive": false,
+      "current_ka": 8.0,
+      "weld_cycles": 12.0
+    },
+    "expected_oracle": {
+      "pulse_count_range": [
+        1,
+        4
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-PS-GALVA-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Pulse strategy: galvanized_steel coated=True",
+    "module": "engineering_pulse_strategy",
+    "inputs": {
+      "material_family": "galvanized_steel",
+      "coated": true,
+      "thickness_ratio": 1.0,
+      "stack_count": "2T",
+      "adhesive": false,
+      "current_ka": 8.0,
+      "weld_cycles": 12.0
+    },
+    "expected_oracle": {
+      "pulse_count_range": [
+        1,
+        4
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  },
+  {
+    "scenario_id": "EL-PS-STAIN-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Pulse strategy: stainless_steel coated=False",
+    "module": "engineering_pulse_strategy",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "coated": false,
+      "thickness_ratio": 1.0,
+      "stack_count": "2T",
+      "adhesive": false,
+      "current_ka": 8.0,
+      "weld_cycles": 12.0
+    },
+    "expected_oracle": {
+      "pulse_count_range": [
+        1,
+        4
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "heuristic_range"
+  }
+]

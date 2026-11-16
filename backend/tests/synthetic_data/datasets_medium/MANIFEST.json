@@ -1,0 +1,34 @@
+{
+  "version": "1.0.0",
+  "spec_date": "2026-11-16",
+  "generated_at": "2026-11-16T20:52:30.113253Z",
+  "seed": 42,
+  "profile": "medium",
+  "files": {
+    "weld_analysis.json": {
+      "count": 17,
+      "sha256": "f44632572a1e826859f003a07e3bc1c9f7e18a1ead6d54379072afd5494626c8"
+    },
+    "failure_probability.json": {
+      "count": 15,
+      "sha256": "676b31d42a36f1a06968fe0c90d9220959bfa001cc2a6e45c9a52e35947446d9"
+    },
+    "engineering.json": {
+      "count": 26,
+      "sha256": "a79581becbefc0570544ace50ce200ef905ff24d67f2e73a6f0e7c2e17cac7c5"
+    },
+    "statistical.json": {
+      "count": 3,
+      "sha256": "a93d046cdff28f47d17de609298ce3e7f406eb260df5f3303121b8b9bfde939b"
+    },
+    "energy.json": {
+      "count": 16,
+      "sha256": "09a5abf58f2557baafd7910a8888a55d542487e56ae5946a3dd0fd57f4446938"
+    },
+    "projects.json": {
+      "count": 3,
+      "sha256": "e04f1a8d498fa91e0705c6486fc0a1f193508f45ad7323f8fb0043947bdf0e88"
+    }
+  },
+  "total_scenarios": 80
+}

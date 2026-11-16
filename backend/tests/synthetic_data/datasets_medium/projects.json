@@ -1,0 +1,56 @@
+[
+  {
+    "scenario_id": "PROJ-MEDIUM-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Project CRUD: create 'SynthProject_42_001'",
+    "module": "projects",
+    "inputs": {
+      "name": "SynthProject_42_001",
+      "description": "Synthetic test project 1"
+    },
+    "expected_oracle": {
+      "id_present": true,
+      "name": "SynthProject_42_001",
+      "owner_match": true
+    },
+    "expected_status": "pass",
+    "oracle_method": "schema+invariant"
+  },
+  {
+    "scenario_id": "PROJ-MEDIUM-002",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Project CRUD: create 'SynthProject_42_002'",
+    "module": "projects",
+    "inputs": {
+      "name": "SynthProject_42_002",
+      "description": "Synthetic test project 2"
+    },
+    "expected_oracle": {
+      "id_present": true,
+      "name": "SynthProject_42_002",
+      "owner_match": true
+    },
+    "expected_status": "pass",
+    "oracle_method": "schema+invariant"
+  },
+  {
+    "scenario_id": "PROJ-MEDIUM-003",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Project CRUD: create 'SynthProject_42_003'",
+    "module": "projects",
+    "inputs": {
+      "name": "SynthProject_42_003",
+      "description": "Synthetic test project 3"
+    },
+    "expected_oracle": {
+      "id_present": true,
+      "name": "SynthProject_42_003",
+      "owner_match": true
+    },
+    "expected_status": "pass",
+    "oracle_method": "schema+invariant"
+  }
+]

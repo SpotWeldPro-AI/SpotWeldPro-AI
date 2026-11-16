@@ -39,3 +39,14 @@ logs/
 
 # Build artifacts
 *.zip
+
+# Synthetic test data (large generated assets — regenerated on demand)
+backend/tests/synthetic_data/datasets/
+backend/tests/synthetic_data/datasets_test/
+backend/tests/synthetic_data/images/
+backend/tests/synthetic_data/images_test/
+backend/tests/synthetic_data/videos/
+# Keep the generators and fixtures
+!backend/tests/synthetic_data/generate.py
+!backend/tests/synthetic_data/generate_images.py
+!backend/tests/synthetic_data/generate_videos.py

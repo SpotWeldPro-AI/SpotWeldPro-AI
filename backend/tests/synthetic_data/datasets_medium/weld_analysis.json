@@ -1,0 +1,883 @@
+[
+  {
+    "scenario_id": "WA-MEDIUM-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: stainless_steel 0.86mm 2T 6.93kA 9.5cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "material_subtype": "304",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 0.86,
+          "coated": false
+        },
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 0.86,
+          "coated": false
+        }
+      ],
+      "current_ka": 6.93,
+      "weld_cycles": 9.5,
+      "force_kn": 4.95,
+      "tip_diameter_mm": 7.0,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 3.709,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-002",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: stainless_steel 2.1mm 2T 5.22kA 6.9cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "material_subtype": "304",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 2.1,
+          "coated": false
+        },
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 2.1,
+          "coated": false
+        }
+      ],
+      "current_ka": 5.22,
+      "weld_cycles": 6.9,
+      "force_kn": 2.93,
+      "tip_diameter_mm": 6.8,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 5.797,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-003",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: stainless_steel 2.38mm 2T 9.91kA 13.4cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "material_subtype": "304",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 2.38,
+          "coated": false
+        },
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 2.38,
+          "coated": false
+        }
+      ],
+      "current_ka": 9.91,
+      "weld_cycles": 13.4,
+      "force_kn": 3.8,
+      "tip_diameter_mm": 5.8,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 6.171,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-004",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: mild_steel 2.34mm 2T 7.38kA 8.1cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "mild_steel",
+      "material_subtype": "DC01",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC01",
+          "thickness_mm": 2.34,
+          "coated": false
+        },
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC01",
+          "thickness_mm": 2.34,
+          "coated": false
+        }
+      ],
+      "current_ka": 7.38,
+      "weld_cycles": 8.1,
+      "force_kn": 5.83,
+      "tip_diameter_mm": 6.0,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 6.119,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-005",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: mild_steel 1.01mm 2T 10.93kA 17.1cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "mild_steel",
+      "material_subtype": "DC04",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC04",
+          "thickness_mm": 1.01,
+          "coated": false
+        },
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC04",
+          "thickness_mm": 1.01,
+          "coated": false
+        }
+      ],
+      "current_ka": 10.93,
+      "weld_cycles": 17.1,
+      "force_kn": 5.23,
+      "tip_diameter_mm": 7.2,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 4.02,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-006",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: stainless_steel 2.94mm 2T 7.65kA 16.0cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "material_subtype": "304",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 2.94,
+          "coated": false
+        },
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 2.94,
+          "coated": false
+        }
+      ],
+      "current_ka": 7.65,
+      "weld_cycles": 16.0,
+      "force_kn": 5.32,
+      "tip_diameter_mm": 6.9,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 6.859,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-007",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: galvanized_steel 2.35mm 2T 5.32kA 9.6cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "galvanized_steel",
+      "material_subtype": "DX51D+Z",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "galvanized_steel",
+          "material_subtype": "DX51D+Z",
+          "thickness_mm": 2.35,
+          "coated": true
+        },
+        {
+          "material_family": "galvanized_steel",
+          "material_subtype": "DX51D+Z",
+          "thickness_mm": 2.35,
+          "coated": true
+        }
+      ],
+      "current_ka": 5.32,
+      "weld_cycles": 9.6,
+      "force_kn": 3.16,
+      "tip_diameter_mm": 5.2,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 6.132,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-008",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: mild_steel 1.64mm 2T 8.17kA 21.7cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "mild_steel",
+      "material_subtype": "DC01",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC01",
+          "thickness_mm": 1.64,
+          "coated": false
+        },
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC01",
+          "thickness_mm": 1.64,
+          "coated": false
+        }
+      ],
+      "current_ka": 8.17,
+      "weld_cycles": 21.7,
+      "force_kn": 2.65,
+      "tip_diameter_mm": 6.1,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 5.122,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-009",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: stainless_steel 2.34mm 2T 9.78kA 6.4cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "material_subtype": "316L",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "316L",
+          "thickness_mm": 2.34,
+          "coated": false
+        },
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "316L",
+          "thickness_mm": 2.34,
+          "coated": false
+        }
+      ],
+      "current_ka": 9.78,
+      "weld_cycles": 6.4,
+      "force_kn": 4.54,
+      "tip_diameter_mm": 6.6,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 6.119,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-010",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: mild_steel 1.82mm 2T 6.89kA 23.5cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "mild_steel",
+      "material_subtype": "DC01",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC01",
+          "thickness_mm": 1.82,
+          "coated": false
+        },
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC01",
+          "thickness_mm": 1.82,
+          "coated": false
+        }
+      ],
+      "current_ka": 6.89,
+      "weld_cycles": 23.5,
+      "force_kn": 4.75,
+      "tip_diameter_mm": 5.7,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 5.396,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-011",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: galvanized_steel 1.3mm 2T 5.22kA 11.3cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "galvanized_steel",
+      "material_subtype": "DX51D+Z",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "galvanized_steel",
+          "material_subtype": "DX51D+Z",
+          "thickness_mm": 1.3,
+          "coated": true
+        },
+        {
+          "material_family": "galvanized_steel",
+          "material_subtype": "DX51D+Z",
+          "thickness_mm": 1.3,
+          "coated": true
+        }
+      ],
+      "current_ka": 5.22,
+      "weld_cycles": 11.3,
+      "force_kn": 3.07,
+      "tip_diameter_mm": 5.6,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 4.561,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-012",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: stainless_steel 1.27mm 2T 8.49kA 22.7cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "material_subtype": "316L",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "316L",
+          "thickness_mm": 1.27,
+          "coated": false
+        },
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "316L",
+          "thickness_mm": 1.27,
+          "coated": false
+        }
+      ],
+      "current_ka": 8.49,
+      "weld_cycles": 22.7,
+      "force_kn": 4.57,
+      "tip_diameter_mm": 5.4,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 4.508,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-013",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: mild_steel 2.44mm 2T 8.77kA 19.9cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "mild_steel",
+      "material_subtype": "DC01",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC01",
+          "thickness_mm": 2.44,
+          "coated": false
+        },
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "DC01",
+          "thickness_mm": 2.44,
+          "coated": false
+        }
+      ],
+      "current_ka": 8.77,
+      "weld_cycles": 19.9,
+      "force_kn": 3.71,
+      "tip_diameter_mm": 6.8,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 6.248,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-014",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: galvanized_steel 2.99mm 2T 5.97kA 14.9cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "galvanized_steel",
+      "material_subtype": "DX51D+Z",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "galvanized_steel",
+          "material_subtype": "DX51D+Z",
+          "thickness_mm": 2.99,
+          "coated": true
+        },
+        {
+          "material_family": "galvanized_steel",
+          "material_subtype": "DX51D+Z",
+          "thickness_mm": 2.99,
+          "coated": true
+        }
+      ],
+      "current_ka": 5.97,
+      "weld_cycles": 14.9,
+      "force_kn": 5.02,
+      "tip_diameter_mm": 7.6,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 6.917,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-015",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Weld analysis: mild_steel 1.15mm 2T 9.76kA 16.9cyc",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "mild_steel",
+      "material_subtype": "S235",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "S235",
+          "thickness_mm": 1.15,
+          "coated": false
+        },
+        {
+          "material_family": "mild_steel",
+          "material_subtype": "S235",
+          "thickness_mm": 1.15,
+          "coated": false
+        }
+      ],
+      "current_ka": 9.76,
+      "weld_cycles": 16.9,
+      "force_kn": 3.54,
+      "tip_diameter_mm": 6.8,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "min_nugget_mm_oracle": 4.29,
+      "oracle_method": "aws_d8_9_4sqrt_t",
+      "score_range": [
+        0,
+        100
+      ],
+      "risk_values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+schema"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-INV001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Invalid: stack_count=4T (unsupported)",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "material_subtype": "304",
+      "stack_count": "4T",
+      "layers": [
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 0.86,
+          "coated": false
+        },
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 0.86,
+          "coated": false
+        }
+      ],
+      "current_ka": 6.93,
+      "weld_cycles": 9.5,
+      "force_kn": 4.95,
+      "tip_diameter_mm": 7.0,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "expected_http_status": 422,
+      "error_contains": "stack_count"
+    },
+    "expected_status": "fail",
+    "oracle_method": "schema_validation"
+  },
+  {
+    "scenario_id": "WA-MEDIUM-INV002",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Invalid: current_ka=0 (zero current)",
+    "module": "weld_analysis",
+    "inputs": {
+      "material_family": "stainless_steel",
+      "material_subtype": "304",
+      "stack_count": "2T",
+      "layers": [
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 0.86,
+          "coated": false
+        },
+        {
+          "material_family": "stainless_steel",
+          "material_subtype": "304",
+          "thickness_mm": 0.86,
+          "coated": false
+        }
+      ],
+      "current_ka": 0.0,
+      "weld_cycles": 9.5,
+      "force_kn": 4.95,
+      "tip_diameter_mm": 7.0,
+      "squeeze_cycles": 10.0,
+      "hold_cycles": 5.0,
+      "cooling_flow_lpm": 2.0,
+      "cooling_temp_c": 20.0,
+      "dc_current": true,
+      "adhesive": false,
+      "shunt_risk": false
+    },
+    "expected_oracle": {
+      "expected_http_status": 422,
+      "error_contains": "current_ka"
+    },
+    "expected_status": "fail",
+    "oracle_method": "schema_validation"
+  }
+]

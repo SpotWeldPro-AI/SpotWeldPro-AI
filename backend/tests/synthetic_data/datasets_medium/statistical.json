@@ -1,0 +1,181 @@
+[
+  {
+    "scenario_id": "SA-L9-DESIGN-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Taguchi L9 design: 3 factors × 3 levels",
+    "module": "statistical_taguchi_design",
+    "inputs": {
+      "array_type": "L9",
+      "factors": [
+        {
+          "name": "Current",
+          "unit": "kA",
+          "levels": [
+            7.0,
+            9.0,
+            11.0
+          ]
+        },
+        {
+          "name": "WeldTime",
+          "unit": "cycles",
+          "levels": [
+            8.0,
+            12.0,
+            16.0
+          ]
+        },
+        {
+          "name": "Force",
+          "unit": "kN",
+          "levels": [
+            2.5,
+            3.5,
+            4.5
+          ]
+        }
+      ]
+    },
+    "expected_oracle": {
+      "runs": 9,
+      "n_factors": 3,
+      "levels_per_factor": 3
+    },
+    "expected_status": "pass",
+    "oracle_method": "combinatoric"
+  },
+  {
+    "scenario_id": "SA-L9-ANALYZE-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "Taguchi L9 analyze: nugget diameter responses",
+    "module": "statistical_taguchi_analyze",
+    "inputs": {
+      "array_type": "L9",
+      "factors": [
+        {
+          "name": "Current",
+          "unit": "kA",
+          "levels": [
+            7.0,
+            9.0,
+            11.0
+          ]
+        },
+        {
+          "name": "WeldTime",
+          "unit": "cycles",
+          "levels": [
+            8.0,
+            12.0,
+            16.0
+          ]
+        },
+        {
+          "name": "Force",
+          "unit": "kN",
+          "levels": [
+            2.5,
+            3.5,
+            4.5
+          ]
+        }
+      ],
+      "results": [
+        {
+          "run_number": 1,
+          "response_value": 5.1
+        },
+        {
+          "run_number": 2,
+          "response_value": 5.3
+        },
+        {
+          "run_number": 3,
+          "response_value": 4.9
+        },
+        {
+          "run_number": 4,
+          "response_value": 5.4
+        },
+        {
+          "run_number": 5,
+          "response_value": 5.6
+        },
+        {
+          "run_number": 6,
+          "response_value": 5.0
+        },
+        {
+          "run_number": 7,
+          "response_value": 5.7
+        },
+        {
+          "run_number": 8,
+          "response_value": 5.9
+        },
+        {
+          "run_number": 9,
+          "response_value": 5.2
+        }
+      ],
+      "optimize": "maximize",
+      "response_unit": "mm"
+    },
+    "expected_oracle": {
+      "grand_mean_range": [
+        4.5,
+        6.5
+      ],
+      "oracle_sst": 0.902222,
+      "optimal_within_factor_ranges": true
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula+range"
+  },
+  {
+    "scenario_id": "SA-ANOVA-001",
+    "profile": "medium",
+    "seed": 42,
+    "description": "One-way ANOVA: 3 groups of nugget diameters",
+    "module": "statistical_anova",
+    "inputs": {
+      "groups": [
+        {
+          "name": "Level1",
+          "values": [
+            5.1,
+            5.3,
+            4.9
+          ]
+        },
+        {
+          "name": "Level2",
+          "values": [
+            5.4,
+            5.6,
+            5.0
+          ]
+        },
+        {
+          "name": "Level3",
+          "values": [
+            5.7,
+            5.9,
+            5.2
+          ]
+        }
+      ],
+      "significance_level": 0.05
+    },
+    "expected_oracle": {
+      "oracle_grand_mean": 5.3444,
+      "oracle_sst": 0.902222,
+      "k": 3,
+      "n_total": 9
+    },
+    "expected_status": "pass",
+    "oracle_method": "formula"
+  }
+]

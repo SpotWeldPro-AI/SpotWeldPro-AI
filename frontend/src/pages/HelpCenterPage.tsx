@@ -6,6 +6,7 @@
 import { useState, useMemo } from 'react'
 import { useAppLanguage } from '../i18n/useAppLanguage'
 import type { AppLanguage } from '../i18n/appContent'
+import { ModuleReadButton } from '../components/ModuleReadPanel'
 
 // ── Bilingual helpers ────────────────────────────────────────────────────────
 type Bi = { tr: string; en: string }
@@ -748,6 +749,7 @@ export function HelpCenterPage() {
               : 'Comprehensive engineering guide for all modules — TR/EN bilingual'}
           </p>
         </div>
+        <div className="page-actions"><ModuleReadButton moduleId="help" /></div>
       </header>
 
       {/* Search */}
