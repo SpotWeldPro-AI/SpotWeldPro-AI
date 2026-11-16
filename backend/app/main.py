@@ -107,6 +107,23 @@ async def lifespan(_app: FastAPI):
                     role=UserRole.SYSTEM_ADMIN,
                 ))
                 db.commit()
+
+        # Demo user — only provisioned when DEMO_USERNAME and DEMO_PASSWORD are
+        # explicitly set.  Read-only role; isolated to the demo database.
+        demo_username = os.getenv("DEMO_USERNAME")
+        demo_password = os.getenv("DEMO_PASSWORD")
+        if demo_username and demo_password:
+            canonical_demo = canonicalize_username(demo_username)
+            demo_user = db.scalar(select(User).where(User.username == canonical_demo))
+            if not demo_user:
+                db.add(User(
+                    username=canonical_demo,
+                    email=f"{canonical_demo}@internal.spotwelding",
+                    full_name="Demo User",
+                    password_hash=hash_password(demo_password),
+                    role=UserRole.READ_ONLY,
+                ))
+                db.commit()
     yield
 
 
