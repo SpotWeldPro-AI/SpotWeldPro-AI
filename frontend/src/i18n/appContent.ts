@@ -331,6 +331,78 @@ export interface AppContent {
     /** CE-04-C1: this string is fixed — do not translate the error text. */
     backendUnavailableText: string
   }
+  /** Multi-tab engineering hub: Electrode Life, Dynamic Resistance, Pulse Strategy. */
+  engineeringPage: {
+    tabWeldLobe: string
+    tabElectrodeLife: string
+    tabDynamicResistance: string
+    tabPulseStrategy: string
+    kicker: string
+    backendUnavailableTitle: string
+    backendUnavailableText: string
+    // Electrode Life
+    elTitle: string
+    elSubtitle: string
+    elMaterialLabel: string
+    elCoatedLabel: string
+    elTipDiamLabel: string
+    elCoolingFlowLabel: string
+    elCoolingTempLabel: string
+    elCurrentLabel: string
+    elAnnualSpotsLabel: string
+    elCalculateBtn: string
+    elCalculating: string
+    elEstimatedLifeLabel: string
+    elDressIntervalLabel: string
+    elReplacementsLabel: string
+    elConfidenceLabel: string
+    elNoteLabel: string
+    elStepperProfileTitle: string
+    elSpotCountCol: string
+    elCurrentKaCol: string
+    elIncreaseCol: string
+    elModelLimitationNote: string
+    // Dynamic Resistance
+    drTitle: string
+    drSubtitle: string
+    drSamplesLabel: string
+    drSamplesHint: string
+    drCalculateBtn: string
+    drCalculating: string
+    drPeakLabel: string
+    drInitialLabel: string
+    drFinalLabel: string
+    drMeanLabel: string
+    drSlopeLabel: string
+    drDropRatioLabel: string
+    drQualityLabel: string
+    drFlagsTitle: string
+    drChartTitle: string
+    drChartNote: string
+    drModelLimitationNote: string
+    // Pulse Strategy
+    psTitle: string
+    psSubtitle: string
+    psMaterialLabel: string
+    psCoatedLabel: string
+    psThicknessRatioLabel: string
+    psStackCountLabel: string
+    psAdhesiveLabel: string
+    psCurrentLabel: string
+    psWeldCyclesLabel: string
+    psCalculateBtn: string
+    psCalculating: string
+    psStrategyLabel: string
+    psPulseCountLabel: string
+    psFirstPulseCurrentLabel: string
+    psMainPulseCurrentLabel: string
+    psPrePulseCyclesLabel: string
+    psMainPulseCyclesLabel: string
+    psDecisionScoreLabel: string
+    psReasonsTitle: string
+    psValidationNote: string
+    psModelLimitationNote: string
+  }
   /** Display mapping for canonical backend risk level values. */
   visualWeldInspector: {
     sectionTitle: string
@@ -1039,6 +1111,78 @@ const TR: AppContent = {
     backendUnavailableText:
       'Engineering data could not be loaded. Verify the API service and retry.',
   },
+  engineeringPage: {
+    tabWeldLobe: 'Kaynak Lobu',
+    tabElectrodeLife: 'Elektrot Ömrü',
+    tabDynamicResistance: 'Dinamik Direnç',
+    tabPulseStrategy: 'Pulse Stratejisi',
+    kicker: 'Mühendislik · Punta Kaynak Parametre Analizi',
+    backendUnavailableTitle: 'Backend bağlantısı kullanılamıyor',
+    backendUnavailableText:
+      'Engineering data could not be loaded. Verify the API service and retry.',
+    // Electrode Life
+    elTitle: 'Elektrot Ömrü Danışmanı',
+    elSubtitle: 'Ampirik elektrot ömrü tahmini ve stepper profili — yalnızca backend modelinden',
+    elMaterialLabel: 'Malzeme ailesi',
+    elCoatedLabel: 'Kaplamalı sac',
+    elTipDiamLabel: 'Uç çapı (mm)',
+    elCoolingFlowLabel: 'Soğutma debisi (L/dak)',
+    elCoolingTempLabel: 'Soğutma giriş sıcaklığı (°C)',
+    elCurrentLabel: 'Kaynak akımı (kA)',
+    elAnnualSpotsLabel: 'Yıllık nokta sayısı',
+    elCalculateBtn: 'Elektrot Ömrünü Hesapla',
+    elCalculating: 'Hesaplanıyor…',
+    elEstimatedLifeLabel: 'Tahmini Ömür',
+    elDressIntervalLabel: 'Dressing Aralığı',
+    elReplacementsLabel: 'Yıllık Değişim',
+    elConfidenceLabel: 'Güven',
+    elNoteLabel: 'Not',
+    elStepperProfileTitle: 'Stepper Profili (4 Adım)',
+    elSpotCountCol: 'Nokta',
+    elCurrentKaCol: 'Akım (kA)',
+    elIncreaseCol: 'Artış %',
+    elModelLimitationNote: 'Ampirik başlangıç modeli. Gerçek elektrot malzemesi, direnç eğrisi ve dressing verisiyle kalibre edilmelidir.',
+    // Dynamic Resistance
+    drTitle: 'Dinamik Direnç Analizörü',
+    drSubtitle: 'Kaynak çevrimi direnç örneği analizi — yalnızca backend hesaplamasından',
+    drSamplesLabel: 'Direnç örnekleri (µΩ)',
+    drSamplesHint: 'Virgülle ayrılmış µΩ değerleri (en az 5)',
+    drCalculateBtn: 'Direnci Analiz Et',
+    drCalculating: 'Analiz ediliyor…',
+    drPeakLabel: 'Tepe Değeri',
+    drInitialLabel: 'Başlangıç',
+    drFinalLabel: 'Son',
+    drMeanLabel: 'Ortalama',
+    drSlopeLabel: 'Eğim',
+    drDropRatioLabel: 'Tepe Sonrası Düşüş',
+    drQualityLabel: 'Kalite',
+    drFlagsTitle: 'İşaretler',
+    drChartTitle: 'Direnç Profili',
+    drChartNote: 'Çevrim çerçevesi başına µΩ — yalnızca girilen örnekler',
+    drModelLimitationNote: 'Analiz yalnızca girilen örneklere dayanır. Gerçek kaynak çevrimi verisiyle kalibre edin.',
+    // Pulse Strategy
+    psTitle: 'Pulse Stratejisi Önerici',
+    psSubtitle: 'Malzeme/istifte dayalı pulse stratejisi — yalnızca backend öneri modelinden',
+    psMaterialLabel: 'Malzeme ailesi',
+    psCoatedLabel: 'Kaplamalı sac',
+    psThicknessRatioLabel: 'Kalınlık oranı (kalın/ince)',
+    psStackCountLabel: 'İstif',
+    psAdhesiveLabel: 'Yapıştırıcı/mastik',
+    psCurrentLabel: 'Kaynak akımı (kA)',
+    psWeldCyclesLabel: 'Kaynak süresi (çevrim)',
+    psCalculateBtn: 'Pulse Stratejisi Öner',
+    psCalculating: 'Hesaplanıyor…',
+    psStrategyLabel: 'Strateji',
+    psPulseCountLabel: 'Pulse sayısı',
+    psFirstPulseCurrentLabel: '1. Pulse Akımı',
+    psMainPulseCurrentLabel: 'Ana Pulse Akımı',
+    psPrePulseCyclesLabel: 'Ön Pulse',
+    psMainPulseCyclesLabel: 'Ana Pulse',
+    psDecisionScoreLabel: 'Karar skoru',
+    psReasonsTitle: 'Gerekçeler',
+    psValidationNote: 'Laboratuvar doğrulaması gereklidir.',
+    psModelLimitationNote: 'Bu öneri ampirik kural tabanlıdır. Üretim parametrelerine uygulamadan önce laboratuvar doğrulaması zorunludur.',
+  },
   visualWeldInspector: {
     sectionTitle: 'Görsel Punta Kontrolü',
     meta: 'sadece oturum içi görsel seçim',
@@ -1729,6 +1873,78 @@ const EN: AppContent = {
     backendUnavailableTitle: 'Backend connection unavailable',
     backendUnavailableText:
       'Engineering data could not be loaded. Verify the API service and retry.',
+  },
+  engineeringPage: {
+    tabWeldLobe: 'Weld Lobe Lab',
+    tabElectrodeLife: 'Electrode Life',
+    tabDynamicResistance: 'Dynamic Resistance',
+    tabPulseStrategy: 'Pulse Strategy',
+    kicker: 'Engineering · Spot Welding Parameter Analysis',
+    backendUnavailableTitle: 'Backend connection unavailable',
+    backendUnavailableText:
+      'Engineering data could not be loaded. Verify the API service and retry.',
+    // Electrode Life
+    elTitle: 'Electrode Life Advisor',
+    elSubtitle: 'Empirical electrode-life estimate and stepper profile from backend model only',
+    elMaterialLabel: 'Material family',
+    elCoatedLabel: 'Coated sheet',
+    elTipDiamLabel: 'Tip diameter (mm)',
+    elCoolingFlowLabel: 'Cooling flow (L/min)',
+    elCoolingTempLabel: 'Cooling inlet temp (°C)',
+    elCurrentLabel: 'Weld current (kA)',
+    elAnnualSpotsLabel: 'Annual spot count',
+    elCalculateBtn: 'Estimate Electrode Life',
+    elCalculating: 'Calculating…',
+    elEstimatedLifeLabel: 'Estimated Life',
+    elDressIntervalLabel: 'Dress Interval',
+    elReplacementsLabel: 'Replacements/yr',
+    elConfidenceLabel: 'Confidence',
+    elNoteLabel: 'Note',
+    elStepperProfileTitle: 'Stepper Profile (4-step)',
+    elSpotCountCol: 'Spot',
+    elCurrentKaCol: 'Current (kA)',
+    elIncreaseCol: 'Increase %',
+    elModelLimitationNote: 'Empirical baseline model. Must be calibrated with actual electrode material, resistance curve and dressing data.',
+    // Dynamic Resistance
+    drTitle: 'Dynamic Resistance Analyzer',
+    drSubtitle: 'Weld-cycle resistance sample analysis from backend calculation only',
+    drSamplesLabel: 'Resistance samples (µΩ)',
+    drSamplesHint: 'Comma-separated µΩ values (min 5)',
+    drCalculateBtn: 'Analyze Resistance',
+    drCalculating: 'Analyzing…',
+    drPeakLabel: 'Peak',
+    drInitialLabel: 'Initial',
+    drFinalLabel: 'Final',
+    drMeanLabel: 'Mean',
+    drSlopeLabel: 'Slope',
+    drDropRatioLabel: 'Post-peak drop',
+    drQualityLabel: 'Quality',
+    drFlagsTitle: 'Flags',
+    drChartTitle: 'Resistance Profile',
+    drChartNote: 'µΩ per cycle frame — entered samples only',
+    drModelLimitationNote: 'Analysis is based on entered samples only. Calibrate with real weld-cycle acquisition data.',
+    // Pulse Strategy
+    psTitle: 'Pulse Strategy Advisor',
+    psSubtitle: 'Material/stack-based pulse strategy recommendation from backend model only',
+    psMaterialLabel: 'Material family',
+    psCoatedLabel: 'Coated sheet',
+    psThicknessRatioLabel: 'Thickness ratio (thick/thin)',
+    psStackCountLabel: 'Stack',
+    psAdhesiveLabel: 'Adhesive/mastic',
+    psCurrentLabel: 'Weld current (kA)',
+    psWeldCyclesLabel: 'Weld time (cycles)',
+    psCalculateBtn: 'Recommend Pulse Strategy',
+    psCalculating: 'Calculating…',
+    psStrategyLabel: 'Strategy',
+    psPulseCountLabel: 'Pulse count',
+    psFirstPulseCurrentLabel: '1st Pulse Current',
+    psMainPulseCurrentLabel: 'Main Pulse Current',
+    psPrePulseCyclesLabel: 'Pre-pulse cycles',
+    psMainPulseCyclesLabel: 'Main pulse cycles',
+    psDecisionScoreLabel: 'Decision score',
+    psReasonsTitle: 'Rationale',
+    psValidationNote: 'Laboratory validation is required.',
+    psModelLimitationNote: 'This recommendation is empirical rule-based. Laboratory validation is mandatory before applying to production parameters.',
   },
   visualWeldInspector: {
     sectionTitle: 'Visual Weld Inspector',

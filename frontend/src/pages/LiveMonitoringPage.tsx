@@ -73,6 +73,7 @@ function getAuthToken(): string {
 export function LiveMonitoringPage() {
   const [sourceType, setSourceType] = useState<SourceType>('webcam')
   const [rtspUrl, setRtspUrl] = useState('')
+  const [filePath, setFilePath] = useState('clip.mp4')
   const [sourceId, setSourceId] = useState('webcam://device/0')
   const [connState, setConnState] = useState<ConnectionState>('disconnected')
   const [messages, setMessages] = useState<WsMessage[]>([])
@@ -220,6 +221,22 @@ export function LiveMonitoringPage() {
         </ul>
       </div>
 
+      {/* File Replay banner — shown when file source is selected */}
+      {sourceType === 'file' && (
+        <div style={{ ...card, background: '#eff6ff', border: '1px solid #93c5fd', marginBottom: 16 }}>
+          <div style={{ fontWeight: 700, marginBottom: 6, color: '#1d4ed8' }}>
+            FILE REPLAY MODE
+          </div>
+          <ul style={{ margin: 0, padding: '0 0 0 20px', fontSize: 13, color: '#1e40af', lineHeight: 1.6 }}>
+            <li>Source will be treated as a local video file on the backend host, not a live camera.</li>
+            <li>Replay FPS reflects file decode speed — not industrial real-time performance.</li>
+            <li>Analysis status: <strong>NOT_EVALUATED</strong> — no trained inference model is loaded.</li>
+            <li>Motion events are pixel-level frame differences only; weld windows are heuristic only.</li>
+            <li>Provide the absolute path accessible from the backend process, or a relative path from its working directory.</li>
+          </ul>
+        </div>
+      )}
+
       {/* Error banner */}
       {errorMsg && (
         <div style={{ ...card, background: '#fef2f2', border: '1px solid #fca5a5', marginBottom: 16 }}>
@@ -238,11 +255,11 @@ export function LiveMonitoringPage() {
                 const t = e.target.value as SourceType
                 setSourceType(t)
                 if (t === 'webcam') setSourceId('webcam://device/0')
-                else if (t === 'file') setSourceId('file://clip.mp4')
+                else if (t === 'file') setSourceId(`file://${filePath}`)
               }}>
               <option value="webcam">USB Webcam</option>
               <option value="rtsp">RTSP Stream</option>
-              <option value="file">Video File</option>
+              <option value="file">Video File (Replay)</option>
             </select>
           </div>
           {sourceType === 'rtsp' && (
@@ -252,6 +269,19 @@ export function LiveMonitoringPage() {
                 placeholder="rtsp://user:pass@192.168.1.100:554/stream"
                 value={rtspUrl}
                 onChange={(e) => { setRtspUrl(e.target.value); setSourceId(e.target.value) }}
+              />
+            </div>
+          )}
+          {sourceType === 'file' && (
+            <div>
+              <label style={lbl}>Video file path</label>
+              <input style={inp} type="text"
+                placeholder="clip.mp4 or /absolute/path/to/video.mp4"
+                value={filePath}
+                onChange={(e) => {
+                  setFilePath(e.target.value)
+                  setSourceId(`file://${e.target.value}`)
+                }}
               />
             </div>
           )}

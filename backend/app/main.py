@@ -165,10 +165,30 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
             content=payload.model_dump(),
             headers=headers or None,
         )
-    _log.error("unstructured HTTPException: status=%s detail=%r", exc.status_code, detail)
+    if exc.status_code >= 500:
+        _log.error("unstructured HTTPException: status=%s detail=%r", exc.status_code, detail)
+        error_code = "INTERNAL_ERROR"
+        message = "An unexpected error occurred."
+    elif exc.status_code == 403:
+        _log.warning("forbidden: status=%s detail=%r", exc.status_code, detail)
+        error_code = "PERMISSION_DENIED"
+        message = str(detail) if isinstance(detail, str) else "Access denied."
+    elif exc.status_code == 404:
+        error_code = "NOT_FOUND"
+        message = str(detail) if isinstance(detail, str) else "Resource not found."
+    elif exc.status_code == 401:
+        error_code = "UNAUTHORIZED"
+        message = str(detail) if isinstance(detail, str) else "Authentication required."
+    elif exc.status_code == 409:
+        error_code = "CONFLICT"
+        message = str(detail) if isinstance(detail, str) else "Conflict."
+    else:
+        _log.warning("unstructured HTTPException: status=%s detail=%r", exc.status_code, detail)
+        error_code = "CLIENT_ERROR"
+        message = str(detail) if isinstance(detail, str) else "Request error."
     payload = GovernedAPIError(
-        error_code="INTERNAL_ERROR",
-        message="An unexpected error occurred.",
+        error_code=error_code,
+        message=message,
     )
     return JSONResponse(status_code=exc.status_code, content=payload.model_dump())
 
