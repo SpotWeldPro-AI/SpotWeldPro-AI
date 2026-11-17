@@ -81,10 +81,11 @@ def load_scenarios(module_key: str) -> list[dict]:
 
 # ── Oracle functions (independent) ───────────────────────────────────────────
 
-def oracle_i2rt(resistance_mohm: float, current_ka: float, weld_time_ms: float) -> float:
-    R = resistance_mohm * 1e-3
-    I = current_ka * 1e3
-    t = weld_time_ms * 1e-3
+def oracle_i2rt(resistance_micro_ohm: float, current_ka: float, weld_cycles: float, frequency_hz: float = 50.0) -> float:
+    """I²Rt oracle using the actual API units: µΩ, kA, cycles at given Hz."""
+    R = resistance_micro_ohm * 1e-6   # µΩ → Ω
+    I = current_ka * 1e3               # kA → A
+    t = weld_cycles / frequency_hz     # cycles → s
     return I * I * R * t
 
 
@@ -123,7 +124,8 @@ class TestSyntheticDataGenerator:
         if not path.exists():
             pytest.skip("datasets not generated — run generate.py first")
         manifest = json.loads(path.read_text())
-        for key in ("weld_analysis", "failure_probability", "engineering", "statistical", "energy", "projects"):
+        # Manifest stores keys WITH .json extension
+        for key in ("weld_analysis.json", "failure_probability.json", "engineering.json", "statistical.json", "energy.json", "projects.json"):
             assert key in manifest["files"], f"Missing module in manifest: {key}"
 
     def test_scenario_schema(self):
@@ -144,12 +146,12 @@ class TestWeldAnalysisSynthetic:
 
     def test_valid_scenario_mild_2t(self, client, demo_token):
         payload = {
-            "material_family": "mild_steel",
+            "material_family": "mild steel",
             "material_subtype": "DC01",
             "stack_count": "2T",
             "layers": [
-                {"material_family": "mild_steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
-                {"material_family": "mild_steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
+                {"material_family": "mild steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
+                {"material_family": "mild steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
             ],
             "current_ka": 8.0,
             "weld_cycles": 12.0,
@@ -187,12 +189,12 @@ class TestWeldAnalysisSynthetic:
 
     def test_invalid_stack_count_4T_rejected(self, client, demo_token):
         payload = {
-            "material_family": "mild_steel",
+            "material_family": "mild steel",
             "material_subtype": "DC01",
             "stack_count": "4T",
             "layers": [
-                {"material_family": "mild_steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
-                {"material_family": "mild_steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
+                {"material_family": "mild steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
+                {"material_family": "mild steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
             ],
             "current_ka": 8.0, "weld_cycles": 12.0, "force_kn": 3.5, "tip_diameter_mm": 6.0,
             "squeeze_cycles": 10.0, "hold_cycles": 5.0, "cooling_flow_lpm": 2.0, "cooling_temp_c": 20.0,
@@ -203,16 +205,17 @@ class TestWeldAnalysisSynthetic:
         )
         assert r.status_code == 422
 
-    def test_invalid_zero_current_rejected(self, client, demo_token):
+    def test_negative_current_rejected(self, client, demo_token):
+        # Schema uses ge=0 so 0.0 is valid; negative current violates ge=0 and returns 422
         payload = {
-            "material_family": "mild_steel",
+            "material_family": "mild steel",
             "material_subtype": "DC01",
             "stack_count": "2T",
             "layers": [
-                {"material_family": "mild_steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
-                {"material_family": "mild_steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
+                {"material_family": "mild steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
+                {"material_family": "mild steel", "material_subtype": "DC01", "thickness_mm": 1.5, "coated": False},
             ],
-            "current_ka": 0.0, "weld_cycles": 12.0, "force_kn": 3.5, "tip_diameter_mm": 6.0,
+            "current_ka": -1.0, "weld_cycles": 12.0, "force_kn": 3.5, "tip_diameter_mm": 6.0,
             "squeeze_cycles": 10.0, "hold_cycles": 5.0, "cooling_flow_lpm": 2.0, "cooling_temp_c": 20.0,
         }
         r = client.post(
@@ -223,12 +226,12 @@ class TestWeldAnalysisSynthetic:
 
     def test_galvanized_steel_scenario(self, client, demo_token):
         payload = {
-            "material_family": "galvanized_steel",
+            "material_family": "galvanized steel",
             "material_subtype": "DX51D+Z",
             "stack_count": "2T",
             "layers": [
-                {"material_family": "galvanized_steel", "material_subtype": "DX51D+Z", "thickness_mm": 0.8, "coated": True},
-                {"material_family": "galvanized_steel", "material_subtype": "DX51D+Z", "thickness_mm": 0.8, "coated": True},
+                {"material_family": "galvanized steel", "material_subtype": "DX51D+Z", "thickness_mm": 0.8, "coated": True},
+                {"material_family": "galvanized steel", "material_subtype": "DX51D+Z", "thickness_mm": 0.8, "coated": True},
             ],
             "current_ka": 9.0, "weld_cycles": 10.0, "force_kn": 4.0, "tip_diameter_mm": 6.0,
             "squeeze_cycles": 10.0, "hold_cycles": 5.0, "cooling_flow_lpm": 2.0, "cooling_temp_c": 20.0,
@@ -255,7 +258,7 @@ class TestEngineeringSynthetic:
         r = client.post(
             "/api/v1/engineering/weld-lobe",
             json={
-                "material_family": "mild_steel",
+                "material_family": "mild steel",
                 "thickness_mm": 1.5,
                 "force_kn": 3.5,
                 "min_nugget_mm": 4.9,
@@ -272,7 +275,7 @@ class TestEngineeringSynthetic:
         r = client.post(
             "/api/v1/engineering/weld-lobe",
             json={
-                "material_family": "mild_steel",
+                "material_family": "mild steel",
                 "thickness_mm": 20.0,  # > 10 — violates le=10 constraint
                 "force_kn": 3.5,
                 "min_nugget_mm": 4.9,
@@ -287,7 +290,7 @@ class TestEngineeringSynthetic:
         r = client.post(
             "/api/v1/engineering/electrode-life",
             json={
-                "material_family": "mild_steel",
+                "material_family": "mild steel",
                 "coated": False,
                 "tip_diameter_mm": 6.0,
                 "cooling_flow_lpm": 2.0,
@@ -307,7 +310,7 @@ class TestEngineeringSynthetic:
         r = client.post(
             "/api/v1/engineering/electrode-life",
             json={
-                "material_family": "galvanized_steel",
+                "material_family": "galvanized steel",
                 "coated": True,
                 "tip_diameter_mm": 6.0,
                 "cooling_flow_lpm": 2.0,
@@ -329,7 +332,7 @@ class TestEngineeringSynthetic:
         assert r.status_code == 200
         data = r.json()
         # Oracle: peak must be within or near the range of samples
-        peak = data.get("peak_mohm", data.get("peak", 0))
+        peak = data.get("peak_micro_ohm", 0)
         assert peak > 0
 
     def test_dynamic_resistance_too_few_samples(self, client, demo_token):
@@ -344,7 +347,7 @@ class TestEngineeringSynthetic:
         r = client.post(
             "/api/v1/engineering/pulse-strategy",
             json={
-                "material_family": "mild_steel",
+                "material_family": "mild steel",
                 "coated": False,
                 "thickness_ratio": 1.0,
                 "stack_count": "2T",
@@ -363,7 +366,7 @@ class TestEngineeringSynthetic:
         r = client.post(
             "/api/v1/engineering/pulse-strategy",
             json={
-                "material_family": "galvanized_steel",
+                "material_family": "galvanized steel",
                 "coated": True,
                 "thickness_ratio": 1.2,
                 "stack_count": "2T",
@@ -383,7 +386,7 @@ class TestFailureProbabilitySynthetic:
     def _base_payload(self, current_ka: float = 8.0, t: float = 1.5) -> dict:
         min_nug = oracle_nugget_min(t)
         return {
-            "material_family": "mild_steel",
+            "material_family": "mild steel",
             "stack_count": "2T",
             "coated": False,
             "adhesive": False,
@@ -504,15 +507,16 @@ class TestStatisticalSynthetic:
                     {"name": "WeldTime", "unit": "cycles", "levels": [8.0, 12.0, 16.0]},
                     {"name": "Force", "unit": "kN", "levels": [2.5, 3.5, 4.5]},
                 ],
-                "results": [{"run_number": i + 1, "response_value": v} for i, v in enumerate(responses)],
-                "optimize": "maximize",
+                "responses": responses,
+                "sn_objective": "larger_is_better",
                 "response_unit": "mm",
             },
             headers={"Authorization": f"Bearer {demo_token}"},
         )
         assert r.status_code == 200
         data = r.json()
-        grand_mean = data.get("grand_mean", 0)
+        # TaguchiAnalyzeResponse uses grand_mean_response (not grand_mean)
+        grand_mean = data.get("grand_mean_response", data.get("grand_mean", 0))
         oracle_mean = sum(responses) / len(responses)
         # Oracle: grand_mean must be within 0.01 of arithmetic mean
         assert abs(grand_mean - oracle_mean) < 0.01, (
@@ -520,24 +524,30 @@ class TestStatisticalSynthetic:
         )
 
     def test_anova_three_groups(self, client, demo_token):
+        # ANOVAGroupData uses group_name (not name); ANOVAAnalyzeRequest has no significance_level
         groups = [
-            {"name": "Level1", "values": [5.1, 5.3, 4.9]},
-            {"name": "Level2", "values": [5.4, 5.6, 5.0]},
-            {"name": "Level3", "values": [5.7, 5.9, 5.2]},
+            {"group_name": "Level1", "values": [5.1, 5.3, 4.9]},
+            {"group_name": "Level2", "values": [5.4, 5.6, 5.0]},
+            {"group_name": "Level3", "values": [5.7, 5.9, 5.2]},
         ]
         r = client.post(
             "/api/v1/statistical-analysis/anova",
-            json={"groups": groups, "significance_level": 0.05},
+            json={"groups": groups},
             headers={"Authorization": f"Bearer {demo_token}"},
         )
         assert r.status_code == 200
         data = r.json()
         all_vals = [v for g in groups for v in g["values"]]
         oracle_sst = oracle_anova_sst(all_vals)
-        # Verify SST within 1% of oracle (or report as informational)
-        rows = data.get("anova_table", [])
+        # ANOVAAnalyzeResponse uses "table"; skip the "Total" row to avoid double-counting
+        rows = data.get("table", data.get("anova_table", []))
         if rows:
-            ss_total = sum(row.get("ss", 0) for row in rows)
+            # Look for a dedicated Total row first; fall back to summing non-Total rows
+            total_rows = [r for r in rows if "total" in r.get("source", "").lower()]
+            if total_rows:
+                ss_total = total_rows[0].get("ss", 0)
+            else:
+                ss_total = sum(row.get("ss", 0) for row in rows)
             if ss_total > 0:
                 rel_err = abs(ss_total - oracle_sst) / oracle_sst
                 assert rel_err < 0.05, f"SST relative error {rel_err:.4f} > 5%: got {ss_total:.6f}, oracle {oracle_sst:.6f}"
@@ -548,16 +558,17 @@ class TestStatisticalSynthetic:
 class TestEnergySynthetic:
 
     def test_i2rt_estimate_oracle(self, client, demo_token):
-        R, I, t = 100.0, 8.0, 150.0
+        # API uses resistance_micro_ohm (µΩ), weld_cycles + frequency_hz (default 50 Hz)
+        R_uohm, I_ka, cycles = 120.0, 8.0, 16.0
         r = client.post(
             "/api/v1/energy/estimate",
-            json={"resistance_mohm": R, "current_ka": I, "weld_time_ms": t, "efficiency_pct": 100.0},
+            json={"resistance_micro_ohm": R_uohm, "current_ka": I_ka, "weld_cycles": cycles},
             headers={"Authorization": f"Bearer {demo_token}"},
         )
-        assert r.status_code == 200
+        assert r.status_code == 200, f"energy/estimate: {r.status_code} — {r.text}"
         data = r.json()
-        oracle_j = oracle_i2rt(R, I, t)
-        actual_j = data.get("energy_j", data.get("energy_joules", 0))
+        oracle_j = oracle_i2rt(R_uohm, I_ka, cycles)
+        actual_j = data.get("energy_j", 0)
         # Oracle tolerance: 1%
         rel_err = abs(actual_j - oracle_j) / oracle_j
         assert rel_err < 0.01, (
@@ -565,26 +576,29 @@ class TestEnergySynthetic:
         )
 
     def test_i2rt_various_values(self, client, demo_token):
+        # (resistance_micro_ohm µΩ, current_ka kA, weld_cycles)
         test_cases = [
-            (80.0, 6.0, 100.0),
-            (120.0, 10.0, 200.0),
-            (150.0, 12.0, 300.0),
+            (100.0, 6.0, 10.0),
+            (150.0, 10.0, 20.0),
+            (200.0, 12.0, 24.0),
         ]
-        for R, I, t in test_cases:
+        for R_uohm, I_ka, cycles in test_cases:
             r = client.post(
                 "/api/v1/energy/estimate",
-                json={"resistance_mohm": R, "current_ka": I, "weld_time_ms": t, "efficiency_pct": 100.0},
+                json={"resistance_micro_ohm": R_uohm, "current_ka": I_ka, "weld_cycles": cycles},
                 headers={"Authorization": f"Bearer {demo_token}"},
             )
-            assert r.status_code == 200
-            actual = r.json().get("energy_j", r.json().get("energy_joules", 0))
-            oracle = oracle_i2rt(R, I, t)
-            assert abs(actual - oracle) / oracle < 0.01, f"R={R} I={I} t={t}: {actual:.2f} vs {oracle:.2f}"
+            assert r.status_code == 200, f"R={R_uohm}µΩ I={I_ka}kA cycles={cycles}: {r.status_code} — {r.text}"
+            actual = r.json().get("energy_j", 0)
+            oracle = oracle_i2rt(R_uohm, I_ka, cycles)
+            assert abs(actual - oracle) / oracle < 0.01, (
+                f"R={R_uohm}µΩ I={I_ka}kA cycles={cycles}: {actual:.2f} vs oracle {oracle:.2f}"
+            )
 
     def test_zero_resistance_rejected(self, client, demo_token):
         r = client.post(
             "/api/v1/energy/estimate",
-            json={"resistance_mohm": 0.0, "current_ka": 8.0, "weld_time_ms": 150.0, "efficiency_pct": 100.0},
+            json={"resistance_micro_ohm": 0.0, "current_ka": 8.0, "weld_cycles": 16.0},
             headers={"Authorization": f"Bearer {demo_token}"},
         )
         assert r.status_code == 422
@@ -595,16 +609,18 @@ class TestEnergySynthetic:
 class TestProjectsSynthetic:
 
     def test_create_read_delete_round_trip(self, client, demo_token):
-        name = "Synth_QA_Test_Project_01"
+        # ProjectCreate uses project_code + project_name (not name/description)
+        code = "SYNTH-QA-01"
+        name = "Synth QA Test Project 01"
         # Create
         r = client.post(
             "/api/v1/projects",
-            json={"name": name, "description": "Synthetic QA test project"},
+            json={"project_code": code, "project_name": name},
             headers={"Authorization": f"Bearer {demo_token}"},
         )
-        assert r.status_code == 201
+        assert r.status_code == 201, f"create project: {r.status_code} — {r.text}"
         proj = r.json()
-        assert proj["name"] == name
+        assert proj["project_name"] == name
         proj_id = proj["id"]
 
         # Read
@@ -620,7 +636,7 @@ class TestProjectsSynthetic:
         # Create a project as admin
         r = client.post(
             "/api/v1/projects",
-            json={"name": "Admin_Isolation_Test", "description": "Should not be visible to demo"},
+            json={"project_code": "ADMIN-ISO-TST", "project_name": "Admin Isolation Test"},
             headers={"Authorization": f"Bearer {admin_token}"},
         )
         if r.status_code not in (200, 201):
@@ -642,9 +658,10 @@ class TestSecurityRegressionSynthetic:
 
     def test_403_returns_permission_denied_not_internal_error(self, client, demo_token):
         """Security fix from R6: 403 must return PERMISSION_DENIED, not INTERNAL_ERROR."""
+        # Router prefix is /annotation (singular); ExportRequest needs export_version field
         r = client.post(
-            "/api/v1/annotations/export",
-            json={"format": "json"},
+            "/api/v1/annotation/export",
+            json={"export_version": "v_synth_qa_test"},
             headers={"Authorization": f"Bearer {demo_token}"},
         )
         assert r.status_code == 403

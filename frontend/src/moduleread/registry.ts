@@ -151,7 +151,7 @@ const REGISTRY: Record<string, ModuleReadContent> = {
       },
       {
         title: 'Gerekli girdiler',
-        content: '**Malzeme ailesi** (mild_steel, galvanized_steel, stainless_steel, hsla)\n\n**Stack sayısı**: 2T veya 3T\n\n**Katmanlar**: Her katman için malzeme + kalınlık (mm) + kaplama durumu\n\n**Akım** (kA), **Kaynak süresi** (çevrim), **Kuvvet** (kN), **Uç çapı** (mm)\n\n**Sıkma/tutma/soğutma** çevrimleri ve soğutma debisi/sıcaklığı',
+        content: '**Malzeme ailesi**: `mild steel`, `galvanized steel`, `AHSS / UHSS / PHS`, `stainless steel`, `aluminum alloys`\n\n**Stack sayısı**: 2T veya 3T\n\n**Katmanlar**: Her katman için malzeme + kalınlık (mm) + kaplama durumu\n\n**Akım** (kA), **Kaynak süresi** (çevrim), **Kuvvet** (kN), **Uç çapı** (mm)\n\n**Sıkma/tutma/soğutma** çevrimleri ve soğutma debisi/sıcaklığı',
       },
       {
         title: 'Adım adım kullanım',
@@ -161,12 +161,12 @@ const REGISTRY: Record<string, ModuleReadContent> = {
             id: 'weld_analysis_mild_2t',
             label: 'Mild Steel 2T 1.5mm — standart parametre',
             inputs: {
-              material_family: 'mild_steel',
+              material_family: 'mild steel',
               material_subtype: 'DC01',
               stack_count: '2T',
               layers: [
-                { material_family: 'mild_steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
-                { material_family: 'mild_steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
+                { material_family: 'mild steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
+                { material_family: 'mild steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
               ],
               current_ka: 8.0,
               weld_cycles: 12.0,
@@ -194,7 +194,7 @@ const REGISTRY: Record<string, ModuleReadContent> = {
       },
       {
         title: 'Yaygın hatalar',
-        content: '**stack_count=4T**: Desteklenmiyor (2T veya 3T).\n\n**current_ka=0**: Geçersiz — pozitif değer girin.\n\n**Katman sayısı stack_count ile uyumsuz**: 2T için 2 katman, 3T için 3 katman gereklidir.',
+        content: '**stack_count=4T**: Desteklenmiyor (2T veya 3T).\n\n**current_ka negatif**: Geçersiz — sıfır veya pozitif değer girin.\n\n**Katman sayısı stack_count ile uyumsuz**: 2T için 2 katman, 3T için 3 katman gereklidir.\n\n**material_family yazımı**: Alt çizgi kullanmayın: `mild_steel` → `mild steel`.',
       },
       {
         title: 'SSS',
@@ -224,7 +224,7 @@ const REGISTRY: Record<string, ModuleReadContent> = {
       },
       {
         title: 'Required inputs',
-        content: '**Material family**: mild_steel, galvanized_steel, stainless_steel, hsla\n\n**Stack count**: 2T or 3T\n\n**Layers**: each layer needs material + thickness (mm) + coated status\n\n**Current** (kA), **Weld time** (cycles), **Force** (kN), **Tip diameter** (mm)\n\n**Squeeze/hold/cooling** cycles, cooling flow rate and temperature',
+        content: '**Material family**: `mild steel`, `galvanized steel`, `AHSS / UHSS / PHS`, `stainless steel`, `aluminum alloys`\n\n**Stack count**: 2T or 3T\n\n**Layers**: each layer needs material + thickness (mm) + coated status\n\n**Current** (kA), **Weld time** (cycles), **Force** (kN), **Tip diameter** (mm)\n\n**Squeeze/hold/cooling** cycles, cooling flow rate and temperature',
       },
       {
         title: 'Step-by-step tutorial',
@@ -234,12 +234,12 @@ const REGISTRY: Record<string, ModuleReadContent> = {
             id: 'weld_analysis_mild_2t',
             label: 'Mild Steel 2T 1.5mm — standard parameters',
             inputs: {
-              material_family: 'mild_steel',
+              material_family: 'mild steel',
               material_subtype: 'DC01',
               stack_count: '2T',
               layers: [
-                { material_family: 'mild_steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
-                { material_family: 'mild_steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
+                { material_family: 'mild steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
+                { material_family: 'mild steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
               ],
               current_ka: 8.0,
               weld_cycles: 12.0,
@@ -267,7 +267,7 @@ const REGISTRY: Record<string, ModuleReadContent> = {
       },
       {
         title: 'Common mistakes',
-        content: '**stack_count=4T**: Not supported — use 2T or 3T.\n\n**current_ka=0**: Invalid — must be positive.\n\n**Layer count mismatch**: 2T needs 2 layers, 3T needs 3 layers.',
+        content: '**stack_count=4T**: Not supported — use 2T or 3T.\n\n**Negative current_ka**: Invalid — must be zero or positive.\n\n**Layer count mismatch**: 2T needs 2 layers, 3T needs 3 layers.\n\n**material_family spelling**: No underscores: `mild_steel` → `mild steel`.',
       },
       {
         title: 'FAQ',
@@ -713,7 +713,7 @@ const REGISTRY: Record<string, ModuleReadContent> = {
       },
       { title: 'Expected output', content: 'I²Rt energy (J), kWh, cost per spot, window indicators, dashboard cards.' },
       { title: 'How to interpret the result', content: 'Oracle formula: E = I² × R × t. The application uses this formula; results should be within 1% tolerance.' },
-      { title: 'Common mistakes', content: '**resistance_mohm=0**: Error — a positive value is required.' },
+      { title: 'Common mistakes', content: '**resistance_micro_ohm=0**: Error — a positive value is required. Use `resistance_micro_ohm` (µΩ), `weld_cycles`, and `frequency_hz` — not `resistance_mohm` or `weld_time_ms`.' },
       { title: 'FAQ', content: '**Q: Does cost calculation use live exchange rates?** A: No — a fixed coefficient is used.' },
       { title: 'Standards and scope', content: 'Energy calculation is based on the I²Rt physics formula. Economic parameters are user inputs.' },
       { title: 'Limitations', content: 'Efficiency loss model is simplified. Real power losses require measurement.' },

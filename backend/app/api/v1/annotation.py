@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_user, get_db
+from app.models.error_codes import ApiErrorCode
 from app.models.annotation_entities import (
     AnnotationAuditEntry,
     AnnotationFinding,
@@ -454,7 +455,10 @@ def export_dataset(
     if user.role not in _EXPORT_ROLES:
         raise HTTPException(
             status_code=403,
-            detail="Dataset export requires QUALITY_ENGINEER or SYSTEM_ADMIN role.",
+            detail={
+                "error_code": ApiErrorCode.PERMISSION_DENIED,
+                "message": "Dataset export requires QUALITY_ENGINEER or SYSTEM_ADMIN role.",
+            },
         )
     coco, yolo, warnings = build_export_dataset(
         db, body.export_version, user.email, body.split
