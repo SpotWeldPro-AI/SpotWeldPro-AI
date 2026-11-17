@@ -367,7 +367,7 @@ def add_finding_ep(
     return _ser_finding(f)
 
 
-@router.delete("/{annotation_id}/finding/{finding_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{annotation_id}/finding/{finding_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 def remove_finding_ep(
     annotation_id: int,
     finding_id: int,

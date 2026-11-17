@@ -1,6 +1,6 @@
 
 import { useState } from 'react'
-import client from '../api/client'
+import client, { analyzeWeld } from '../api/client'
 import { useWeldAnalysis } from '../context/WeldAnalysisContext'
 import { useAppLanguage } from '../i18n/useAppLanguage'
 import type { RecommendedRangeRow } from '../types/weld'
@@ -45,10 +45,49 @@ function extractRanges(ranges: RecommendedRangeRow[] | undefined) {
 export function FailureProbabilityPage({ onNavigateToAnalysis }: { onNavigateToAnalysis?: () => void }) {
   const { t } = useAppLanguage()
   const fp = t.failurePage
-  const { lastInputs, lastResult } = useWeldAnalysis()
+  const { lastInputs, lastResult, setLastAnalysis } = useWeldAnalysis()
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  async function handleFailureLoadExample(_id: string, _inputs: Record<string, unknown>) {
+    setLoading(true)
+    setError('')
+    setResult(null)
+    try {
+      const weldReq = {
+        material_family: 'mild steel', material_subtype: 'DC01', stack_count: '2T' as const,
+        layers: [
+          { material_family: 'mild steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
+          { material_family: 'mild steel', material_subtype: 'DC01', thickness_mm: 1.5, coated: false },
+        ],
+        current_ka: 8.0, weld_cycles: 12.0, force_kn: 3.5, tip_diameter_mm: 6.0,
+        squeeze_cycles: 10.0, hold_cycles: 5.0, cooling_flow_lpm: 2.0, cooling_temp_c: 20.0,
+        dc_current: true, adhesive: false, shunt_risk: false,
+      }
+      const analysisResult = await analyzeWeld(weldReq)
+      setLastAnalysis(weldReq, analysisResult)
+      const ranges = extractRanges(analysisResult.recommended_ranges)
+      if (!ranges) throw new Error('No recommended ranges in analysis result')
+      const resp = await client.post('/failure-probability/analyze', {
+        material_family: weldReq.material_family, stack_count: weldReq.stack_count,
+        coated: false, adhesive: false, shunt_risk: false, thicknesses_mm: [1.5, 1.5],
+        current_ka: 8.0, weld_cycles: 12.0, force_kn: 3.5, tip_diameter_mm: 6.0,
+        squeeze_cycles: 10.0, hold_cycles: 5.0, cooling_flow_lpm: 2.0, cooling_temp_c: 20.0,
+        recommended_current_min_ka: ranges.cur.min, recommended_current_max_ka: ranges.cur.max,
+        recommended_time_min_cycles: ranges.time.min, recommended_time_max_cycles: ranges.time.max,
+        recommended_force_min_kn: ranges.force.min, recommended_force_max_kn: ranges.force.max,
+        recommended_tip_min_mm: ranges.tip.min, recommended_tip_max_mm: ranges.tip.max,
+        predicted_nugget_mm: analysisResult.nugget_opt_mm,
+        minimum_nugget_mm: analysisResult.nugget_min_mm,
+      })
+      setResult(resp.data)
+    } catch {
+      setError(fp.backendUnavailableText)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const ranges = extractRanges(lastResult?.recommended_ranges)
   const contextReady = lastInputs !== null && lastResult !== null && ranges !== null
@@ -108,7 +147,7 @@ export function FailureProbabilityPage({ onNavigateToAnalysis }: { onNavigateToA
           <p className="subtitle">{fp.subtitle}</p>
         </div>
         <div className="page-actions">
-          <ModuleReadButton moduleId="failure" />
+          <ModuleReadButton moduleId="failure" onLoadExample={handleFailureLoadExample} />
           <button className="btn btn-primary" onClick={analyze} disabled={loading || !contextReady}>
             {loading ? fp.calculating : fp.calculateBtn}
           </button>

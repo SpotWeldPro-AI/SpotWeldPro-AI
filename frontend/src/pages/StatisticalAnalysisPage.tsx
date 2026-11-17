@@ -1,4 +1,4 @@
-import { useState, useId } from 'react'
+import { useState, useId, useEffect } from 'react'
 import { useAppLanguage } from '../i18n/useAppLanguage'
 import { ModuleReadButton } from '../components/ModuleReadPanel'
 import {
@@ -168,7 +168,10 @@ function MainEffectChart({ fe, p }: {
 }
 
 // ── Taguchi Tab ────────────────────────────────────────────────────────────────
-function TaguchiTab() {
+function TaguchiTab({ pendingExample, onExampleConsumed }: {
+  pendingExample?: { arrayType: string; factors: FactorDraft[] } | null
+  onExampleConsumed?: () => void
+}) {
   const { t } = useAppLanguage()
   const p = t.statisticalPage
   const uid = useId()
@@ -188,6 +191,18 @@ function TaguchiTab() {
   const [result, setResult] = useState<TaguchiAnalyzeResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!pendingExample) return
+    setArrayType(pendingExample.arrayType)
+    setFactors(pendingExample.factors)
+    setStep('config')
+    setDesign(null)
+    setResult(null)
+    setResponses([])
+    setError(null)
+    onExampleConsumed?.()
+  }, [pendingExample])
 
   const cap = arrayCapacity(arrayType)
 
@@ -815,6 +830,22 @@ export function StatisticalAnalysisPage() {
   const { t } = useAppLanguage()
   const p = t.statisticalPage
   const [tab, setTab] = useState<Tab>('taguchi')
+  const [taguchiPending, setTaguchiPending] = useState<{ arrayType: string; factors: FactorDraft[] } | null>(null)
+
+  function handleStatLoadExample(_id: string, inputs: Record<string, unknown>) {
+    if (inputs.array_type && Array.isArray(inputs.factors)) {
+      const rawFactors = inputs.factors as Array<{ name: string; unit: string; levels: number[] }>
+      setTaguchiPending({
+        arrayType: String(inputs.array_type),
+        factors: rawFactors.map(f => ({
+          name: f.name ?? '',
+          unit: f.unit ?? '',
+          levelsRaw: Array.isArray(f.levels) ? f.levels.join(', ') : '',
+        })),
+      })
+      setTab('taguchi')
+    }
+  }
 
   return (
     <div className="page-root">
@@ -824,7 +855,7 @@ export function StatisticalAnalysisPage() {
           <h1>{p.title}</h1>
           <p className="subtitle">{p.subtitle}</p>
         </div>
-        <div className="page-actions"><ModuleReadButton moduleId="statistical" /></div>
+        <div className="page-actions"><ModuleReadButton moduleId="statistical" onLoadExample={handleStatLoadExample} /></div>
       </div>
 
       <div className="stat-tabs" role="tablist" aria-label={p.title}>
@@ -846,7 +877,7 @@ export function StatisticalAnalysisPage() {
         </button>
       </div>
 
-      {tab === 'taguchi' && <TaguchiTab />}
+      {tab === 'taguchi' && <TaguchiTab pendingExample={taguchiPending} onExampleConsumed={() => setTaguchiPending(null)} />}
       {tab === 'anova' && <AnovaTab />}
     </div>
   )

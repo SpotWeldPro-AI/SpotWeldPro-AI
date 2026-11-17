@@ -1224,7 +1224,16 @@ export function EnergyPage() {
           <h1>{p.title}</h1>
           <p className="subtitle">{p.subtitle}</p>
         </div>
-        <div className="page-actions"><ModuleReadButton moduleId="energy" /></div>
+        <div className="page-actions"><ModuleReadButton moduleId="energy" onLoadExample={(_id, inputs) => {
+          setSingleForm(prev => ({
+            ...prev,
+            current_ka: inputs.current_ka != null ? String(inputs.current_ka) : prev.current_ka,
+            resistance_micro_ohm: inputs.resistance_micro_ohm != null ? String(inputs.resistance_micro_ohm) : prev.resistance_micro_ohm,
+            weld_cycles: inputs.weld_cycles != null ? String(inputs.weld_cycles) : prev.weld_cycles,
+            frequency_hz: inputs.frequency_hz != null ? String(inputs.frequency_hz) : prev.frequency_hz,
+          }))
+          setTab('single')
+        }} /></div>
       </div>
 
       {/* Tab bar */}

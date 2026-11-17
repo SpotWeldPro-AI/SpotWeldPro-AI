@@ -212,6 +212,34 @@ export function EngineeringPage() {
   const [psBusy, setPsBusy] = useState(false)
   const [psError, setPsError] = useState('')
 
+  const MATERIAL_MAP: Record<string, string> = {
+    mild_steel: 'Düşük / Orta Karbonlu Çelik',
+    galvanized_steel: 'Galvanizli / Kaplamalı Çelik',
+    AHSS: 'AHSS / UHSS / PHS',
+    stainless_steel: 'Paslanmaz Çelik',
+    aluminum_alloys: 'Alüminyum Alaşımları',
+  }
+
+  function handleEngineeringLoadExample(id: string, inputs: Record<string, unknown>) {
+    if (id === 'electrode_life_mild') {
+      const mat = typeof inputs.material_family === 'string'
+        ? (MATERIAL_MAP[inputs.material_family] ?? 'Düşük / Orta Karbonlu Çelik')
+        : 'Düşük / Orta Karbonlu Çelik'
+      setElForm({
+        material_family: mat,
+        coated: Boolean(inputs.coated),
+        tip_diameter_mm: typeof inputs.tip_diameter_mm === 'number' ? inputs.tip_diameter_mm : 6.0,
+        cooling_flow_lpm: typeof inputs.cooling_flow_lpm === 'number' ? inputs.cooling_flow_lpm : 2.0,
+        cooling_temp_c: typeof inputs.cooling_temp_c === 'number' ? inputs.cooling_temp_c : 20.0,
+        current_ka: typeof inputs.current_ka === 'number' ? inputs.current_ka : 8.0,
+        annual_spot_count: typeof inputs.annual_spot_count === 'number' ? inputs.annual_spot_count : 50000,
+      })
+      setActiveTab('electrode')
+    } else {
+      calculateLobe()
+    }
+  }
+
   async function calculatePulseStrategy() {
     setPsBusy(true)
     setPsError('')
@@ -257,7 +285,7 @@ export function EngineeringPage() {
             <p className="subtitle">{ep.subtitle}</p>
           </div>
           <div className="page-actions">
-            <ModuleReadButton moduleId="engineering" />
+            <ModuleReadButton moduleId="engineering" onLoadExample={handleEngineeringLoadExample} />
             <button className="btn btn-primary" onClick={calculateLobe} disabled={lobeBusy}>
               {lobeBusy ? ep.calculating : ep.calculateBtn}
             </button>

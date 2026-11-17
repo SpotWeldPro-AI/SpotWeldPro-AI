@@ -678,15 +678,15 @@ const REGISTRY: Record<string, ModuleReadContent> = {
         examples: [
           {
             id: 'energy_estimate_mild',
-            label: 'Enerji Tahmini — 100mΩ 8kA 150ms',
-            inputs: { resistance_mohm: 100.0, current_ka: 8.0, weld_time_ms: 150.0, efficiency_pct: 100.0 },
-            expected_output: 'energy_j ≈ 960 J (I²Rt formülü)',
+            label: 'Enerji Tahmini — 100µΩ 8kA 7.5 çevrim@50Hz',
+            inputs: { current_ka: 8.0, resistance_micro_ohm: 100.0, weld_cycles: 7.5, frequency_hz: 50.0 },
+            expected_output: 'energy_j ≈ 960 J (I²Rt formülü: 8000²×100×10⁻⁶×0.15s)',
           },
         ],
       },
       { title: 'Beklenen çıktı', content: 'I²Rt enerji (J), kWh, spot başına maliyet, pencere indikatörleri, dashboard kartları.' },
       { title: 'Sonucu nasıl yorumlanır?', content: 'Oracle formülü: E = I² × R × t. Uygulama bu formülü kullanır, %1 tolerans içinde olmalıdır.' },
-      { title: 'Yaygın hatalar', content: '**resistance_mohm=0**: Hata — pozitif değer gereklidir.' },
+      { title: 'Yaygın hatalar', content: '**resistance_micro_ohm=0**: Hata — pozitif değer gereklidir. `resistance_micro_ohm` (µΩ), `weld_cycles` ve `frequency_hz` kullanın — `resistance_mohm` veya `weld_time_ms` değil.' },
       { title: 'SSS', content: '**S: Maliyet hesabı canlı döviz kurunu kullanıyor mu?** C: Hayır, sabit bir katsayı kullanılır.' },
       { title: 'Standartlar', content: 'Enerji hesabı I²Rt fizik formülüne dayanır. Ekonomik parametreler kullanıcı girdisidir.' },
       { title: 'Sınırlamalar', content: 'Verimlilik kaybı modeli basitleştirilmiştir. Gerçek güç kayıpları için ölçüm gereklidir.' },
@@ -697,7 +697,7 @@ const REGISTRY: Record<string, ModuleReadContent> = {
       { title: 'When should I use it?', content: 'Use for energy efficiency analysis, cost estimation, or scenario comparison.' },
       {
         title: 'Required inputs',
-        content: '**Estimate**: resistance_mohm, current_ka, weld_time_ms, efficiency_pct\n\n**Window**: Extended parameters for additional indicators\n\n**Cost**: Energy unit price, operating hours\n\n**Aggregation**: Multiple weld point parameters',
+        content: '**Single Estimate**: `current_ka`, `resistance_micro_ohm` (µΩ), `weld_cycles`, `frequency_hz`\n\n**Window**: Extended parameters for additional indicators\n\n**Cost**: Energy unit price, operating hours\n\n**Aggregation**: Multiple weld point parameters',
       },
       {
         title: 'Step-by-step tutorial',
@@ -705,9 +705,9 @@ const REGISTRY: Record<string, ModuleReadContent> = {
         examples: [
           {
             id: 'energy_estimate_mild',
-            label: 'Energy Estimate — 100mΩ 8kA 150ms',
-            inputs: { resistance_mohm: 100.0, current_ka: 8.0, weld_time_ms: 150.0, efficiency_pct: 100.0 },
-            expected_output: 'energy_j ≈ 960 J (I²Rt formula)',
+            label: 'Energy Estimate — 100µΩ 8kA 7.5 cycles@50Hz',
+            inputs: { current_ka: 8.0, resistance_micro_ohm: 100.0, weld_cycles: 7.5, frequency_hz: 50.0 },
+            expected_output: 'energy_j ≈ 960 J (I²Rt: 8000²×100×10⁻⁶×0.15s)',
           },
         ],
       },
@@ -856,55 +856,176 @@ const REGISTRY: Record<string, ModuleReadContent> = {
       { title: 'Related modules', content: '**Dataset Dashboard** — training readiness status\n\n**Conflict Review** — E1 conflict resolution' },
     ],
   },
-}
 
-/** Minimal stubs for remaining modules (annotation, dataset, conflict review, projects) */
-const STUB_MODULES: Record<string, { tr: string; en: string; title_tr: string; title_en: string }> = {
+  // ── M14 Annotation ───────────────────────────────────────────────────────
   annotation: {
+    module_id: 'annotation',
     title_tr: 'Anotasyon',
     title_en: 'Annotation',
-    tr: 'Bu modül, yüklenen görüntülere bulgu etiketleri eklemenizi sağlar. DEMO_USER anotasyon oluşturabilir ancak inceleyemez (QUALITY_ENGINEER rolü gereklidir).',
-    en: 'This module allows adding finding labels to uploaded images. DEMO_USER can create annotations but cannot review them (QUALITY_ENGINEER role required).',
+    version: '1.0.0',
+    sections_tr: [
+      { title: 'Bu modül nedir?', content: 'Anotasyon modülü, yüklenen kaynak görüntülerine bulgu etiketleri (bounding box + sınıf) eklemenizi sağlar. Oluşturulan etiketler model eğitim veri setini oluşturur.' },
+      { title: 'Ne zaman kullanılır?', content: 'Statik Muayene veya Canlı İzleme modüllerinin ürettiği görüntüleri etiketlemek istediğinizde kullanın. Her görüntünün en az iki bağımsız anotasyon alması model kalitesi için önerilir.' },
+      { title: 'Gerekli girdiler', content: 'Yüklü bir görüntü (PNG/JPG). Bulgu tipi seçimi: `crack`, `spatter`, `discoloration`, `normal`. Bounding box koordinatları (sürükle-bırak ile çizilir).' },
+      { title: 'Adım adım kullanım', content: 'Sol menüden **Anotasyon** seçin.\n\nGörüntü listesinden bir görüntü seçin.\n\nBulgu bölgesini fare ile işaretleyin.\n\nBulgu tipini seçin.\n\n**Kaydet** butonuna tıklayın.' },
+      { title: 'Beklenen çıktı', content: 'Görüntü üzerinde renkli bounding box\'lar, her kutunun yanında bulgu tipi ve güven skoru. Anotasyon, Dataset Paneli sayaçlarına yansır.' },
+      { title: 'Sonucu nasıl yorumlanır?', content: 'Anotasyon tamamlandığında durum `PENDING_REVIEW` olur. Kalite Mühendisi incelemesi sonrası `APPROVED` veya `E1_CONFLICT` statüsü atanır.' },
+      { title: 'Yaygın hatalar', content: '**403 PERMISSION_DENIED (review)**: İnceleme yetkisi için QUALITY_ENGINEER rolü gereklidir. DEMO_USER yalnızca oluşturabilir.\n\n**Boş bounding box**: Sıfır alanlı kutular reddedilir.' },
+      { title: 'SSS', content: '**S: DEMO_USER anotasyon inceleyebilir mi?** C: Hayır. İnceleme (approve/reject) yalnızca QUALITY_ENGINEER rolü tarafından yapılabilir.\n\n**S: Anotasyon silinebilir mi?** C: Evet, kendi oluşturduğunuz anotasyonu silebilirsiniz.' },
+      { title: 'Standartlar', content: 'SpotWeldPro AI iç anotasyon protokolü kullanılır. Harici NDT standardı uygulanmaz.' },
+      { title: 'Sınırlamalar', content: 'DEMO_USER en fazla kendi projelerindeki görüntüleri etiketleyebilir. Cross-proje anotasyon yetkisi yoktur. Minimum bounding box boyutu 8×8 pikseldir.' },
+      { title: 'İlgili modüller', content: '**Statik Muayene** — etiketlenecek görüntüler üretir\n\n**Dataset Paneli** — anotasyon sayaçları ve eğitim hazırlık durumu\n\n**Çakışma İnceleme** — E1 çakışma çözümleme' },
+    ],
+    sections_en: [
+      { title: 'What is this module?', content: 'The Annotation module lets you add finding labels (bounding box + class) to uploaded weld images. The resulting labels form the model training dataset.' },
+      { title: 'When should I use it?', content: 'Use it when you want to label images produced by Static Inspection or Live Monitoring. At least two independent annotations per image are recommended for model quality.' },
+      { title: 'Required inputs', content: 'An uploaded image (PNG/JPG). Finding type selection: `crack`, `spatter`, `discoloration`, `normal`. Bounding box coordinates drawn by drag-and-drop.' },
+      { title: 'Step-by-step tutorial', content: 'Select **Annotation** from the left menu.\n\nChoose an image from the image list.\n\nDraw the finding region with the mouse.\n\nSelect the finding type.\n\nClick **Save**.' },
+      { title: 'Expected output', content: 'Colored bounding boxes on the image, each labeled with finding type and confidence. The annotation appears in Dataset Dashboard counters.' },
+      { title: 'How to interpret the result', content: 'After saving, status is `PENDING_REVIEW`. After Quality Engineer review: `APPROVED` or `E1_CONFLICT`.' },
+      { title: 'Common mistakes', content: '**403 PERMISSION_DENIED (review)**: Review permission requires the QUALITY_ENGINEER role. DEMO_USER can only create.\n\n**Empty bounding box**: Zero-area boxes are rejected.' },
+      { title: 'FAQ', content: '**Q: Can DEMO_USER review annotations?** A: No. Review (approve/reject) is only available to the QUALITY_ENGINEER role.\n\n**Q: Can I delete an annotation?** A: Yes — you can delete annotations you created.' },
+      { title: 'Standards and scope', content: 'SpotWeldPro AI internal annotation protocol is used. No external NDT standard applies.' },
+      { title: 'Limitations', content: 'DEMO_USER can only annotate images in their own projects. No cross-project annotation access. Minimum bounding box size is 8×8 pixels.' },
+      { title: 'Related modules', content: '**Static Inspection** — produces images to label\n\n**Dataset Dashboard** — annotation counters and training readiness\n\n**Conflict Review** — resolve E1 conflicts' },
+    ],
   },
+
+  // ── M15 Dataset Dashboard ─────────────────────────────────────────────────
   dataset_dashboard: {
+    module_id: 'dataset_dashboard',
     title_tr: 'Dataset Paneli',
     title_en: 'Dataset Dashboard',
-    tr: 'Annotasyon sayaçlarını ve eğitim hazırlık durumunu gösterir. training_allowed=False — 175 E1 çakışması Kalite Mühendisi çözümlenmesini bekliyor.',
-    en: 'Shows annotation counters and training readiness status. training_allowed=False — 175 E1 conflicts are pending Quality Engineer resolution.',
+    version: '1.0.0',
+    sections_tr: [
+      { title: 'Bu modül nedir?', content: 'Dataset Paneli, model eğitim hazırlık durumunu gösterir: toplam anotasyon sayısı, onaylanan / bekleyen / çakışmalı anotasyon sayıları ve training_allowed bayrağının durumu.' },
+      { title: 'Ne zaman kullanılır?', content: 'Model eğitimine başlamadan önce veri setinin hazır olup olmadığını kontrol etmek için kullanın. training_allowed=True olmadıkça eğitim başlatılamaz.' },
+      { title: 'Gerekli girdiler', content: 'Sadece geçerli bir oturum tokeni gereklidir. Veri okuma modülüdür, girdi gerekmez.' },
+      { title: 'Adım adım kullanım', content: 'Sol menüden **Dataset Paneli** seçin. Sayaç kartlarını inceleyin. E1 çakışma sayısı sıfır olduğunda training_allowed=True olur.' },
+      { title: 'Beklenen çıktı', content: '`total_annotations`, `approved`, `pending_review`, `e1_conflicts`, `training_allowed` sayaç kartları. Mevcut durumda: **training_allowed=False** — 175 E1 çakışması çözüm bekliyor.' },
+      { title: 'Sonucu nasıl yorumlanır?', content: '`e1_conflicts > 0` ise model eğitimi kilitlidir. Çakışmaları çözmek için Kalite Mühendisinin Çakışma İnceleme modülünü kullanması gerekir.' },
+      { title: 'Yaygın hatalar', content: '**training_allowed=False**: 175 E1 çakışması Kalite Mühendisi çözümlenmesini bekliyor. Çakışmalar çözülmeden eğitim başlatılamaz.' },
+      { title: 'SSS', content: '**S: training_allowed ne zaman True olur?** C: Tüm E1 çakışmaları Kalite Mühendisi tarafından çözümlendiğinde.\n\n**S: Minimum anotasyon sayısı nedir?** C: Mevcut yapılandırmada belirtilmemiştir; e1_conflicts=0 yeterli koşuldur.' },
+      { title: 'Standartlar', content: 'SpotWeldPro AI iç model yönetim çerçevesi E1-E4 kalite kapılarını tanımlar. Bu modül E2 (veri hazırlık) kapısını görselleştirir.' },
+      { title: 'Sınırlamalar', content: 'Panel verileri test veritabanını yansıtır. Üretim ortamı için ayrı bir sistem gereklidir. Gerçek zamanlı güncelleme yoktur; sayaçlar sayfa yenilenince güncellenir.' },
+      { title: 'İlgili modüller', content: '**Anotasyon** — etiket oluşturma\n\n**Çakışma İnceleme** — E1 çakışma çözümleme (training_allowed kilidini açar)\n\n**Model Kataloğu** — eğitim sonrası model durumu' },
+    ],
+    sections_en: [
+      { title: 'What is this module?', content: 'The Dataset Dashboard shows model training readiness: total annotation count, approved / pending / conflicting annotation counts, and the training_allowed flag status.' },
+      { title: 'When should I use it?', content: 'Check it before starting model training to verify the dataset is ready. Training cannot begin unless training_allowed=True.' },
+      { title: 'Required inputs', content: 'Only a valid session token. This is a read-only view — no inputs needed.' },
+      { title: 'Step-by-step tutorial', content: 'Select **Dataset Dashboard** from the left menu. Review the counter cards. When E1 conflict count reaches zero, training_allowed=True.' },
+      { title: 'Expected output', content: '`total_annotations`, `approved`, `pending_review`, `e1_conflicts`, `training_allowed` counter cards. Current status: **training_allowed=False** — 175 E1 conflicts pending resolution.' },
+      { title: 'How to interpret the result', content: 'If `e1_conflicts > 0`, model training is locked. A Quality Engineer must resolve the conflicts in the Conflict Review module.' },
+      { title: 'Common mistakes', content: '**training_allowed=False**: 175 E1 conflicts are pending Quality Engineer resolution. Training cannot start until all conflicts are resolved.' },
+      { title: 'FAQ', content: '**Q: When does training_allowed become True?** A: When all E1 conflicts have been resolved by a Quality Engineer.\n\n**Q: Is there a minimum annotation count?** A: Not specified in the current configuration; e1_conflicts=0 is the sufficient condition.' },
+      { title: 'Standards and scope', content: 'SpotWeldPro AI internal model governance framework defines E1-E4 quality gates. This module visualizes the E2 (data readiness) gate.' },
+      { title: 'Limitations', content: 'Dashboard counts reflect the test database. A separate environment is needed for production. No real-time refresh — counters update on page reload.' },
+      { title: 'Related modules', content: '**Annotation** — create labels\n\n**Conflict Review** — resolve E1 conflicts (unlocks training_allowed)\n\n**Model Catalog** — model status after training' },
+    ],
   },
+
+  // ── M16 Conflict Review ───────────────────────────────────────────────────
   conflict_review: {
+    module_id: 'conflict_review',
     title_tr: 'Çakışma İnceleme',
     title_en: 'Conflict Review',
-    tr: 'E1 anotasyon çakışmalarını çözümlemek için Kalite Mühendisi rolü gereklidir. DEMO_USER bu modüle erişemez (403 PERMISSION_DENIED).',
-    en: 'Resolving E1 annotation conflicts requires the Quality Engineer role. DEMO_USER cannot access this module (403 PERMISSION_DENIED).',
+    version: '1.0.0',
+    sections_tr: [
+      { title: 'Bu modül nedir?', content: 'Çakışma İnceleme, E1 anotasyon çakışmalarını görüntüler ve Kalite Mühendisinin hangi anotasyonun doğru olduğuna karar vermesini sağlar. Her çakışmada iki veya daha fazla anotasyon aynı bölge için çelişen sınıf atamış demektir.' },
+      { title: 'Ne zaman kullanılır?', content: 'Dataset Paneli\'nde e1_conflicts > 0 görüldüğünde, Kalite Mühendisi bu modülü kullanarak çakışmaları çözümler ve training_allowed kilidini açar.' },
+      { title: 'Gerekli girdiler', content: 'QUALITY_ENGINEER rolü. Çakışma listesi sistem tarafından otomatik oluşturulur; ek girdi gerekmez.' },
+      { title: 'Adım adım kullanım', content: 'Sol menüden **Çakışma İnceleme** seçin.\n\nÇakışma listesinden bir kayıt seçin.\n\nÇelişen anotasyonları karşılaştırın.\n\nDoğru olanı **Onayla**, diğerini **Reddet** butonuyla işaretleyin.\n\nKarar gerekçesini girin ve kaydedin.' },
+      { title: 'Beklenen çıktı', content: 'Çakışma çözümlenince durum `RESOLVED` olur ve e1_conflicts sayacı azalır. Tüm çakışmalar çözüldüğünde training_allowed=True olur.' },
+      { title: 'Sonucu nasıl yorumlanır?', content: 'Onaylanan anotasyon eğitim veri setine girer. Reddedilen anotasyon arşivlenir. İki anotasyon da yanlışsa `BOTH_REJECTED` seçeneğini kullanın ve yeni bir anotasyon isteyin.' },
+      { title: 'Yaygın hatalar', content: '**403 PERMISSION_DENIED**: DEMO_USER bu modüle erişemez. Yalnızca QUALITY_ENGINEER rolündeki kullanıcılar erişebilir.\n\n**Boş gerekçe**: Karar gerekçesi boş bırakılamaz.' },
+      { title: 'SSS', content: '**S: DEMO_USER çakışma çözümleyebilir mi?** C: Hayır. 403 PERMISSION_DENIED hatası alır.\n\n**S: Kaç çakışma bekliyor?** C: Şu an 175 E1 çakışması bekliyor.' },
+      { title: 'Standartlar', content: 'E1 çakışma protokolü SpotWeldPro AI iç kalite yönetim çerçevesinin bir parçasıdır. Harici ISO veya AWS standardı uygulanmaz.' },
+      { title: 'Sınırlamalar', content: 'Bu modüle erişim QUALITY_ENGINEER rolüyle kısıtlıdır. DEMO_USER erişimi mümkün değildir. Çakışma otomasyonu (otomatik çözümleme) desteklenmemektedir.' },
+      { title: 'İlgili modüller', content: '**Dataset Paneli** — training_allowed kilidini takip edin\n\n**Anotasyon** — yeni anotasyon oluşturun\n\n**Model Kataloğu** — eğitim kilidini açtıktan sonra model durumu' },
+    ],
+    sections_en: [
+      { title: 'What is this module?', content: 'Conflict Review displays E1 annotation conflicts and lets the Quality Engineer decide which annotation is correct. Each conflict means two or more annotations assigned conflicting classes to the same region.' },
+      { title: 'When should I use it?', content: 'When the Dataset Dashboard shows e1_conflicts > 0, a Quality Engineer uses this module to resolve the conflicts and unlock training_allowed.' },
+      { title: 'Required inputs', content: 'QUALITY_ENGINEER role. The conflict list is generated automatically by the system — no additional input needed.' },
+      { title: 'Step-by-step tutorial', content: 'Select **Conflict Review** from the left menu.\n\nChoose a conflict from the list.\n\nCompare the conflicting annotations.\n\nMark the correct one with **Approve**, the other with **Reject**.\n\nEnter a decision rationale and save.' },
+      { title: 'Expected output', content: 'Once resolved, the conflict status becomes `RESOLVED` and the e1_conflicts counter decreases. When all conflicts are resolved, training_allowed=True.' },
+      { title: 'How to interpret the result', content: 'The approved annotation enters the training dataset. The rejected one is archived. If both are wrong, use `BOTH_REJECTED` and request a new annotation.' },
+      { title: 'Common mistakes', content: '**403 PERMISSION_DENIED**: DEMO_USER cannot access this module. Only QUALITY_ENGINEER role users can access it.\n\n**Empty rationale**: Decision rationale cannot be blank.' },
+      { title: 'FAQ', content: '**Q: Can DEMO_USER resolve conflicts?** A: No — they receive a 403 PERMISSION_DENIED error.\n\n**Q: How many conflicts are pending?** A: Currently 175 E1 conflicts are waiting.' },
+      { title: 'Standards and scope', content: 'The E1 conflict protocol is part of the SpotWeldPro AI internal quality management framework. No external ISO or AWS standard applies.' },
+      { title: 'Limitations', content: 'Access to this module is restricted to the QUALITY_ENGINEER role. DEMO_USER access is not possible. Automated conflict resolution is not supported.' },
+      { title: 'Related modules', content: '**Dataset Dashboard** — track training_allowed lock\n\n**Annotation** — create new annotations\n\n**Model Catalog** — model status after the training lock is lifted' },
+    ],
   },
+
+  // ── M02 Projects & Weld Points ────────────────────────────────────────────
   projects: {
+    module_id: 'projects',
     title_tr: 'Projeler ve Kaynak Noktaları',
     title_en: 'Projects & Weld Points',
-    tr: 'Projeler oluşturun, düzenleyin, silin. Her projeye kaynak noktaları ekleyin. DEMO_USER kendi projelerini yönetebilir.',
-    en: 'Create, edit and delete projects. Add weld points to each project. DEMO_USER can manage their own projects.',
+    version: '1.0.0',
+    sections_tr: [
+      { title: 'Bu modül nedir?', content: 'Projeler modülü, kaynak projelerini ve her projeye ait kaynak noktalarını yönetir. Her proje bir parçayı (örn. kapı paneli) temsil eder; kaynak noktaları o parçadaki spot kaynak pozisyonlarını tanımlar.' },
+      { title: 'Ne zaman kullanılır?', content: 'Yeni bir kaynak projesi başlatırken, mevcut projeye kaynak noktaları eklerken veya proje/nokta bilgilerini güncellerken kullanın.' },
+      { title: 'Gerekli girdiler', content: '**Proje oluşturma**: Proje adı (zorunlu), açıklama (isteğe bağlı), parça kodu\n\n**Kaynak noktası ekleme**: Proje seçimi, nokta kodu (örn. WP-001), malzeme, kalınlık, referans parametreler' },
+      { title: 'Adım adım kullanım', content: 'Sol menüden **Projeler** seçin.\n\n**Yeni Proje** butonuna tıklayın.\n\nProje adını ve parça kodunu girin.\n\nProjeyi kaydedin.\n\nProje kartına tıklayarak kaynak noktaları ekleyin.' },
+      { title: 'Beklenen çıktı', content: 'Proje listesi (id, ad, parça kodu, kaynak noktası sayısı, oluşturulma tarihi). Her projenin kaynak noktaları listesi.' },
+      { title: 'Sonucu nasıl yorumlanır?', content: 'Projeler yalnızca oluşturan kullanıcıya görünür. Kaynak noktası sayısı sıfırsa henüz nokta eklenmemiştir.' },
+      { title: 'Yaygın hatalar', content: '**Boş proje adı**: Proje adı zorunludur.\n\n**Yinelenen nokta kodu**: Aynı projede aynı nokta kodu iki kez kullanılamaz.\n\n**404 Bulunamadı**: Proje silinmiş olabilir; listeyi yenileyin.' },
+      { title: 'SSS', content: '**S: Başka kullanıcıların projelerini görebilir miyim?** C: Hayır, her kullanıcı yalnızca kendi projelerini görür.\n\n**S: Proje silmek geri alınabilir mi?** C: Hayır, silme işlemi kalıcıdır.' },
+      { title: 'Standartlar', content: 'Bu modül için uygulanabilir endüstriyel standart yoktur. Proje yapısı SpotWeldPro AI iç veri modelidir.' },
+      { title: 'Sınırlamalar', content: 'DEMO_USER en fazla test veritabanındaki sınırlı sayıda proje oluşturabilir. Proje paylaşımı ve takım erişimi mevcut sürümde desteklenmemektedir.' },
+      { title: 'İlgili modüller', content: '**Panel** — proje sayısını gösterir\n\n**Kaynak Kalite** — proje bağlamında analiz\n\n**Anotasyon** — kaynak noktası görüntülerini etiketle' },
+    ],
+    sections_en: [
+      { title: 'What is this module?', content: 'The Projects module manages weld projects and the weld points belonging to each one. A project represents a part (e.g., door panel); weld points define the spot weld positions on that part.' },
+      { title: 'When should I use it?', content: 'Use it when starting a new welding project, adding weld points to an existing project, or updating project/point information.' },
+      { title: 'Required inputs', content: '**Create project**: Project name (required), description (optional), part code\n\n**Add weld point**: Project selection, point code (e.g., WP-001), material, thickness, reference parameters' },
+      { title: 'Step-by-step tutorial', content: 'Select **Projects** from the left menu.\n\nClick **New Project**.\n\nEnter the project name and part code.\n\nSave the project.\n\nClick the project card to add weld points.' },
+      { title: 'Expected output', content: 'Project list (id, name, part code, weld point count, created date). List of weld points for each project.' },
+      { title: 'How to interpret the result', content: 'Projects are visible only to the creating user. A zero weld point count means no points have been added yet.' },
+      { title: 'Common mistakes', content: '**Empty project name**: Project name is required.\n\n**Duplicate point code**: The same point code cannot be used twice within the same project.\n\n**404 Not Found**: The project may have been deleted — refresh the list.' },
+      { title: 'FAQ', content: '**Q: Can I see other users\' projects?** A: No — each user sees only their own projects.\n\n**Q: Can project deletion be undone?** A: No — deletion is permanent.' },
+      { title: 'Standards and scope', content: 'No applicable industrial standard for this module. The project structure is the SpotWeldPro AI internal data model.' },
+      { title: 'Limitations', content: 'DEMO_USER can create a limited number of projects in the test database. Project sharing and team access are not supported in the current version.' },
+      { title: 'Related modules', content: '**Dashboard** — displays project count\n\n**Weld Quality Analysis** — analysis in project context\n\n**Annotation** — label weld point images' },
+    ],
   },
+
+  // ── M17 Help Center ───────────────────────────────────────────────────────
   help: {
+    module_id: 'help',
     title_tr: 'Yardım Merkezi',
     title_en: 'Help Center',
-    tr: 'Genel kullanım rehberi ve SSS. Bu panelin içeriği bu modül için de geçerlidir.',
-    en: 'General usage guide and FAQ. The content of this panel also applies to this module.',
-  },
-}
-
-function makeStub(id: string): ModuleReadContent {
-  const s = STUB_MODULES[id]
-  if (!s) return makeUnknownStub(id)
-  const single_tr: Section = { title: 'Bu modül nedir?', content: s.tr }
-  const single_en: Section = { title: 'What is this module?', content: s.en }
-  return {
-    module_id: id,
-    title_tr: s.title_tr,
-    title_en: s.title_en,
     version: '1.0.0',
-    sections_tr: [single_tr],
-    sections_en: [single_en],
-  }
+    sections_tr: [
+      { title: 'Bu modül nedir?', content: 'Yardım Merkezi, SpotWeldPro AI sisteminin genel kullanım kılavuzunu, SSS\'ü ve ModuleRead sistemi hakkında bilgiyi barındırır.' },
+      { title: 'Ne zaman kullanılır?', content: 'Sistemi ilk kez kullanırken, belirli bir modülün nasıl çalıştığını anlamak istediğinizde veya hata mesajlarını yorumlamak için kullanın.' },
+      { title: 'Gerekli girdiler', content: 'Sadece geçerli bir oturum tokeni gereklidir. Yardım Merkezi yalnızca okuma modundadır.' },
+      { title: 'Adım adım kullanım', content: 'Sol menüden **Yardım** seçin. Konu başlıklarına göz atın. İlgili bölümü seçin ve içeriği okuyun.' },
+      { title: 'Beklenen çıktı', content: 'Her modül için rehber içerik: giriş, nasıl kullanılır, SSS ve teknik limitler.' },
+      { title: 'Sonucu nasıl yorumlanır?', content: 'Yardım içeriği bilgilendirme amaçlıdır. Spesifik mühendislik kararları için ilgili modülün ModuleRead panelini kullanın.' },
+      { title: 'Yaygın hatalar', content: 'Bu modülde işlem yapılmaz; hata oluşmaz.' },
+      { title: 'SSS', content: '**S: Her modülde bulunan "?" butonu nedir?** C: ModuleRead butonudur. O modüle özel yardım panelini açar.\n\n**S: İçerik hangi dilde?** C: ModuleRead paneli Türkçe ve İngilizce destekler; uygulama dil ayarına göre değişir.' },
+      { title: 'Standartlar', content: 'Bu modül için uygulanabilir endüstriyel standart yoktur.' },
+      { title: 'Sınırlamalar', content: 'Yardım içeriği statiktir; kullanıcı yorumu veya geri bildirim eklenemez.' },
+      { title: 'İlgili modüller', content: '**Tüm modüller** — her modülde "?" butonu ile ModuleRead yardım paneline erişin' },
+    ],
+    sections_en: [
+      { title: 'What is this module?', content: 'The Help Center contains the general usage guide for SpotWeldPro AI, FAQ, and information about the ModuleRead system.' },
+      { title: 'When should I use it?', content: 'Use it when you first start using the system, when you want to understand how a specific module works, or to interpret error messages.' },
+      { title: 'Required inputs', content: 'Only a valid session token. The Help Center is read-only.' },
+      { title: 'Step-by-step tutorial', content: 'Select **Help** from the left menu. Browse by topic heading. Select the relevant section and read the content.' },
+      { title: 'Expected output', content: 'Guide content for each module: introduction, how to use it, FAQ, and technical limits.' },
+      { title: 'How to interpret the result', content: 'Help content is for informational purposes. For specific engineering decisions, use the ModuleRead panel in the relevant module.' },
+      { title: 'Common mistakes', content: 'No operations are performed in this module — no errors occur.' },
+      { title: 'FAQ', content: '**Q: What is the "?" button in every module?** A: It is the ModuleRead button. It opens the help panel specific to that module.\n\n**Q: In what language is the content?** A: The ModuleRead panel supports Turkish and English; it changes according to the application language setting.' },
+      { title: 'Standards and scope', content: 'No applicable industrial standard for this module.' },
+      { title: 'Limitations', content: 'Help content is static — user comments or feedback cannot be added.' },
+      { title: 'Related modules', content: '**All modules** — access the ModuleRead help panel via the "?" button in each module' },
+    ],
+  },
 }
 
 function makeUnknownStub(id: string): ModuleReadContent {
@@ -920,12 +1041,11 @@ function makeUnknownStub(id: string): ModuleReadContent {
 
 export function getModuleContent(moduleId: string): ModuleReadContent | null {
   if (REGISTRY[moduleId]) return REGISTRY[moduleId]
-  if (STUB_MODULES[moduleId]) return makeStub(moduleId)
   return null
 }
 
 export function listSupportedModules(): string[] {
-  return [...Object.keys(REGISTRY), ...Object.keys(STUB_MODULES)]
+  return Object.keys(REGISTRY)
 }
 
 export default REGISTRY
