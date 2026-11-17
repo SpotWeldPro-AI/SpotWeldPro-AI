@@ -1,0 +1,11 @@
+scenario,filename,status,sha256_ok,codec_ok,resolution,fps,duration_s,frame_count,accept
+normal_approach,synth_normal_approach.mp4,OK,PASS,PASS,1280x720,30.0,4.000,120,PASS
+expulsion_event,synth_expulsion_event.mp4,OK,PASS,PASS,1280x720,30.0,4.000,120,PASS
+electrode_offset,synth_electrode_offset.mp4,OK,PASS,PASS,1280x720,30.0,5.000,150,PASS
+variable_lighting,synth_variable_lighting.mp4,OK,PASS,PASS,1280x720,30.0,4.000,120,PASS
+occlusion_noise,synth_occlusion_noise.mp4,OK,PASS,PASS,1280x720,30.0,4.000,120,PASS
+dropped_frames,synth_dropped_frames.mp4,OK,PASS,PASS,1280x720,15.0,5.000,75,PASS
+stream_interrupt,synth_stream_interrupt.mp4,OK,PASS,PASS,1280x720,30.0,5.000,150,PASS
+multi_spot_seq,synth_multi_spot_seq.mp4,OK,PASS,PASS,1280x720,30.0,9.000,270,PASS
+stress_duration,synth_stress_duration.mp4,OK,PASS,PASS,1280x720,30.0,30.000,900,PASS
+unsupported_format,synth_unsupported_format.bin,INTENTIONAL_ERROR,PASS,N/A,N/A,N/A,N/A,N/A,PASS

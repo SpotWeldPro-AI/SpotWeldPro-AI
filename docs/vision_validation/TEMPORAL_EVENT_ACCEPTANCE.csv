@@ -1,0 +1,10 @@
+scenario,manifest_events,frames_tested,motion_detected_events,idle_events,defect_classify,detection_category,note
+normal_approach,approach|clamp|weld|hold|release,30,0,30,MODEL_NOT_LOADED,GENERIC_MOTION,Frame differencing only. No CNN-GRU/LSTM inference.
+expulsion_event,expulsion_flash,30,0,30,MODEL_NOT_LOADED,GENERIC_MOTION,Frame differencing only. No CNN-GRU/LSTM inference.
+electrode_offset,position_drift,30,0,30,MODEL_NOT_LOADED,GENERIC_MOTION,Frame differencing only. No CNN-GRU/LSTM inference.
+variable_lighting,illumination_variation,30,0,30,MODEL_NOT_LOADED,GENERIC_MOTION,Frame differencing only. No CNN-GRU/LSTM inference.
+occlusion_noise,occlusion,30,1,29,MODEL_NOT_LOADED,GENERIC_MOTION,Frame differencing only. No CNN-GRU/LSTM inference.
+dropped_frames,low_framerate,30,0,30,MODEL_NOT_LOADED,GENERIC_MOTION,Frame differencing only. No CNN-GRU/LSTM inference.
+stream_interrupt,blackout,30,0,30,MODEL_NOT_LOADED,GENERIC_MOTION,Frame differencing only. No CNN-GRU/LSTM inference.
+multi_spot_seq,spot_1|spot_2|spot_3,30,0,30,MODEL_NOT_LOADED,GENERIC_MOTION,Frame differencing only. No CNN-GRU/LSTM inference.
+stress_duration,none,30,0,30,MODEL_NOT_LOADED,GENERIC_MOTION,Frame differencing only. No CNN-GRU/LSTM inference.
