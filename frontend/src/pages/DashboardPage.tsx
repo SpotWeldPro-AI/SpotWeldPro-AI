@@ -89,6 +89,7 @@ export function DashboardPage() {
             {user ? `${user.full_name} — ${roleLabel}` : '…'} · {d.subtitle}
           </p>
         </div>
+        <div className="page-actions"><ModuleReadButton moduleId="dashboard" /></div>
       </header>
       <div className="ws-context-bar" aria-label="Engineering context">
         <span className="ctx-chip accent">Authority: <strong>deterministic rules</strong></span>
