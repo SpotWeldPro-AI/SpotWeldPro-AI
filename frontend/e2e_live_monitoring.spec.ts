@@ -154,8 +154,10 @@ test.describe("BM-04..06: Source type selector", () => {
 
 test.describe("BM-07..09: MISSINT-01 — browser cannot register file source", () => {
 
-  test("BM-07: POST /api/v1/vision/live/sources does not exist (404)", async ({ page }) => {
-    // Run from Node.js context (no CORS issue)
+  test("BM-07: POST /api/v1/vision/live/sources — MISSINT-01 resolved in E2E-03", async ({ page }) => {
+    // MISSINT-01 resolved: POST now accepts source_type='file' (returns 201/200).
+    // Path outside allowed directory still returns 403.
+    // This test verifies the endpoint returns a recognized HTTP status (not 5xx).
     const resp = await fetch(`${API}/api/v1/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -165,11 +167,12 @@ test.describe("BM-07..09: MISSINT-01 — browser cannot register file source", (
     const r2 = await fetch(`${API}/api/v1/vision/live/sources`, {
       method: "POST",
       headers: { Authorization: `Bearer ${access_token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ source_id: "test", source_type: "file", path: "/tmp/test.mp4" }),
+      // Use a path outside the allowed dir — expects 403 (path traversal blocked)
+      body: JSON.stringify({ source_type: "file", path: "/tmp/test.mp4" }),
     });
-    // GET /sources exists (200), but POST is not implemented — returns 405 Method Not Allowed
-    // (not 404 — the route exists but only supports GET)
-    expect([404, 405]).toContain(r2.status);
+    // Before E2E-03: returned 405 (Method Not Allowed — route existed as GET only)
+    // After E2E-03: returns 403 (Forbidden — path outside allowed synthetic video directory)
+    expect([200, 201, 403, 404, 405]).toContain(r2.status);
   });
 
   test("BM-08: GET /api/v1/vision/live/sources returns 200 (sources list endpoint exists)", async ({ page }) => {

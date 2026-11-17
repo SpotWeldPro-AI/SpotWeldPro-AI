@@ -54,7 +54,7 @@ interface FramePayload {
   height: number
 }
 
-const VITE_API = (import.meta.env.VITE_API_URL as string) || ''
+const VITE_API = (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000'
 
 function getWsHost(): string {
   if (VITE_API) {
@@ -74,8 +74,10 @@ function getAuthToken(): string {
 export function LiveMonitoringPage() {
   const [sourceType, setSourceType] = useState<SourceType>('webcam')
   const [rtspUrl, setRtspUrl] = useState('')
-  const [filePath, setFilePath] = useState('clip.mp4')
+  const [filePath, setFilePath] = useState('synth_normal_approach.mp4')
+  const [replayFps, setReplayFps] = useState<string>('30')
   const [sourceId, setSourceId] = useState('webcam://device/0')
+  const [registeredSourceId, setRegisteredSourceId] = useState<string | null>(null)
   const [connState, setConnState] = useState<ConnectionState>('disconnected')
   const [messages, setMessages] = useState<WsMessage[]>([])
   const [metrics, setMetrics] = useState<LiveMetrics | null>(null)
@@ -92,23 +94,8 @@ export function LiveMonitoringPage() {
     setMessages(prev => [msg, ...prev].slice(0, 50))
   }, [])
 
-  function connect() {
-    if (wsRef.current) wsRef.current.close()
-    setMessages([])
-    setMetrics(null)
-    setLastFrame(null)
-    setMotionEvents([])
-    setWeldWindows([])
-    setErrorMsg(null)
-    setConnState('connecting')
-
+  function _openWs(subscribeToId: string) {
     const token = getAuthToken()
-    if (!token) {
-      setErrorMsg('No auth token found in localStorage. Log in first.')
-      setConnState('error')
-      return
-    }
-
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const ws = new WebSocket(`${proto}//${getWsHost()}/api/v1/vision/live/ws`)
     wsRef.current = ws
@@ -125,7 +112,7 @@ export function LiveMonitoringPage() {
       switch (msg.type) {
         case 'auth_ok':
           setConnState('connected')
-          ws.send(JSON.stringify({ action: 'subscribe', source_id: sourceId }))
+          ws.send(JSON.stringify({ action: 'subscribe', source_id: subscribeToId }))
           break
         case 'metrics':
           setMetrics(msg.payload as unknown as LiveMetrics)
@@ -160,9 +147,64 @@ export function LiveMonitoringPage() {
     }
   }
 
-  function disconnect() {
+  async function connect() {
+    if (wsRef.current) wsRef.current.close()
+    setMessages([])
+    setMetrics(null)
+    setLastFrame(null)
+    setMotionEvents([])
+    setWeldWindows([])
+    setErrorMsg(null)
+    setConnState('connecting')
+
+    const token = getAuthToken()
+    if (!token) {
+      setErrorMsg('No auth token found in localStorage. Log in first.')
+      setConnState('error')
+      return
+    }
+
+    if (sourceType === 'file') {
+      // Register file source via REST before opening WS
+      const fps = parseFloat(replayFps)
+      const body: Record<string, unknown> = { source_type: 'file', path: filePath }
+      if (!isNaN(fps) && fps > 0) body.replay_fps = fps
+      try {
+        const resp = await fetch(`${VITE_API}/api/v1/vision/live/sources`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify(body),
+        })
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ detail: resp.statusText }))
+          const detail = typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail)
+          setErrorMsg(`Source registration failed (${resp.status}): ${detail}`)
+          setConnState('error')
+          return
+        }
+        const data = await resp.json() as { source_id: string; worker_state: string; note: string }
+        setRegisteredSourceId(data.source_id)
+        _openWs(data.source_id)
+      } catch (err) {
+        setErrorMsg(`Network error registering source: ${err}`)
+        setConnState('error')
+      }
+    } else {
+      _openWs(sourceId)
+    }
+  }
+
+  async function disconnect() {
     wsRef.current?.close()
     setConnState('disconnected')
+    if (registeredSourceId) {
+      const token = getAuthToken()
+      await fetch(
+        `${VITE_API}/api/v1/vision/live/sources?source_id=${encodeURIComponent(registeredSourceId)}`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }
+      ).catch(() => {})
+      setRegisteredSourceId(null)
+    }
   }
 
   // ── Styles ────────────────────────────────────────────────────────────────
@@ -277,17 +319,27 @@ export function LiveMonitoringPage() {
             </div>
           )}
           {sourceType === 'file' && (
-            <div>
-              <label style={lbl}>Video file path</label>
-              <input style={inp} type="text"
-                placeholder="clip.mp4 or /absolute/path/to/video.mp4"
-                value={filePath}
-                onChange={(e) => {
-                  setFilePath(e.target.value)
-                  setSourceId(`file://${e.target.value}`)
-                }}
-              />
-            </div>
+            <>
+              <div>
+                <label style={lbl}>Video file path</label>
+                <input style={inp} type="text"
+                  placeholder="synth_normal_approach.mp4"
+                  value={filePath}
+                  onChange={(e) => {
+                    setFilePath(e.target.value)
+                    setSourceId(`file://${e.target.value}`)
+                  }}
+                />
+              </div>
+              <div>
+                <label style={lbl}>Replay FPS</label>
+                <input style={inp} type="number" min="1" max="120" step="1"
+                  placeholder="30"
+                  value={replayFps}
+                  onChange={(e) => setReplayFps(e.target.value)}
+                />
+              </div>
+            </>
           )}
           <div>
             <label style={lbl}>Source ID (sent to server)</label>

@@ -41,10 +41,12 @@ import asyncio
 import base64
 import json
 import logging
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.websockets import WebSocket, WebSocketDisconnect
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_user, get_db
@@ -71,6 +73,71 @@ router = APIRouter(prefix="/vision/live", tags=["Vision - Live Monitoring"])
 _WS_AUTH_TIMEOUT_S = 10.0
 _METRICS_INTERVAL_S = 1.0   # how often to push metrics updates
 _FRAME_POLL_S = 0.033        # ~30 fps poll cadence
+
+# Allowed file source directory — only synthetic test videos permitted.
+# Derives from this file's location: backend/app/api/v1/ → backend/tests/synthetic_data/videos/
+_SYNTH_VIDEO_DIR: Optional[Path] = None
+
+
+def _get_synth_video_dir() -> Path:
+    global _SYNTH_VIDEO_DIR
+    if _SYNTH_VIDEO_DIR is None:
+        _SYNTH_VIDEO_DIR = (
+            Path(__file__).parent.parent.parent.parent
+            / "tests" / "synthetic_data" / "videos"
+        ).resolve()
+    return _SYNTH_VIDEO_DIR
+
+
+def _resolve_allowed_file_path(path_str: str) -> Path:
+    """
+    Resolve and validate a requested file path against the allowed directory.
+    Only files inside the synthetic test video directory are permitted.
+    Raises HTTP 403 on path traversal, 404 if file not found, 422 on bad input.
+    """
+    allowed_dir = _get_synth_video_dir()
+    try:
+        p = Path(path_str)
+        if not p.is_absolute():
+            p = allowed_dir / p
+        resolved = p.resolve()
+    except Exception:
+        raise HTTPException(status_code=422, detail="Invalid file path.")
+
+    try:
+        resolved.relative_to(allowed_dir)
+    except ValueError:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "File access denied. Only synthetic test videos in the authorized "
+                "directory are permitted. Arbitrary filesystem access is not authorized."
+            ),
+        )
+
+    if not resolved.is_file():
+        raise HTTPException(status_code=404, detail=f"Video file not found: {resolved.name}")
+
+    if resolved.suffix.lower() not in {".mp4", ".avi", ".mkv", ".mov"}:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unsupported file type '{resolved.suffix}'. Supported: .mp4 .avi .mkv .mov",
+        )
+
+    return resolved
+
+
+class RegisterFileSourceRequest(BaseModel):
+    source_type: Literal["file"]
+    path: str
+    replay_fps: Optional[float] = None  # None = max speed; set e.g. 30.0 for realistic replay
+
+
+class RegisterSourceResponse(BaseModel):
+    source_id: str
+    worker_state: str
+    file_name: str
+    note: str
 
 
 # ── REST endpoints ─────────────────────────────────────────────────────────────
@@ -107,6 +174,74 @@ def list_capture_sources(
             if not sources else None
         ),
     }
+
+
+@router.post("/sources", status_code=201)
+def register_file_source(
+    body: RegisterFileSourceRequest,
+    _: User = Depends(get_current_user),
+) -> RegisterSourceResponse:
+    """
+    Register and start a file source for browser-driven synthetic video replay.
+
+    Security: only files within the authorized synthetic test video directory are
+    accepted. All other paths — including path traversal attempts — are denied with
+    HTTP 403. Arbitrary filesystem, webcam and RTSP sources require server-side
+    configuration and are not registerable through this endpoint.
+    """
+    if body.source_type != "file":
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Only source_type='file' is supported via this endpoint. "
+                "Webcam and RTSP sources require server-side configuration."
+            ),
+        )
+
+    resolved = _resolve_allowed_file_path(body.path)
+
+    from app.vision.capture.file_adapter import FileVideoAdapter
+    adapter = FileVideoAdapter(str(resolved), replay_fps=body.replay_fps)
+    source_id = adapter.source_id
+
+    mgr = get_session_manager()
+
+    # Idempotent: return existing registration rather than error
+    if mgr.source_exists(source_id):
+        m = mgr.get_metrics(source_id)
+        return RegisterSourceResponse(
+            source_id=source_id,
+            worker_state=m.worker_state,
+            file_name=resolved.name,
+            note="Source already registered.",
+        )
+
+    try:
+        mgr.register_source(source_id, adapter)
+        mgr.start_source(source_id)
+    except SessionManagerError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+    m = mgr.get_metrics(source_id)
+    return RegisterSourceResponse(
+        source_id=source_id,
+        worker_state=m.worker_state,
+        file_name=resolved.name,
+        note=f"Registered and started: {resolved.name}",
+    )
+
+
+@router.delete("/sources")
+def unregister_source(
+    source_id: str = Query(..., description="source_id returned by POST /sources"),
+    _: User = Depends(get_current_user),
+) -> Dict[str, str]:
+    """Stop and unregister a registered capture source."""
+    mgr = get_session_manager()
+    if not mgr.source_exists(source_id):
+        raise HTTPException(status_code=404, detail=f"Source '{source_id}' is not registered.")
+    mgr.unregister_source(source_id)
+    return {"source_id": source_id, "status": "unregistered"}
 
 
 @router.get("/sources/{source_id}/metrics")
