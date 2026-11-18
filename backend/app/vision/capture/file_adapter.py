@@ -83,7 +83,7 @@ class FileVideoAdapter(CaptureAdapter):
         if not ok or frame is None:
             return None
         _, encoded = cv2.imencode(
-            '.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85]
+            '.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 60]
         )
         self._frame_index += 1
         return FrameBundle(

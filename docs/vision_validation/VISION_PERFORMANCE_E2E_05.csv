@@ -1,0 +1,9 @@
+test_id,jpeg_quality,replay_fps,video,frames_delivered,duration_ms,fps_delivered,notes
+PERF-01,60,5,synth_normal_approach.mp4,47,8016,5.9,throttled to 5fps; WS delivers at full throttle rate
+PERF-02,60,10,synth_normal_approach.mp4,91,8009,11.4,throttled to 10fps; WS keeps up
+PERF-03,60,15,synth_normal_approach.mp4,120,8005,15.0,throttled to 15fps; WS delivers all frames
+PERF-04,60,30,synth_normal_approach.mp4,56,8009,7.0,throttled to 30fps; WS backpressure caps at ~7fps (short clip)
+PERF-WS-01,60,30,synth_stress_duration.mp4,142,8007,17.7,stress video (900 frames); warmed-up pipe delivers 17.7fps at 30fps production
+PERF-QUALITY-01,60,5,synth_normal_approach.mp4,59,10003,5.9,quality=60 replays at exact throttle rate
+BASELINE-E2E03,85,unthrottled,synth_normal_approach.mp4,18,5112,3.5,E2E-03 baseline (prior quality=85)
+BASELINE-E2E04,85,unthrottled,synth_normal_approach.mp4,24,5236,4.6,E2E-04 baseline (prior quality=85)
