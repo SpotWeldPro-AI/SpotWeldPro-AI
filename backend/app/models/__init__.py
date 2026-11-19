@@ -50,4 +50,5 @@ from app.models.annotation_entities import (  # noqa: F401
     AnnotationReview,
     AnnotationAuditEntry,
     ConflictAdjudication,
+    PhysicalTestEvidence,
 )

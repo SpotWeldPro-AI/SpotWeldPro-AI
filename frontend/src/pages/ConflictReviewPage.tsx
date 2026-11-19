@@ -138,25 +138,45 @@ function basename(p: string): string {
   return p.replace(/\\/g, '/').split('/').pop() || p
 }
 
-function ImagePanel({ path, label, split, archive, sha1, contam, side, lang }:
-  { path: string; label: string; split: string; archive: string; sha1: string; contam?: string; side: 'A' | 'B'; lang: string }) {
+function ImagePanel({ path, label, split, archive, sha1, contam, side, lang, onZoom }:
+  { path: string; label: string; split: string; archive: string; sha1: string; contam?: string; side: 'A' | 'B'; lang: string; onZoom: () => void }) {
+  const [loaded, setLoaded] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const previewSrc = `/api/v1/annotation/image-preview?path=${encodeURIComponent(path)}`
   return (
     <div style={{ flex: 1, background: '#111827', borderRadius: 10, padding: 16, border: '1px solid #374151', minWidth: 0 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: '#6b7280', marginBottom: 8 }}>
-        {lang === 'tr' ? `Görüntü ${side}` : `Image ${side}`}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#6b7280', flex: 1 }}>
+          {lang === 'tr' ? `Görüntü ${side}` : `Image ${side}`}
+        </div>
+        {loaded && (
+          <button onClick={onZoom}
+            title={lang === 'tr' ? 'Yakınlaştır' : 'Zoom'}
+            style={{ background: 'none', border: '1px solid #374151', borderRadius: 4, cursor: 'pointer',
+                     color: '#9ca3af', fontSize: 10, padding: '2px 6px' }}>
+            ⤢
+          </button>
+        )}
       </div>
 
-      {/* Image placeholder — real images displayed only when paths are accessible */}
       <div style={{ background: '#1f2937', borderRadius: 6, height: 180, display: 'flex',
                     alignItems: 'center', justifyContent: 'center', marginBottom: 12,
-                    border: '1px dashed #374151', overflow: 'hidden' }}>
-        <img
-          src={`/api/v1/annotation/image-preview?path=${encodeURIComponent(path)}`}
-          alt={basename(path)}
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-        />
-        <span style={{ fontSize: 11, color: '#4b5563', position: 'absolute' }}>{basename(path)}</span>
+                    border: '1px dashed #374151', overflow: 'hidden', position: 'relative' }}>
+        {!failed && (
+          <img
+            src={previewSrc}
+            alt={basename(path)}
+            onLoad={() => setLoaded(true)}
+            onError={() => setFailed(true)}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: loaded ? 'block' : 'none' }}
+          />
+        )}
+        {!loaded && !failed && (
+          <span style={{ fontSize: 11, color: '#4b5563' }}>{lang === 'tr' ? 'Yükleniyor…' : 'Loading…'}</span>
+        )}
+        {failed && (
+          <span style={{ fontSize: 11, color: '#6b7280' }}>{basename(path)}</span>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px', fontSize: 11 }}>
@@ -172,6 +192,22 @@ function ImagePanel({ path, label, split, archive, sha1, contam, side, lang }:
       <div style={{ marginTop: 8, fontSize: 10, color: '#6b7280', wordBreak: 'break-all' }}>{path}</div>
     </div>
   )
+}
+
+const TAXONOMY_GUIDANCE: Record<string, { desc_en: string; evidence: string; physical?: boolean }> = {
+  ok:             { desc_en: 'Uniform circular indentation, no visible defects.', evidence: 'Surface visual inspection only. Nugget size NOT confirmed without cross-section.' },
+  capak:          { desc_en: 'Molten metal spatter/droplets around weld.', evidence: 'Surface visible. High contamination in V5 (71% MEDIUM/HIGH) — check markup ratio.' },
+  deformeli:      { desc_en: 'Non-circular or asymmetric electrode impression.', evidence: 'Surface visible. Electrode wear indicator.' },
+  kopuk:          { desc_en: 'Broken or severed weld nugget.', evidence: 'Surface indicator only. Confirm with peel/chisel test.', physical: true },
+  eksik:          { desc_en: 'No electrode indentation at planned location.', evidence: 'Surface visible. Absence of indentation is unambiguous.' },
+  kucuk_cekirdek: { desc_en: 'Small indentation — potential nugget undersize.', evidence: 'SURFACE INDICATOR ONLY — does not confirm nugget size. Requires cross-section.', physical: true },
+  kacik:          { desc_en: 'Weld displaced from target location.', evidence: 'Surface visible. Edge proximity increases severity.' },
+  ust_uste:       { desc_en: 'Two weld points overlapping.', evidence: 'Surface visible. Spacing standard violation.' },
+  kenar:          { desc_en: 'Weld placed too close to sheet edge.', evidence: 'Surface visible. Edge distance must be verified.' },
+  delik:          { desc_en: 'Burn-through hole from excess heat.', evidence: 'Surface visible. Automatic reject.' },
+  cift_sac:       { desc_en: 'Extra sheet layer at weld location.', evidence: 'Surface indicator. Confirm with cross-section.', physical: true },
+  cokertme:       { desc_en: 'Crush dent from excess electrode force.', evidence: 'Surface visible. Depth relative to sheet thickness matters.' },
+  generic_bad:    { desc_en: 'Generic NOK — specific defect not recorded.', evidence: 'TRAINING RESTRICTION: conflates multiple specific types. Must reclassify via E1 review.' },
 }
 
 function Field({ label, value, highlight, mono, color }:
@@ -201,6 +237,8 @@ export function ConflictReviewPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [loadingConflicts, setLoadingConflicts] = useState(false)
+  const [zoomSrc, setZoomSrc] = useState<string | null>(null)
+  const [showTaxonomy, setShowTaxonomy] = useState(false)
 
   const authHeaders = getAuthHeaders()
 
@@ -276,6 +314,19 @@ export function ConflictReviewPage() {
   return (
     <div style={{ padding: 24, fontFamily: 'system-ui, sans-serif', color: '#f9fafb',
                   maxWidth: 1400, margin: '0 auto' }}>
+
+      {/* Zoom modal */}
+      {zoomSrc && (
+        <div onClick={() => setZoomSrc(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000,
+                   display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}>
+          <img src={zoomSrc} alt="zoom"
+            style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 6,
+                     boxShadow: '0 0 40px rgba(0,0,0,0.6)' }} />
+          <div style={{ position: 'absolute', top: 16, right: 24, color: '#9ca3af', fontSize: 20,
+                        cursor: 'pointer' }}>✕</div>
+        </div>
+      )}
 
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
@@ -433,13 +484,69 @@ export function ConflictReviewPage() {
                   path={selectedConflict.path_a} label={selectedConflict.label_a}
                   split={selectedConflict.split_a} archive={selectedConflict.source_archive_a}
                   sha1={selectedConflict.sha1_16} side="A" lang={lang}
+                  onZoom={() => setZoomSrc(`/api/v1/annotation/image-preview?path=${encodeURIComponent(selectedConflict.path_a)}`)}
                 />
                 <ImagePanel
                   path={selectedConflict.path_b} label={selectedConflict.label_b}
                   split={selectedConflict.split_b} archive={selectedConflict.source_archive_b}
                   sha1={selectedConflict.sha1_16} side="B" lang={lang}
+                  onZoom={() => setZoomSrc(`/api/v1/annotation/image-preview?path=${encodeURIComponent(selectedConflict.path_b)}`)}
                 />
               </div>
+
+              {/* Taxonomy guidance toggle */}
+              <div style={{ marginBottom: 12 }}>
+                <button onClick={() => setShowTaxonomy(v => !v)}
+                  style={{ background: '#1f2937', border: '1px solid #374151', borderRadius: 6,
+                           color: '#9ca3af', fontSize: 11, padding: '5px 12px', cursor: 'pointer' }}>
+                  {showTaxonomy
+                    ? (lang === 'tr' ? '▲ Taksonomi kılavuzunu gizle' : '▲ Hide taxonomy guidance')
+                    : (lang === 'tr' ? '▼ Taksonomi kılavuzunu göster' : '▼ Show taxonomy guidance')}
+                </button>
+              </div>
+              {showTaxonomy && (
+                <div style={{ background: '#111827', border: '1px solid #374151', borderRadius: 8,
+                              padding: 16, marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#d1d5db', marginBottom: 10 }}>
+                    {lang === 'tr' ? 'Hata Taksonomisi — Kanıt Gereksinimleri' : 'Defect Taxonomy — Evidence Requirements'}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 8 }}>
+                    {Object.entries(TAXONOMY_GUIDANCE).map(([code, g]) => {
+                      const tax = TAXONOMY[code]
+                      const isInConflict = code === selectedConflict.label_a || code === selectedConflict.label_b
+                      return (
+                        <div key={code} style={{
+                          background: isInConflict ? '#1e3a5f' : '#1f2937',
+                          border: `1px solid ${isInConflict ? '#3b82f6' : '#374151'}`,
+                          borderRadius: 6, padding: '8px 10px',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: '#f9fafb' }}>
+                              {lang === 'tr' && tax ? tax.tr : (tax?.en || code)}
+                            </span>
+                            <span style={{ fontSize: 10, color: '#6b7280' }}>({code})</span>
+                            {g.physical && (
+                              <span style={{ fontSize: 9, background: '#7f1d1d', color: '#fca5a5',
+                                             padding: '1px 5px', borderRadius: 3, fontWeight: 700 }}>
+                                {lang === 'tr' ? 'FİZİKSEL' : 'PHYSICAL'}
+                              </span>
+                            )}
+                            {isInConflict && (
+                              <span style={{ fontSize: 9, background: '#1e3a8a', color: '#93c5fd',
+                                             padding: '1px 5px', borderRadius: 3, fontWeight: 700 }}>
+                                {lang === 'tr' ? 'ÇAKIŞMA' : 'IN CONFLICT'}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 3 }}>{g.desc_en}</div>
+                          <div style={{ fontSize: 10, color: g.physical ? '#fbbf24' : '#6b7280',
+                                        fontStyle: 'italic' }}>{g.evidence}</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Decision panel */}
               {selectedConflict.decision === 'PENDING' ? (

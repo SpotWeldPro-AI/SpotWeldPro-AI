@@ -18,6 +18,7 @@ const LiveMonitoringPage = lazy(() => import('./pages/LiveMonitoringPage').then(
 const AnnotationPage = lazy(() => import('./pages/AnnotationPage').then(m => ({ default: m.AnnotationPage })))
 const DatasetDashboardPage = lazy(() => import('./pages/DatasetDashboardPage').then(m => ({ default: m.DatasetDashboardPage })))
 const ConflictReviewPage = lazy(() => import('./pages/ConflictReviewPage').then(m => ({ default: m.ConflictReviewPage })))
+const E4EvidencePage = lazy(() => import('./pages/E4EvidencePage').then(m => ({ default: m.E4EvidencePage })))
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage').then(m => ({ default: m.FeaturesPage })))
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage').then(m => ({ default: m.HowItWorksPage })))
 const PackagesPage = lazy(() => import('./pages/PackagesPage').then(m => ({ default: m.PackagesPage })))
@@ -34,7 +35,7 @@ import './styles.css'
 
 /* Public pre-login design system — global stylesheet injected once at root.
    Short lines only to keep the file writer stable. */
-type Page = 'dashboard' | 'projects' | 'analysis' | 'engineering' | 'failure' | 'models' | 'statistical' | 'energy' | 'help' | 'inspection' | 'live' | 'annotation' | 'dataset_dashboard' | 'conflict_review'
+type Page = 'dashboard' | 'projects' | 'analysis' | 'engineering' | 'failure' | 'models' | 'statistical' | 'energy' | 'help' | 'inspection' | 'live' | 'annotation' | 'dataset_dashboard' | 'conflict_review' | 'e4_evidence'
 
 type NavItem = { id: Page; label: string; mk: string }
 type NavGroup = { id: string; label: string; accordion: boolean; items: NavItem[] }
@@ -79,6 +80,7 @@ const NAV: NavGroup[] = [
       { id: 'annotation', label: 'Annotation', mk: 'A' },
       { id: 'dataset_dashboard', label: 'Dataset Dashboard', mk: 'DD' },
       { id: 'conflict_review', label: 'Conflict Review', mk: 'CR' },
+      { id: 'e4_evidence', label: 'E4 Physical Evidence', mk: 'E4' },
     ],
   },
   {
@@ -421,6 +423,7 @@ function AuthenticatedApp() {
               {page === 'annotation' && <AnnotationPage />}
               {page === 'dataset_dashboard' && <DatasetDashboardPage />}
               {page === 'conflict_review' && <ConflictReviewPage />}
+              {page === 'e4_evidence' && <E4EvidencePage />}
               {page === 'help' && <HelpCenterPage />}
             </Suspense>
           </WeldAnalysisProvider>

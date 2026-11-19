@@ -195,6 +195,86 @@ class AnnotationAuditEntry(Base):
     annotation: Mapped[WeldAnnotation] = relationship(back_populates="audit_entries")
 
 
+class PhysicalTestEvidence(Base):
+    """
+    VISION-DATA-REAL-02 E4: Physical test evidence record.
+
+    Associates a qualified physical test result with a weld image or weld_id.
+
+    Design rules:
+    - `image_path` references the ORIGINAL image path (never modified).
+    - `test_method` must be a qualified physical or NDT method; surface observations
+      MUST NOT be recorded here — use WeldAnnotation.label_provenance for those.
+    - `nugget_diameter_mm` requires DESTRUCTIVE_TEST or UT_SCAN method.
+    - `evidence_quality` VERIFIED requires a report reference number.
+    - No automatic training gate changes occur; E4 gate requires QUALITY_ENGINEER sign-off.
+    """
+    __tablename__ = "physical_test_evidence"
+    __table_args__ = (
+        UniqueConstraint("image_path", "test_method", "test_date", name="uq_evidence_image_method_date"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    # ── Weld identity ──────────────────────────────────────────────────────────
+    image_path: Mapped[str] = mapped_column(Text, index=True,
+                                             comment="Absolute path to ORIGINAL image (read-only reference)")
+    weld_id: Mapped[str | None] = mapped_column(String(200), nullable=True, index=True,
+                                                 comment="Production weld identifier — links to WeldAnnotation.weld_id")
+
+    # ── Test method ────────────────────────────────────────────────────────────
+    test_method: Mapped[str] = mapped_column(
+        String(50), index=True,
+        comment=(
+            "CROSS_SECTION | PEEL_TEST | CHISEL_TEST | UT_SCAN | XRF | RADIOGRAPHIC | OTHER. "
+            "SURFACE_OBSERVATION is explicitly excluded — use WeldAnnotation for that."
+        ),
+    )
+
+    # ── Test context ───────────────────────────────────────────────────────────
+    test_date: Mapped[str | None] = mapped_column(String(30), nullable=True,
+                                                   comment="ISO 8601 date YYYY-MM-DD")
+    test_operator: Mapped[str | None] = mapped_column(String(200), nullable=True,
+                                                       comment="Name or badge of the test technician")
+    test_report_ref: Mapped[str | None] = mapped_column(String(400), nullable=True,
+                                                          comment="Report or document reference number")
+    test_facility: Mapped[str | None] = mapped_column(String(300), nullable=True,
+                                                        comment="Lab or facility name")
+
+    # ── Measurements ──────────────────────────────────────────────────────────
+    nugget_diameter_mm: Mapped[float | None] = mapped_column(
+        Float, nullable=True,
+        comment="Nugget diameter in mm (CROSS_SECTION or UT_SCAN only; None otherwise)",
+    )
+    nugget_height_mm: Mapped[float | None] = mapped_column(Float, nullable=True)
+    confirmed_defect_codes: Mapped[str] = mapped_column(
+        String(500), default="",
+        comment="Comma-separated DefectCode values confirmed by this physical test",
+    )
+
+    # ── Verdict ────────────────────────────────────────────────────────────────
+    verdict: Mapped[str] = mapped_column(
+        String(30), default="UNREVIEWED", index=True,
+        comment="ACCEPTABLE | REJECTABLE | INCONCLUSIVE | UNREVIEWED",
+    )
+    acceptance_standard: Mapped[str | None] = mapped_column(
+        String(100), nullable=True,
+        comment="Standard used for verdict (e.g. ISO 15614-12, AWS D8.1, OEM-123)",
+    )
+
+    # ── Evidence quality ───────────────────────────────────────────────────────
+    evidence_quality: Mapped[str] = mapped_column(
+        String(30), default="UNVERIFIED", index=True,
+        comment="VERIFIED (report ref required) | UNVERIFIED | INSUFFICIENT",
+    )
+    notes: Mapped[str] = mapped_column(Text, default="")
+
+    # ── Authorship ─────────────────────────────────────────────────────────────
+    created_by: Mapped[str] = mapped_column(String(200), index=True, comment="User email")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utc_now, onupdate=_utc_now)
+
+
 class ConflictAdjudication(Base):
     """
     Human adjudication record for a label-conflict duplicate pair.
