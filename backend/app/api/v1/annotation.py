@@ -326,6 +326,252 @@ def eligible_counts(
     return get_eligible_counts_post_review(db)
 
 
+# ── Image preview (read-only, path-allowlisted) ────────────────────────────────
+# IMPORTANT: Must be declared before /{annotation_id} catch-all route.
+
+@router.get("/image-preview")
+def image_preview(
+    path: str = Query(..., description="Absolute path to dataset image (read-only)"),
+    user: User = Depends(get_current_user),
+) -> FileResponse:
+    """
+    Serve a dataset image for side-by-side display in the conflict review UI.
+
+    Security:
+    - Requires authentication.
+    - Path must resolve to within one of the _DATASET_ROOTS (no symlink escape).
+    - Extension must be in _ALLOWED_EXTENSIONS.
+    - File must exist.
+    - Original images are NEVER modified by this endpoint.
+    """
+    try:
+        p = Path(path).resolve()
+    except (ValueError, OSError):
+        raise HTTPException(status_code=400, detail="Invalid path.")
+
+    if p.suffix.lower() not in _ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=403, detail="File type not permitted.")
+
+    allowed = any(
+        str(p).startswith(str(root.resolve()))
+        for root in _DATASET_ROOTS
+    )
+    if not allowed:
+        raise HTTPException(status_code=403, detail="Path is outside the allowed dataset root.")
+
+    if not p.is_file():
+        raise HTTPException(status_code=404, detail="Image not found.")
+
+    mime, _ = mimetypes.guess_type(str(p))
+    return FileResponse(str(p), media_type=mime or "image/png")
+
+
+# ── E4 Physical Test Evidence ──────────────────────────────────────────────────
+# IMPORTANT: These fixed-path routes MUST be declared before the parameterized
+# /{annotation_id} catch-all route below, or FastAPI will match them wrongly.
+
+_VALID_TEST_METHODS = {
+    "CROSS_SECTION", "PEEL_TEST", "CHISEL_TEST", "UT_SCAN",
+    "XRF", "RADIOGRAPHIC", "OTHER",
+}
+_VALID_VERDICTS = {"ACCEPTABLE", "REJECTABLE", "INCONCLUSIVE", "UNREVIEWED"}
+_VALID_EVIDENCE_QUALITY = {"VERIFIED", "UNVERIFIED", "INSUFFICIENT"}
+_E4_ROLES = {UserRole.PROCESS_ENGINEER, UserRole.QUALITY_ENGINEER, UserRole.SYSTEM_ADMIN}
+
+
+class PhysicalTestEvidenceCreate(BaseModel):
+    image_path: str
+    weld_id: str | None = None
+    test_method: str = Field(..., description="CROSS_SECTION|PEEL_TEST|CHISEL_TEST|UT_SCAN|XRF|RADIOGRAPHIC|OTHER")
+    test_date: str | None = None
+    test_operator: str | None = None
+    test_report_ref: str | None = None
+    test_facility: str | None = None
+    nugget_diameter_mm: float | None = None
+    nugget_height_mm: float | None = None
+    confirmed_defect_codes: str = ""
+    verdict: str = "UNREVIEWED"
+    acceptance_standard: str | None = None
+    evidence_quality: str = "UNVERIFIED"
+    notes: str = ""
+
+
+def _ser_evidence(e: PhysicalTestEvidence) -> dict:
+    return {
+        "id": e.id,
+        "image_path": e.image_path,
+        "weld_id": e.weld_id,
+        "test_method": e.test_method,
+        "test_date": e.test_date,
+        "test_operator": e.test_operator,
+        "test_report_ref": e.test_report_ref,
+        "test_facility": e.test_facility,
+        "nugget_diameter_mm": e.nugget_diameter_mm,
+        "nugget_height_mm": e.nugget_height_mm,
+        "confirmed_defect_codes": e.confirmed_defect_codes,
+        "verdict": e.verdict,
+        "acceptance_standard": e.acceptance_standard,
+        "evidence_quality": e.evidence_quality,
+        "notes": e.notes,
+        "created_by": e.created_by,
+        "created_at": e.created_at.isoformat() if e.created_at else None,
+        "updated_at": e.updated_at.isoformat() if e.updated_at else None,
+    }
+
+
+@router.post("/e4-evidence", status_code=status.HTTP_201_CREATED)
+def create_e4_evidence(
+    body: PhysicalTestEvidenceCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Record a physical test evidence entry for E4 ground truth.
+
+    Rules enforced:
+    - PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN only.
+    - test_method MUST NOT be SURFACE_OBSERVATION.
+    - nugget_diameter_mm requires CROSS_SECTION or UT_SCAN method.
+    - VERIFIED evidence_quality requires a non-empty test_report_ref.
+    - image_path is stored as a read-only reference; original files are not modified.
+    """
+    if user.role not in _E4_ROLES:
+        raise HTTPException(status_code=403, detail="E4 evidence entry requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN.")
+
+    if body.test_method not in _VALID_TEST_METHODS:
+        raise HTTPException(status_code=422, detail=f"test_method must be one of {sorted(_VALID_TEST_METHODS)}. SURFACE_OBSERVATION is not permitted here.")
+
+    if body.verdict not in _VALID_VERDICTS:
+        raise HTTPException(status_code=422, detail=f"verdict must be one of {sorted(_VALID_VERDICTS)}.")
+
+    if body.evidence_quality not in _VALID_EVIDENCE_QUALITY:
+        raise HTTPException(status_code=422, detail=f"evidence_quality must be one of {sorted(_VALID_EVIDENCE_QUALITY)}.")
+
+    if body.nugget_diameter_mm is not None and body.test_method not in {"CROSS_SECTION", "UT_SCAN"}:
+        raise HTTPException(status_code=422, detail="nugget_diameter_mm requires test_method=CROSS_SECTION or UT_SCAN.")
+
+    if body.evidence_quality == "VERIFIED" and not (body.test_report_ref or "").strip():
+        raise HTTPException(status_code=422, detail="VERIFIED evidence requires a non-empty test_report_ref.")
+
+    record = PhysicalTestEvidence(
+        image_path=body.image_path,
+        weld_id=body.weld_id,
+        test_method=body.test_method,
+        test_date=body.test_date,
+        test_operator=body.test_operator,
+        test_report_ref=body.test_report_ref,
+        test_facility=body.test_facility,
+        nugget_diameter_mm=body.nugget_diameter_mm,
+        nugget_height_mm=body.nugget_height_mm,
+        confirmed_defect_codes=body.confirmed_defect_codes or "",
+        verdict=body.verdict,
+        acceptance_standard=body.acceptance_standard,
+        evidence_quality=body.evidence_quality,
+        notes=body.notes,
+        created_by=user.email,
+    )
+    db.add(record)
+    try:
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        if "UNIQUE constraint" in str(exc) or "unique constraint" in str(exc).lower():
+            raise HTTPException(status_code=409, detail="A physical test evidence record for this image_path/test_method/test_date already exists.")
+        raise
+    db.refresh(record)
+    return _ser_evidence(record)
+
+
+@router.get("/e4-evidence/summary")
+def e4_evidence_summary(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    """Coverage summary: how many weld images have physical test evidence."""
+    if user.role not in _E4_ROLES:
+        raise HTTPException(status_code=403, detail="E4 summary requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN.")
+    from sqlalchemy import func as sa_func
+    total = db.query(PhysicalTestEvidence).count()
+    total_dataset = 927
+
+    images_with_evidence = (
+        db.query(sa_func.count(sa_func.distinct(PhysicalTestEvidence.image_path))).scalar() or 0
+    )
+
+    by_method_rows = (
+        db.query(PhysicalTestEvidence.test_method, sa_func.count())
+        .group_by(PhysicalTestEvidence.test_method).all()
+    )
+    by_verdict_rows = (
+        db.query(PhysicalTestEvidence.verdict, sa_func.count())
+        .group_by(PhysicalTestEvidence.verdict).all()
+    )
+    by_quality_rows = (
+        db.query(PhysicalTestEvidence.evidence_quality, sa_func.count())
+        .group_by(PhysicalTestEvidence.evidence_quality).all()
+    )
+
+    verified = dict(by_quality_rows).get("VERIFIED", 0)
+    return {
+        "total": total,
+        "total_evidence_records": total,
+        "images_with_evidence": images_with_evidence,
+        "total_dataset_images": total_dataset,
+        "coverage_pct": round(images_with_evidence / total_dataset * 100, 1) if total_dataset > 0 else 0.0,
+        "by_method": dict(by_method_rows),
+        "by_verdict": dict(by_verdict_rows),
+        "by_quality": dict(by_quality_rows),
+        "verified_evidence_count": verified,
+        "e4_gate_clear": verified >= total_dataset,
+        "e4_gate_progress": f"{verified}/{total_dataset}",
+        "e4_gap_pct": round((total_dataset - images_with_evidence) / total_dataset * 100, 1) if total_dataset > 0 else 100.0,
+    }
+
+
+@router.get("/e4-evidence")
+def list_e4_evidence(
+    image_path: str | None = Query(None),
+    weld_id: str | None = Query(None),
+    test_method: str | None = Query(None),
+    verdict: str | None = Query(None),
+    evidence_quality: str | None = Query(None),
+    limit: int = Query(50, le=200),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    if user.role not in _E4_ROLES:
+        raise HTTPException(status_code=403, detail="E4 evidence query requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN.")
+    q = db.query(PhysicalTestEvidence)
+    if image_path:
+        q = q.filter(PhysicalTestEvidence.image_path == image_path)
+    if weld_id:
+        q = q.filter(PhysicalTestEvidence.weld_id == weld_id)
+    if test_method:
+        q = q.filter(PhysicalTestEvidence.test_method == test_method)
+    if verdict:
+        q = q.filter(PhysicalTestEvidence.verdict == verdict)
+    if evidence_quality:
+        q = q.filter(PhysicalTestEvidence.evidence_quality == evidence_quality)
+    total = q.count()
+    items = q.offset(offset).limit(limit).all()
+    return {"total": total, "offset": offset, "limit": limit, "items": [_ser_evidence(e) for e in items]}
+
+
+@router.get("/e4-evidence/{evidence_id}")
+def get_e4_evidence(
+    evidence_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> dict:
+    if user.role not in _E4_ROLES:
+        raise HTTPException(status_code=403, detail="E4 evidence query requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN.")
+    record = db.get(PhysicalTestEvidence, evidence_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="Evidence record not found.")
+    return _ser_evidence(record)
+
+
 @router.get("/{annotation_id}")
 def get_annotation(
     annotation_id: int,
@@ -521,242 +767,5 @@ def load_e1_queue(
     inserted = load_e1_queue_from_manifest(db, manifest_path)
     db.commit()
     return {"inserted": inserted}
-
-
-# ── Image preview (read-only, path-allowlisted) ────────────────────────────────
-
-@router.get("/image-preview")
-def image_preview(
-    path: str = Query(..., description="Absolute path to dataset image (read-only)"),
-    user: User = Depends(get_current_user),
-) -> FileResponse:
-    """
-    Serve a dataset image for side-by-side display in the conflict review UI.
-
-    Security:
-    - Requires authentication.
-    - Path must resolve to within one of the _DATASET_ROOTS (no symlink escape).
-    - Extension must be in _ALLOWED_EXTENSIONS.
-    - File must exist.
-    - Original images are NEVER modified by this endpoint.
-    """
-    try:
-        p = Path(path).resolve()
-    except (ValueError, OSError):
-        raise HTTPException(status_code=400, detail="Invalid path.")
-
-    if p.suffix.lower() not in _ALLOWED_EXTENSIONS:
-        raise HTTPException(status_code=403, detail="File type not permitted.")
-
-    allowed = any(
-        str(p).startswith(str(root.resolve()))
-        for root in _DATASET_ROOTS
-    )
-    if not allowed:
-        raise HTTPException(status_code=403, detail="Path is outside the allowed dataset root.")
-
-    if not p.is_file():
-        raise HTTPException(status_code=404, detail="Image not found.")
-
-    mime, _ = mimetypes.guess_type(str(p))
-    return FileResponse(str(p), media_type=mime or "image/png")
-
-
-# ── E4 Physical Test Evidence ──────────────────────────────────────────────────
-
-_VALID_TEST_METHODS = {
-    "CROSS_SECTION", "PEEL_TEST", "CHISEL_TEST", "UT_SCAN",
-    "XRF", "RADIOGRAPHIC", "OTHER",
-}
-_VALID_VERDICTS = {"ACCEPTABLE", "REJECTABLE", "INCONCLUSIVE", "UNREVIEWED"}
-_VALID_EVIDENCE_QUALITY = {"VERIFIED", "UNVERIFIED", "INSUFFICIENT"}
-_E4_ROLES = {UserRole.PROCESS_ENGINEER, UserRole.QUALITY_ENGINEER, UserRole.SYSTEM_ADMIN}
-
-
-class PhysicalTestEvidenceCreate(BaseModel):
-    image_path: str
-    weld_id: str | None = None
-    test_method: str = Field(..., description="CROSS_SECTION|PEEL_TEST|CHISEL_TEST|UT_SCAN|XRF|RADIOGRAPHIC|OTHER")
-    test_date: str | None = None
-    test_operator: str | None = None
-    test_report_ref: str | None = None
-    test_facility: str | None = None
-    nugget_diameter_mm: float | None = None
-    nugget_height_mm: float | None = None
-    confirmed_defect_codes: str = ""
-    verdict: str = "UNREVIEWED"
-    acceptance_standard: str | None = None
-    evidence_quality: str = "UNVERIFIED"
-    notes: str = ""
-
-
-def _ser_evidence(e: PhysicalTestEvidence) -> dict:
-    return {
-        "id": e.id,
-        "image_path": e.image_path,
-        "weld_id": e.weld_id,
-        "test_method": e.test_method,
-        "test_date": e.test_date,
-        "test_operator": e.test_operator,
-        "test_report_ref": e.test_report_ref,
-        "test_facility": e.test_facility,
-        "nugget_diameter_mm": e.nugget_diameter_mm,
-        "nugget_height_mm": e.nugget_height_mm,
-        "confirmed_defect_codes": e.confirmed_defect_codes,
-        "verdict": e.verdict,
-        "acceptance_standard": e.acceptance_standard,
-        "evidence_quality": e.evidence_quality,
-        "notes": e.notes,
-        "created_by": e.created_by,
-        "created_at": e.created_at.isoformat() if e.created_at else None,
-        "updated_at": e.updated_at.isoformat() if e.updated_at else None,
-    }
-
-
-@router.post("/e4-evidence", status_code=status.HTTP_201_CREATED)
-def create_e4_evidence(
-    body: PhysicalTestEvidenceCreate,
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-) -> dict:
-    """
-    Record a physical test evidence entry for E4 ground truth.
-
-    Rules enforced:
-    - PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN only.
-    - test_method MUST NOT be SURFACE_OBSERVATION.
-    - nugget_diameter_mm requires CROSS_SECTION or UT_SCAN method.
-    - VERIFIED evidence_quality requires a non-empty test_report_ref.
-    - image_path is stored as a read-only reference; original files are not modified.
-    """
-    if user.role not in _E4_ROLES:
-        raise HTTPException(status_code=403, detail="E4 evidence entry requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN.")
-
-    if body.test_method not in _VALID_TEST_METHODS:
-        raise HTTPException(status_code=422, detail=f"test_method must be one of {sorted(_VALID_TEST_METHODS)}. SURFACE_OBSERVATION is not permitted here.")
-
-    if body.verdict not in _VALID_VERDICTS:
-        raise HTTPException(status_code=422, detail=f"verdict must be one of {sorted(_VALID_VERDICTS)}.")
-
-    if body.evidence_quality not in _VALID_EVIDENCE_QUALITY:
-        raise HTTPException(status_code=422, detail=f"evidence_quality must be one of {sorted(_VALID_EVIDENCE_QUALITY)}.")
-
-    if body.nugget_diameter_mm is not None and body.test_method not in {"CROSS_SECTION", "UT_SCAN"}:
-        raise HTTPException(status_code=422, detail="nugget_diameter_mm requires test_method=CROSS_SECTION or UT_SCAN.")
-
-    if body.evidence_quality == "VERIFIED" and not (body.test_report_ref or "").strip():
-        raise HTTPException(status_code=422, detail="VERIFIED evidence requires a non-empty test_report_ref.")
-
-    record = PhysicalTestEvidence(
-        image_path=body.image_path,
-        weld_id=body.weld_id,
-        test_method=body.test_method,
-        test_date=body.test_date,
-        test_operator=body.test_operator,
-        test_report_ref=body.test_report_ref,
-        test_facility=body.test_facility,
-        nugget_diameter_mm=body.nugget_diameter_mm,
-        nugget_height_mm=body.nugget_height_mm,
-        confirmed_defect_codes=body.confirmed_defect_codes or "",
-        verdict=body.verdict,
-        acceptance_standard=body.acceptance_standard,
-        evidence_quality=body.evidence_quality,
-        notes=body.notes,
-        created_by=user.email,
-    )
-    db.add(record)
-    db.commit()
-    db.refresh(record)
-    return _ser_evidence(record)
-
-
-@router.get("/e4-evidence")
-def list_e4_evidence(
-    image_path: str | None = Query(None),
-    weld_id: str | None = Query(None),
-    test_method: str | None = Query(None),
-    verdict: str | None = Query(None),
-    evidence_quality: str | None = Query(None),
-    limit: int = Query(50, le=200),
-    offset: int = Query(0, ge=0),
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-) -> dict:
-    if user.role not in _E4_ROLES:
-        raise HTTPException(status_code=403, detail="E4 evidence query requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN.")
-    q = db.query(PhysicalTestEvidence)
-    if image_path:
-        q = q.filter(PhysicalTestEvidence.image_path == image_path)
-    if weld_id:
-        q = q.filter(PhysicalTestEvidence.weld_id == weld_id)
-    if test_method:
-        q = q.filter(PhysicalTestEvidence.test_method == test_method)
-    if verdict:
-        q = q.filter(PhysicalTestEvidence.verdict == verdict)
-    if evidence_quality:
-        q = q.filter(PhysicalTestEvidence.evidence_quality == evidence_quality)
-    total = q.count()
-    items = q.offset(offset).limit(limit).all()
-    return {"total": total, "offset": offset, "limit": limit, "items": [_ser_evidence(e) for e in items]}
-
-
-@router.get("/e4-evidence/summary")
-def e4_evidence_summary(
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-) -> dict:
-    """Coverage summary: how many weld images have physical test evidence."""
-    if user.role not in _E4_ROLES:
-        raise HTTPException(status_code=403, detail="E4 summary requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN.")
-    from sqlalchemy import func as sa_func
-    total = db.query(PhysicalTestEvidence).count()
-    total_dataset = 927
-
-    images_with_evidence = (
-        db.query(sa_func.count(sa_func.distinct(PhysicalTestEvidence.image_path))).scalar() or 0
-    )
-
-    by_method_rows = (
-        db.query(PhysicalTestEvidence.test_method, sa_func.count())
-        .group_by(PhysicalTestEvidence.test_method).all()
-    )
-    by_verdict_rows = (
-        db.query(PhysicalTestEvidence.verdict, sa_func.count())
-        .group_by(PhysicalTestEvidence.verdict).all()
-    )
-    by_quality_rows = (
-        db.query(PhysicalTestEvidence.evidence_quality, sa_func.count())
-        .group_by(PhysicalTestEvidence.evidence_quality).all()
-    )
-
-    verified = dict(by_quality_rows).get("VERIFIED", 0)
-    return {
-        "total": total,
-        "total_evidence_records": total,
-        "images_with_evidence": images_with_evidence,
-        "total_dataset_images": total_dataset,
-        "coverage_pct": round(images_with_evidence / total_dataset * 100, 1) if total_dataset > 0 else 0.0,
-        "by_method": dict(by_method_rows),
-        "by_verdict": dict(by_verdict_rows),
-        "by_quality": dict(by_quality_rows),
-        "verified_evidence_count": verified,
-        "e4_gate_clear": verified >= total_dataset,
-        "e4_gate_progress": f"{verified}/{total_dataset}",
-        "e4_gap_pct": round((total_dataset - images_with_evidence) / total_dataset * 100, 1) if total_dataset > 0 else 100.0,
-    }
-
-
-@router.get("/e4-evidence/{evidence_id}")
-def get_e4_evidence(
-    evidence_id: int,
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-) -> dict:
-    if user.role not in _E4_ROLES:
-        raise HTTPException(status_code=403, detail="E4 evidence query requires PROCESS_ENGINEER, QUALITY_ENGINEER, or SYSTEM_ADMIN.")
-    record = db.get(PhysicalTestEvidence, evidence_id)
-    if record is None:
-        raise HTTPException(status_code=404, detail="Evidence record not found.")
-    return _ser_evidence(record)
 
 
