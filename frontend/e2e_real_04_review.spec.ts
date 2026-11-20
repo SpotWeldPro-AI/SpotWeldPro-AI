@@ -32,23 +32,19 @@ async function getToken(username: string, password: string): Promise<string> {
 
 // Proxy and mock strategy for the REAL-04 review environment:
 //
-//  1. Health endpoint: mock a 200 OK so the app's backend ping always succeeds.
-//     The app's pingBackend() uses axios with VITE_API_URL base URL, which may
-//     default to localhost:8000 when VITE_API_URL is not set at Vite startup.
+// Playwright matches routes LIFO (last-registered wins). Register in this order:
+//  1. Proxy (first = lowest priority): forwards all /api/v1/ calls to port 8002
+//  2. Auth/me mock (second = medium priority): short-circuits /auth/me
+//  3. Health mock (last = highest priority): short-circuits /health immediately
 //
-//  2. Auth/me endpoint: mock a valid QE user response. All UI-based tests log in
-//     as qe_reviewer. Mocking prevents an absolute-URL call to the wrong port.
-//
-//  3. All other /api/v1/ calls from the page origin (localhost:5176): proxy to
-//     the test backend via route.fetch(), which is the idiomatic Playwright path.
+// With VITE_API_URL=http://localhost:5176/api/v1 the app calls same-origin URLs,
+// so all three routes fire correctly without CORS preflights.
 async function setupApiProxy(page: Page): Promise<void> {
-  // ── 1. Health mock ──────────────────────────────────────────────────────────
-  await page.route(/\/api\/v1\/health/, async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({ status: "ok", service: "spot-welding-platform" }),
-    });
+  // ── 1. Page-origin api/v1 calls → test backend (lowest priority) ────────────
+  await page.route(/localhost:5176\/api\/v1\//, async (route) => {
+    const url = route.request().url().replace("localhost:5176", "localhost:8002");
+    const response = await route.fetch({ url });
+    await route.fulfill({ response });
   });
 
   // ── 2. Auth/me mock (all UI tests use qe_reviewer) ──────────────────────────
@@ -67,11 +63,13 @@ async function setupApiProxy(page: Page): Promise<void> {
     });
   });
 
-  // ── 3. Page-origin api/v1 calls → test backend ──────────────────────────────
-  await page.route(/localhost:5176\/api\/v1\//, async (route) => {
-    const url = route.request().url().replace("localhost:5176", "localhost:8002");
-    const response = await route.fetch({ url });
-    await route.fulfill({ response });
+  // ── 3. Health mock (highest priority — always wins, fires immediately) ───────
+  await page.route(/\/api\/v1\/health/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ status: "ok", service: "spot-welding-platform" }),
+    });
   });
 }
 
@@ -84,8 +82,8 @@ async function loginAs(page: Page, username: string, password: string): Promise<
     localStorage.setItem("sb_open", JSON.stringify({ vision_group: true }));
   }, token);
   await page.goto(`${BASE}/app`);
-  // Wait for sidebar OR main content — backend ping (cold-start retry) can take up to ~15s
-  await page.waitForSelector("aside.sidebar, [aria-label='Primary navigation'], main, #root > *", {
+  // Wait for sidebar — health/auth mocks ensure the app renders immediately
+  await page.waitForSelector("aside.sidebar, [aria-label='Primary navigation'], nav, main", {
     timeout: 30_000,
   });
 }
