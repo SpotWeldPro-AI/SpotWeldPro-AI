@@ -165,7 +165,7 @@ export function StaticInspectionPage() {
       if (criteriaVersion) fd.append('criteria_version', criteriaVersion)
 
       const r = await apiClient.post<InspectionResult>(
-        '/api/v1/vision/static/inspect', fd,
+        '/vision/static/inspect', fd,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )
       setResult(r.data)
