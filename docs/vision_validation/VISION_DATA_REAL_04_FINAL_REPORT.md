@@ -3,7 +3,7 @@
 **Task:** VISION-DATA-REAL-04-R2 — Human Review Operational Acceptance and Launch  
 **Date:** 2026-11-20  
 **Baseline commit:** 0cd26c2 (VISION-DATA-REAL-03 completion)  
-**HEAD commit:** 16f0e4c (VISION-DATA-REAL-04)  
+**HEAD commit:** ad3e33e (REAL-04-R2 Playwright spec fix)  
 **Status:** PASS — 60/61 pytest PASS, 1 SKIP; 12/13 Playwright PASS, 1 SKIP; review environment verified
 
 ---
@@ -16,11 +16,23 @@ database, the QUALITY_ENGINEER review workflow is confirmed functional, and the 
 51 critical BOTH-type conflict pairs (highest priority) are prepared for manual engineering
 assessment.
 
-**R2 changes:** Fixed the Playwright browser test spec (`e2e_real_04_review.spec.ts`) to
-correctly proxy startup API calls (health, auth/me) that use the app's configured VITE_API_URL.
-On Windows, the dev fallback (`localhost:8000`) and IPv6 resolution caused the browser's
-backend ping to fail silently. The fix intercepts these at the route level with mock
-responses, so the UI loads correctly regardless of VITE_API_URL configuration.
+**R2 changes:** Fixed the Playwright browser test spec (`e2e_real_04_review.spec.ts`) —
+two root causes identified and resolved:
+
+1. **LIFO route ordering** — Playwright matches `page.route()` handlers in reverse
+   registration order (LIFO). The proxy route was registered last, so it intercepted
+   `/health` before the health mock could fire. This caused all 6 backend ping attempts
+   to route through `route.fetch()` → introduced timing variance → "Backend unavailable".
+   Fix: register proxy first (lowest priority), then auth/me mock, then health mock last
+   (highest priority, always fulfills immediately from mock data).
+
+2. **CORS on cross-origin health check** — `VITE_API_URL=http://127.0.0.1:8002` caused
+   browser requests to `127.0.0.1:8002` (cross-origin from `localhost:5176`), triggering
+   CORS preflights that failed on the first attempt. Fix: set
+   `VITE_API_URL=http://localhost:5176/api/v1` so all API calls are same-origin; Playwright
+   route handlers intercept them before they reach the network.
+
+Result: **12 PASS, 1 SKIP, 0 FAIL** (all 5 previously failing browser navigation tests now pass).
 
 **Training gate status:** TRAINING_NO_GO — the E1 gate remains blocked until all
 175 real conflict pairs are adjudicated by an authorized human reviewer.
