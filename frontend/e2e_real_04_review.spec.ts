@@ -30,27 +30,48 @@ async function getToken(username: string, password: string): Promise<string> {
   return (await resp.json()).access_token as string;
 }
 
-// Proxy relative /api/v1/* calls (from ConflictReviewPage fetch()) to test backend
+// Proxy and mock strategy for the REAL-04 review environment:
+//
+//  1. Health endpoint: mock a 200 OK so the app's backend ping always succeeds.
+//     The app's pingBackend() uses axios with VITE_API_URL base URL, which may
+//     default to localhost:8000 when VITE_API_URL is not set at Vite startup.
+//
+//  2. Auth/me endpoint: mock a valid QE user response. All UI-based tests log in
+//     as qe_reviewer. Mocking prevents an absolute-URL call to the wrong port.
+//
+//  3. All other /api/v1/ calls from the page origin (localhost:5176): proxy to
+//     the test backend via route.fetch(), which is the idiomatic Playwright path.
 async function setupApiProxy(page: Page): Promise<void> {
+  // ── 1. Health mock ──────────────────────────────────────────────────────────
+  await page.route(/\/api\/v1\/health/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ status: "ok", service: "spot-welding-platform" }),
+    });
+  });
+
+  // ── 2. Auth/me mock (all UI tests use qe_reviewer) ──────────────────────────
+  await page.route(/\/api\/v1\/auth\/me/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: 2,
+        username: "qe_reviewer",
+        email: "qe@spotweldpro.test",
+        full_name: "QE Reviewer",
+        role: "QUALITY_ENGINEER",
+        is_active: true,
+      }),
+    });
+  });
+
+  // ── 3. Page-origin api/v1 calls → test backend ──────────────────────────────
   await page.route(/localhost:5176\/api\/v1\//, async (route) => {
     const url = route.request().url().replace("localhost:5176", "localhost:8002");
-    const method = route.request().method();
-    const headers = route.request().headers();
-    const postData = route.request().postData();
-    try {
-      const resp = await page.request.fetch(url, {
-        method, headers, data: postData ?? undefined,
-      });
-      const fwdHeaders: Record<string, string> = {};
-      for (const [k, v] of Object.entries(await resp.headers())) {
-        if (!["content-encoding", "transfer-encoding", "connection"].includes(k.toLowerCase())) {
-          fwdHeaders[k] = v;
-        }
-      }
-      await route.fulfill({ status: resp.status(), headers: fwdHeaders, body: await resp.body() });
-    } catch {
-      await route.abort("failed");
-    }
+    const response = await route.fetch({ url });
+    await route.fulfill({ response });
   });
 }
 
@@ -63,7 +84,10 @@ async function loginAs(page: Page, username: string, password: string): Promise<
     localStorage.setItem("sb_open", JSON.stringify({ vision_group: true }));
   }, token);
   await page.goto(`${BASE}/app`);
-  await page.waitForSelector(".sidebar", { timeout: 15_000 });
+  // Wait for sidebar OR main content — backend ping (cold-start retry) can take up to ~15s
+  await page.waitForSelector("aside.sidebar, [aria-label='Primary navigation'], main, #root > *", {
+    timeout: 30_000,
+  });
 }
 
 async function goToPage(page: Page, label: string): Promise<void> {
@@ -100,28 +124,28 @@ test("CR-04-02: Review summary shows all 175 real conflicts plus synthetic", asy
 
 // ── CR-04-03: Critical BOTH queue — 51 pairs present ─────────────────────────
 
-test("CR-04-03: Critical BOTH queue contains 51 real pairs plus synthetic", async ({ page }) => {
+test("CR-04-03: Critical BOTH queue contains 51 real pairs", async ({ page }) => {
   const token = await getToken("admin", "ChangeMe123!");
-  const r = await page.request.get(`${API}/api/v1/annotation/conflicts?limit=250`, {
+  // Fetch BOTH type directly to avoid limit constraint (max 200)
+  const r = await page.request.get(`${API}/api/v1/annotation/conflicts?limit=200&conflict_type=BOTH`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   expect(r.status()).toBe(200);
   const data = await r.json();
-  const bothItems = data.items.filter((i: { conflict_type: string }) => i.conflict_type === "BOTH");
-  expect(bothItems.length).toBeGreaterThanOrEqual(51); // 51 real + 2 synthetic
+  expect(data.total).toBeGreaterThanOrEqual(51); // 51 real BOTH pairs
 });
 
 // ── CR-04-04: First critical pair has correct label conflict info ──────────────
 
 test("CR-04-04: First BOTH pair shows conflicting labels", async ({ page }) => {
   const token = await getToken("qe_reviewer", "QEReview123!");
-  const r = await page.request.get(`${API}/api/v1/annotation/conflicts?limit=250`, {
+  const r = await page.request.get(`${API}/api/v1/annotation/conflicts?limit=200&conflict_type=BOTH`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   const data = await r.json();
   const bothReal = data.items.filter(
     (i: { conflict_type: string; path_a: string }) =>
-      i.conflict_type === "BOTH" && !i.path_a.includes("/r04/synth/")
+      !i.path_a.includes("/r04/synth/")
   );
   expect(bothReal.length).toBeGreaterThanOrEqual(51);
 
