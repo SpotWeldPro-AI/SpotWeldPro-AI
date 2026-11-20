@@ -45,6 +45,23 @@ interface CalibrationConfig {
   reference_method: string
 }
 
+type VisualFindingStatus = 'DETECTED' | 'NOT_DETECTED' | 'NOT_EVALUATED'
+
+interface VisualFinding {
+  code: string
+  status: VisualFindingStatus
+  name_en: string
+  name_tr: string
+  evidence: string
+  source: string
+  limitations: string
+  confidence: number | null
+  bbox_pixels: [number, number, number, number] | null
+  next_action_en: string
+  next_action_tr: string
+  internal_weld_integrity: string
+}
+
 interface InspectionResult {
   inspection_id: string
   timestamp: string
@@ -54,6 +71,7 @@ interface InspectionResult {
   electrode_indentation: ElectrodeIndentation | null
   defects: DefectRegion[]
   nugget: NuggetMeasurement | null
+  visual_findings: VisualFinding[]
   preprocessing_notes: string[]
   review_notes: string[]
   calibration: CalibrationConfig | null
@@ -105,6 +123,97 @@ function SourceTag({ source }: { source: MeasurementSource }) {
     }}>
       {source.replace('_', ' ')}
     </span>
+  )
+}
+
+const VF_STATUS_STYLE: Record<VisualFindingStatus, { bg: string; fg: string; label: string }> = {
+  DETECTED:      { bg: '#dc2626', fg: '#fff', label: 'DETECTED' },
+  NOT_DETECTED:  { bg: '#16a34a', fg: '#fff', label: 'NOT DETECTED' },
+  NOT_EVALUATED: { bg: '#374151', fg: '#d1d5db', label: 'NOT EVALUATED' },
+}
+
+function VisualFindingsCard({ findings }: { findings: VisualFinding[] }) {
+  const detected = findings.filter(f => f.status === 'DETECTED')
+  const others   = findings.filter(f => f.status !== 'DETECTED')
+
+  const row = (f: VisualFinding) => {
+    const s = VF_STATUS_STYLE[f.status]
+    return (
+      <div key={f.code} style={{
+        background: '#1f2937',
+        border: `1px solid ${f.status === 'DETECTED' ? '#dc2626' : '#374151'}`,
+        borderRadius: 6,
+        padding: '12px 14px',
+        marginBottom: 8,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+          <span style={{
+            fontSize: 11,
+            fontWeight: 700,
+            background: s.bg,
+            color: s.fg,
+            padding: '2px 8px',
+            borderRadius: 3,
+            letterSpacing: '0.04em',
+          }}>{s.label}</span>
+          <span style={{ fontWeight: 700, fontSize: 14 }}>{f.name_en}</span>
+          <span style={{ color: '#6b7280', fontSize: 12 }}>/ {f.name_tr}</span>
+          <span style={{ color: '#4b5563', fontSize: 11, marginLeft: 'auto' }}>{f.code}</span>
+        </div>
+        <div style={{ fontSize: 13, color: '#d1d5db', marginBottom: 4 }}>
+          <span style={{ color: '#9ca3af', fontSize: 11, marginRight: 4 }}>Evidence:</span>
+          {f.evidence}
+        </div>
+        {f.status === 'DETECTED' && (
+          <>
+            <div style={{ fontSize: 12, color: '#fbbf24', marginBottom: 2 }}>
+              <span style={{ fontWeight: 600 }}>⚡ Next action:</span> {f.next_action_en}
+            </div>
+            <div style={{ fontSize: 12, color: '#fbbf24', marginBottom: 4 }}>
+              <span style={{ fontWeight: 600 }}>Sonraki adım:</span> {f.next_action_tr}
+            </div>
+            <div style={{ fontSize: 11, color: '#9ca3af', borderTop: '1px solid #374151', paddingTop: 4, marginTop: 4 }}>
+              <span style={{ fontWeight: 600 }}>Internal integrity:</span> {f.internal_weld_integrity}
+            </div>
+          </>
+        )}
+        <div style={{ fontSize: 11, color: '#6b7280', marginTop: f.status === 'DETECTED' ? 4 : 0 }}>
+          <span style={{ fontWeight: 600 }}>Source:</span> {f.source}
+        </div>
+        {f.status === 'DETECTED' && (
+          <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
+            <span style={{ fontWeight: 600 }}>Limitations:</span> {f.limitations}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {detected.length === 0 ? (
+        <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 8 }}>
+          No visual defect modes detected.
+        </div>
+      ) : (
+        <>
+          <div style={{ fontSize: 12, color: '#dc2626', fontWeight: 700, marginBottom: 8 }}>
+            {detected.length} mode{detected.length > 1 ? 's' : ''} detected
+          </div>
+          {detected.map(row)}
+        </>
+      )}
+      {others.length > 0 && (
+        <details style={{ marginTop: 8 }}>
+          <summary style={{ fontSize: 12, color: '#6b7280', cursor: 'pointer', userSelect: 'none' }}>
+            {others.length} not-detected / not-evaluated modes
+          </summary>
+          <div style={{ marginTop: 8 }}>
+            {others.map(row)}
+          </div>
+        </details>
+      )}
+    </div>
   )
 }
 
@@ -467,6 +576,19 @@ export function StaticInspectionPage() {
                   {result.nugget.notes.map((n, i) => <li key={i}>{n}</li>)}
                 </ul>
               )}
+            </div>
+          )}
+
+          {/* Visual defect mode findings */}
+          {result.visual_findings && result.visual_findings.length > 0 && (
+            <div style={card}>
+              <div style={{ fontWeight: 700, marginBottom: 10 }}>
+                Visual Defect Mode Analysis
+                <span style={{ fontSize: 12, color: '#6b7280', fontWeight: 400, marginLeft: 8 }}>
+                  (surface image only — does not confirm nugget acceptance)
+                </span>
+              </div>
+              <VisualFindingsCard findings={result.visual_findings} />
             </div>
           )}
 

@@ -101,6 +101,66 @@ class AcceptanceCriteria(BaseModel):
     )
 
 
+class VisualFindingCode(str, Enum):
+    """
+    Canonical codes for the 12 visual defect mode categories assessed by the
+    static inspection engine.  Codes are assessed from pixel data only —
+    never inferred from filenames, manifest IDs, or synthetic metadata.
+    """
+    NORMAL_SURFACE          = "NORMAL_SURFACE"
+    ELLIPTICAL_INDENTATION  = "ELLIPTICAL_INDENTATION"
+    ELECTRODE_MISALIGNMENT  = "ELECTRODE_MISALIGNMENT"
+    SURFACE_SPATTER         = "SURFACE_SPATTER"
+    SUSPECTED_SURFACE_CRACK = "SUSPECTED_SURFACE_CRACK"
+    SURFACE_DISCOLORATION   = "SURFACE_DISCOLORATION"
+    MISSING_WELD_INDICATION = "MISSING_WELD_INDICATION"
+    DOUBLE_SPOT_INDICATION  = "DOUBLE_SPOT_INDICATION"
+    IMAGE_BLUR              = "IMAGE_BLUR"
+    INSUFFICIENT_LIGHTING   = "INSUFFICIENT_LIGHTING"
+    IMAGE_NOISE             = "IMAGE_NOISE"
+    MULTIPLE_WELD_POINTS    = "MULTIPLE_WELD_POINTS"
+
+
+class VisualFindingStatus(str, Enum):
+    DETECTED      = "DETECTED"       # algorithm found evidence
+    NOT_DETECTED  = "NOT_DETECTED"   # algorithm ran; evidence absent
+    NOT_EVALUATED = "NOT_EVALUATED"  # algorithm cannot assess this mode
+
+
+class VisualFinding(BaseModel):
+    """
+    Result of evaluating one visual defect mode code.
+
+    Design rules:
+    - evidence describes what the algorithm actually observed (never fabricated).
+    - source names the exact algorithm used.
+    - limitations states what the algorithm cannot guarantee.
+    - confidence is omitted unless the algorithm produces a calibrated score.
+    - bbox_pixels is included only when the finding is spatially localized.
+    - internal_weld_integrity carries a separate note; surface findings do NOT
+      imply internal nugget acceptance.
+    """
+    code: VisualFindingCode
+    status: VisualFindingStatus
+    name_en: str
+    name_tr: str
+    evidence: str = Field(description="What the algorithm observed (pixel-level facts only)")
+    source: str = Field(description="Detection algorithm / method")
+    limitations: str = Field(description="Limitations and caveats of this algorithm")
+    confidence: Optional[float] = Field(
+        None, ge=0.0, le=1.0,
+        description="Only present when technically calibrated; omit otherwise",
+    )
+    bbox_pixels: Optional[Tuple[int, int, int, int]] = Field(
+        None, description="(x, y, w, h) region bbox; None when not spatially localized",
+    )
+    next_action_en: str = Field(description="Recommended engineering next action (EN)")
+    next_action_tr: str = Field(description="Önerilen mühendislik sonraki adımı (TR)")
+    internal_weld_integrity: str = Field(
+        description="Separate note on internal weld integrity (surface analysis cannot confirm)",
+    )
+
+
 class StaticInspectionResult(BaseModel):
     inspection_id: str
     timestamp: str = Field(description="ISO 8601 UTC timestamp")
@@ -110,6 +170,10 @@ class StaticInspectionResult(BaseModel):
     electrode_indentation: Optional[ElectrodeIndentation] = None
     defects: List[DefectRegion] = Field(default_factory=list)
     nugget: Optional[NuggetMeasurement] = None
+    visual_findings: List[VisualFinding] = Field(
+        default_factory=list,
+        description="All 12 visual defect mode assessments (DETECTED/NOT_DETECTED/NOT_EVALUATED)",
+    )
     preprocessing_notes: List[str] = Field(default_factory=list)
     review_notes: List[str] = Field(default_factory=list)
     calibration: Optional[CalibrationConfig] = None
