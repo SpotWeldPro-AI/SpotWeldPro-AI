@@ -68,7 +68,7 @@ const T = {
     contourQ:         'Kontur Kalitesi', nuggetTitle: 'Nugget Ölçümü',
     vfTitle:          'Görsel Hata Modu Analizi',
     vfDisclaimer:     '(yalnızca yüzey görüntüsü — nugget kabul durumunu doğrulamaz)',
-    defectsTitle:     'Hata Bölgeleri', noDefects: 'Anomalous bölge tespit edilmedi.',
+    defectsTitle:     'Hata Bölgeleri', noDefects: 'Anormal bölge tespit edilmedi.',
     notesTitle:       'Notlar',
     addReviewBtn:     'Mühendis Yorumu Ekle',
     reviewPanelTitle: 'Mühendis Değerlendirmesi',
@@ -89,6 +89,11 @@ const T = {
     integrityNote:    'İç kaynak bütünlüğü yalnızca tahrip veya NDT ile onaylanabilir.',
     reviewedBy:       'Değerlendiren',
     reviewedAt:       'Tarih',
+    evidenceLabel:    'Kanıt',
+    integrityLabel:   'İç bütünlük',
+    sourceLabel:      'Kaynak',
+    limitLabel:       'Sınırlamalar',
+    nextActionLabel:  'Sonraki adım',
   },
   en: {
     pageTitle:        'Static Inspection',
@@ -131,6 +136,11 @@ const T = {
     integrityNote:    'Internal weld integrity can only be confirmed by destructive testing or NDT.',
     reviewedBy:       'Reviewed by',
     reviewedAt:       'Date',
+    evidenceLabel:    'Evidence',
+    integrityLabel:   'Internal integrity',
+    sourceLabel:      'Source',
+    limitLabel:       'Limitations',
+    nextActionLabel:  'Next action',
   },
 } as const
 
@@ -241,29 +251,27 @@ function VisualFindingsCard({
           <span style={{ color: '#4b5563', fontSize: 11, marginLeft: 'auto' }}>{f.code}</span>
         </div>
         <div style={{ fontSize: 13, color: '#d1d5db', marginBottom: 4 }}>
-          <span style={{ color: '#9ca3af', fontSize: 11, marginRight: 4 }}>Evidence:</span>
+          <span style={{ color: '#9ca3af', fontSize: 11, marginRight: 4 }}>{t.evidenceLabel}:</span>
           {f.evidence}
         </div>
         {f.status === 'DETECTED' && (
           <>
-            <div style={{ fontSize: 12, color: '#fbbf24', marginBottom: 2 }}>
-              <span style={{ fontWeight: 600 }}>⚡ Next action:</span> {f.next_action_en}
-            </div>
             <div style={{ fontSize: 12, color: '#fbbf24', marginBottom: 4 }}>
-              <span style={{ fontWeight: 600 }}>Sonraki adım:</span> {f.next_action_tr}
+              <span style={{ fontWeight: 600 }}>⚡ {t.nextActionLabel}:</span>{' '}
+              {lang === 'tr' ? f.next_action_tr : f.next_action_en}
             </div>
             <div style={{ fontSize: 11, color: '#9ca3af', borderTop: '1px solid #374151',
               paddingTop: 4, marginTop: 4 }}>
-              <span style={{ fontWeight: 600 }}>Internal integrity:</span> {f.internal_weld_integrity}
+              <span style={{ fontWeight: 600 }}>{t.integrityLabel}:</span> {f.internal_weld_integrity}
             </div>
           </>
         )}
         <div style={{ fontSize: 11, color: '#6b7280', marginTop: f.status === 'DETECTED' ? 4 : 0 }}>
-          <span style={{ fontWeight: 600 }}>Source:</span> {f.source}
+          <span style={{ fontWeight: 600 }}>{t.sourceLabel}:</span> {f.source}
         </div>
         {f.status === 'DETECTED' && (
           <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
-            <span style={{ fontWeight: 600 }}>Limitations:</span> {f.limitations}
+            <span style={{ fontWeight: 600 }}>{t.limitLabel}:</span> {f.limitations}
           </div>
         )}
       </div>
