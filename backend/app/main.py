@@ -34,6 +34,7 @@ from app.api.v1.energy import router as energy_router
 from app.api.v1.reports import router as reports_router
 from app.api.v1.vision_static import router as vision_static_router
 from app.api.v1.vision_live import router as vision_live_router
+from app.api.v1.vision_review import router as vision_review_router
 from app.api.v1.annotation import router as annotation_router
 from app.core.security import canonicalize_username, hash_password
 from app.db.session import SessionLocal
@@ -216,4 +217,5 @@ app.include_router(energy_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
 app.include_router(vision_static_router, prefix="/api/v1")
 app.include_router(vision_live_router, prefix="/api/v1")
+app.include_router(vision_review_router, prefix="/api/v1")
 app.include_router(annotation_router, prefix="/api/v1")

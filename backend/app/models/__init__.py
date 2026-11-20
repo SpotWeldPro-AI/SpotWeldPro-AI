@@ -52,3 +52,4 @@ from app.models.annotation_entities import (  # noqa: F401
     ConflictAdjudication,
     PhysicalTestEvidence,
 )
+from app.models.vision_entities import InspectionReview  # noqa: F401
