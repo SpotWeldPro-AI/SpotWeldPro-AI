@@ -94,6 +94,11 @@ const T = {
     sourceLabel:      'Kaynak',
     limitLabel:       'Sınırlamalar',
     nextActionLabel:  'Sonraki adım',
+    noModesDetected:  'Görsel hata modu tespit edilmedi.',
+    detectedModesLabel: 'mod tespit edildi',
+    otherModesLabel:  'tespit edilmedi / değerlendirilmedi mod',
+    defColN: '#', defColLabel: 'Etiket', defColArea: 'Alan', defColSrc: 'Kaynak',
+    errorLabel: 'Hata',
   },
   en: {
     pageTitle:        'Static Inspection',
@@ -141,6 +146,11 @@ const T = {
     sourceLabel:      'Source',
     limitLabel:       'Limitations',
     nextActionLabel:  'Next action',
+    noModesDetected:  'No visual defect modes detected.',
+    detectedModesLabel: 'mode(s) detected',
+    otherModesLabel:  'not-detected / not-evaluated modes',
+    defColN: '#', defColLabel: 'Label', defColArea: 'Area', defColSrc: 'Source',
+    errorLabel: 'Error',
   },
 } as const
 
@@ -321,21 +331,21 @@ function VisualFindingsCard({
         fontStyle: 'italic' }}>{t.integrityNote}</div>
 
       {detected.length === 0 ? (
-        <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 8 }}>
-          No visual defect modes detected.
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 8 }}>
+          {t.noModesDetected}
         </div>
       ) : (
         <>
           <div style={{ fontSize: 12, color: '#dc2626', fontWeight: 700, marginBottom: 8 }}>
-            {detected.length} mode{detected.length > 1 ? 's' : ''} detected
+            {detected.length} {t.detectedModesLabel}
           </div>
           {detected.map(row)}
         </>
       )}
       {others.length > 0 && (
         <details style={{ marginTop: 8 }}>
-          <summary style={{ fontSize: 12, color: '#6b7280', cursor: 'pointer', userSelect: 'none' }}>
-            {others.length} not-detected / not-evaluated modes
+          <summary style={{ fontSize: 12, color: 'var(--text-tertiary)', cursor: 'pointer', userSelect: 'none' }}>
+            {others.length} {t.otherModesLabel}
           </summary>
           <div style={{ marginTop: 8 }}>{others.map(row)}</div>
         </details>
@@ -665,16 +675,17 @@ export function StaticInspectionPage() {
 
   const s: React.CSSProperties = { fontFamily: 'system-ui, sans-serif', padding: '0 4px' }
   const card: React.CSSProperties = {
-    background: 'var(--card-bg, #f9fafb)', border: '1px solid var(--border, #e5e7eb)',
+    background: 'var(--bg-surface-2)', border: '1px solid var(--border)',
     borderRadius: 8, padding: '16px 20px', marginBottom: 16,
   }
   const lbl: React.CSSProperties = {
-    display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--muted, #6b7280)',
+    display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-tertiary)',
     textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4,
   }
   const inp: React.CSSProperties = {
-    width: '100%', padding: '7px 10px', border: '1px solid var(--border, #d1d5db)',
+    width: '100%', padding: '7px 10px', border: '1px solid var(--border)',
     borderRadius: 6, fontSize: 14, boxSizing: 'border-box',
+    background: 'var(--bg-surface-3)', color: 'var(--text-primary)',
   }
 
   return (
@@ -686,7 +697,7 @@ export function StaticInspectionPage() {
         <button data-testid="page-lang-toggle" onClick={() => setLang(l => l === 'tr' ? 'en' : 'tr')}
           style={{ marginLeft: 'auto', padding: '4px 10px', border: '1px solid var(--border,#d1d5db)',
             borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            background: 'var(--card-bg,#f9fafb)' }}>
+            background: 'var(--bg-surface-2)' }}>
           {lang === 'tr' ? 'EN' : 'TR'}
         </button>
       </div>
@@ -772,8 +783,8 @@ export function StaticInspectionPage() {
       </button>
 
       {error && (
-        <div style={{ ...card, borderColor: '#fca5a5', background: '#fef2f2', color: '#991b1b', marginBottom: 16 }}>
-          <strong>Error:</strong> {error}
+        <div style={{ ...card, borderColor: 'var(--danger)', background: 'var(--danger-soft)', color: 'var(--danger)', marginBottom: 16 }}>
+          <strong>{t.errorLabel}:</strong> {error}
         </div>
       )}
 
@@ -785,7 +796,7 @@ export function StaticInspectionPage() {
               <div style={lbl}>{t.statusLabel}</div>
               <StatusBadge status={result.status} />
               {result.status === 'NOT_EVALUATED' && (
-                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>{t.addCriteriaHint}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t.addCriteriaHint}</div>
               )}
             </div>
             <div><div style={lbl}>{t.imgTypeLabel}</div><div style={{ fontSize: 14 }}>{result.image_type}</div></div>
@@ -800,6 +811,21 @@ export function StaticInspectionPage() {
                 {result.inspection_id}
               </div>
             </div>
+          </div>
+
+          {/* Visual defect mode findings — always shown at top of results */}
+          <div style={card}>
+            <div style={{ fontWeight: 700, marginBottom: 10 }}>
+              {t.vfTitle}
+              <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 400, marginLeft: 8 }}>
+                {t.vfDisclaimer}
+              </span>
+            </div>
+            <VisualFindingsCard
+              findings={result.visual_findings}
+              lang={lang}
+              onAddReview={() => setReviewOpen(true)}
+            />
           </div>
 
           {/* Electrode indentation */}
@@ -819,7 +845,7 @@ export function StaticInspectionPage() {
                 <div><div style={lbl}>{t.contourQ}</div><div style={{ fontSize: 14 }}>{result.electrode_indentation.contour_quality}</div></div>
               </div>
               {result.electrode_indentation.notes.length > 0 && (
-                <ul style={{ margin: '8px 0 0', padding: '0 0 0 16px', fontSize: 12, color: '#6b7280' }}>
+                <ul style={{ margin: '8px 0 0', padding: '0 0 0 16px', fontSize: 12, color: 'var(--text-secondary)' }}>
                   {result.electrode_indentation.notes.map((n, i) => <li key={i}>{n}</li>)}
                 </ul>
               )}
@@ -841,27 +867,10 @@ export function StaticInspectionPage() {
                 </div>
               </div>
               {result.nugget.notes.length > 0 && (
-                <ul style={{ margin: '8px 0 0', padding: '0 0 0 16px', fontSize: 12, color: '#6b7280' }}>
+                <ul style={{ margin: '8px 0 0', padding: '0 0 0 16px', fontSize: 12, color: 'var(--text-secondary)' }}>
                   {result.nugget.notes.map((n, i) => <li key={i}>{n}</li>)}
                 </ul>
               )}
-            </div>
-          )}
-
-          {/* Visual defect mode findings */}
-          {result.visual_findings && result.visual_findings.length > 0 && (
-            <div style={card}>
-              <div style={{ fontWeight: 700, marginBottom: 10 }}>
-                {t.vfTitle}
-                <span style={{ fontSize: 12, color: '#6b7280', fontWeight: 400, marginLeft: 8 }}>
-                  {t.vfDisclaimer}
-                </span>
-              </div>
-              <VisualFindingsCard
-                findings={result.visual_findings}
-                lang={lang}
-                onAddReview={() => setReviewOpen(true)}
-              />
             </div>
           )}
 
@@ -871,20 +880,20 @@ export function StaticInspectionPage() {
               {t.defectsTitle} ({result.defects.length})
             </div>
             {result.defects.length === 0 ? (
-              <div style={{ fontSize: 14, color: '#6b7280' }}>{t.noDefects}</div>
+              <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{t.noDefects}</div>
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    {['#', 'Label', 'Area', 'Source'].map(h => (
-                      <th key={h} style={{ textAlign: h === 'Area' ? 'right' : 'left',
-                        padding: '4px 8px', color: '#6b7280', fontSize: 11, textTransform: 'uppercase' }}>{h}</th>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    {[t.defColN, t.defColLabel, t.defColArea, t.defColSrc].map((h, i) => (
+                      <th key={i} style={{ textAlign: i === 2 ? 'right' : 'left',
+                        padding: '4px 8px', color: 'var(--text-tertiary)', fontSize: 11, textTransform: 'uppercase' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {result.defects.map((d, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                    <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '4px 8px' }}>{i + 1}</td>
                       <td style={{ padding: '4px 8px' }}>{d.label}</td>
                       <td style={{ padding: '4px 8px', textAlign: 'right' }}>
@@ -903,10 +912,10 @@ export function StaticInspectionPage() {
             <div style={card}>
               <div style={{ fontWeight: 700, marginBottom: 8 }}>{t.notesTitle}</div>
               {result.preprocessing_notes.map((n, i) => (
-                <div key={i} style={{ fontSize: 13, color: '#374151', marginBottom: 4 }}>ℹ {n}</div>
+                <div key={i} style={{ fontSize: 13, color: 'var(--text-primary)', marginBottom: 4 }}>ℹ {n}</div>
               ))}
               {result.review_notes.map((n, i) => (
-                <div key={i} style={{ fontSize: 13, color: '#b45309', marginBottom: 4 }}>⚠ {n}</div>
+                <div key={i} style={{ fontSize: 13, color: 'var(--warn)', marginBottom: 4 }}>⚠ {n}</div>
               ))}
             </div>
           )}
